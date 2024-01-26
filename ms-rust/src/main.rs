@@ -8,7 +8,7 @@ struct Node {
 impl Node {
     fn new_raw(value: u64) -> *mut Node {
         Box::into_raw(Box::new(Node {
-            value : 0,
+            value : value,
             next : Default::default(),
         }))
     }
@@ -29,11 +29,13 @@ impl Queue {
     }
 
     fn print_queue(&self) {
-        println!("Sanity");
         let mut count = 1;
         let mut current = self.head.load(Relaxed);
         while !current.is_null() {
-            println!("Pointer: {:?}, count: {}", current, count);
+            let next = unsafe {
+                (*current).next.load(Relaxed)
+            };
+            println!("Pointer: {:?}, Next: {:?}, count: {}", current, next, count);
             count += 1;
             current =  unsafe {
                 (*current).next.load(Relaxed)
@@ -42,6 +44,8 @@ impl Queue {
     }
 
     fn enqueue(&self, value: u64) {
+        println!("Starting enqueue of {}", value);
+        let new_node = Node::new_raw(value);
         loop {
             let tail_ptr = self.tail.load(Relaxed);
             let next_ptr = unsafe {
@@ -51,17 +55,17 @@ impl Queue {
             if tail_ptr == self.tail.load(Relaxed) {
                 if next_ptr.is_null() {
                     let res = unsafe {
-                        (*tail_ptr).next.compare_exchange(next_ptr, Node::new_raw(value), Relaxed, Relaxed)
+                        (*tail_ptr).next.compare_exchange(next_ptr, new_node, Relaxed, Relaxed)
                     };
                     match res {
                         Ok(_) => {
-                            let _ = self.tail.compare_exchange(tail_ptr, next_ptr, Relaxed, Relaxed);
+                            let _ = self.tail.compare_exchange(tail_ptr, new_node, Relaxed, Relaxed);
                             break;
                         },
                         Err(_) => continue,
                     }
                 } else {
-                    let _ = self.tail.compare_exchange(tail_ptr, next_ptr, Relaxed, Relaxed);
+                    let _ = self.tail.compare_exchange(tail_ptr, new_node, Relaxed, Relaxed);
                 }
             }
         }
@@ -78,6 +82,7 @@ fn main() {
     println!("{:?}", queue.tail);
 
     for i in 1..10 {
+        queue.print_queue();
         queue.enqueue(i);
     }
     queue.print_queue();
