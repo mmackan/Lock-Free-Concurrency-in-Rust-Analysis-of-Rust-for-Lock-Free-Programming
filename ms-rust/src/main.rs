@@ -1,4 +1,4 @@
-use std::{sync::atomic::AtomicPtr, sync::atomic::Ordering::Relaxed};
+use std::{sync::atomic::AtomicPtr, sync::{atomic::Ordering::Relaxed, Arc}};
 
 
 struct Node {
@@ -35,7 +35,10 @@ impl Queue {
             let next = unsafe {
                 (*current).next.load(Relaxed)
             };
-            println!("Pointer: {:?}, Next: {:?}, count: {}", current, next, count);
+            let val = unsafe {
+                (*current).value
+            };
+            println!("Pointer: {:?}, Next: {:?}, Value: {}, count: {}", current, next, val, count);
             count += 1;
             current =  unsafe {
                 (*current).next.load(Relaxed)
@@ -44,7 +47,6 @@ impl Queue {
     }
 
     fn enqueue(&self, value: u64) {
-        println!("Starting enqueue of {}", value);
         let new_node = Node::new_raw(value);
         loop {
             let tail_ptr = self.tail.load(Relaxed);
@@ -76,13 +78,31 @@ impl Queue {
     }
 }
 
+impl Drop for Queue {
+    fn drop(&mut self) {
+        // Iterate through the list and free any remaining nodes
+        let mut current = self.head.load(Relaxed);
+        while !current.is_null() {
+            let node = unsafe {
+                Box::from_raw(current)
+            };
+            current = node.next.load(Relaxed);
+        }
+    }
+}
+
+impl Default for Queue {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 fn main() {
-    let queue = Queue::new();
+    let queue = Arc::new(Queue::default());
 
     println!("{:?}", queue.tail);
 
     for i in 1..10 {
-        queue.print_queue();
         queue.enqueue(i);
     }
     queue.print_queue();
