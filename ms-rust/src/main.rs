@@ -1,4 +1,4 @@
-use std::{sync::atomic::AtomicPtr, sync::{atomic::Ordering::Relaxed, Arc}};
+use std::{sync::atomic::AtomicPtr, sync::{atomic::{Ordering::Relaxed, fence}, Arc}, thread};
 
 
 struct Node {
@@ -6,11 +6,13 @@ struct Node {
     next: AtomicPtr<Node>
 }
 impl Node {
-    fn new_raw(value: u64) -> *mut Node {
-        Box::into_raw(Box::new(Node {
+    fn new_raw(value: u64) -> AtomicPtr<Node> {
+        let nullptr: AtomicPtr<Node> = Default::default();
+        let node = Box::new(Node {
             value : value,
-            next : Default::default(),
-        }))
+            next : nullptr,
+        });
+        AtomicPtr::new(Box::into_raw(node))
     }
 }
 
@@ -23,8 +25,8 @@ impl Queue {
     fn new() -> Self {
         let node = Node::new_raw(0);
         Self {
-            head : AtomicPtr::new(node),
-            tail: AtomicPtr::new(node)
+            head : AtomicPtr::new(node.load(Relaxed)),
+            tail: AtomicPtr::new(node.load(Relaxed))
         }
     }
 
@@ -47,7 +49,7 @@ impl Queue {
     }
 
     fn enqueue(&self, value: u64) {
-        let new_node = Node::new_raw(value);
+        let new_node = Node::new_raw(value).into_inner();
         loop {
             let tail_ptr = self.tail.load(Relaxed);
             let next_ptr = unsafe {
@@ -102,8 +104,20 @@ fn main() {
 
     println!("{:?}", queue.tail);
 
-    for i in 1..10 {
-        queue.enqueue(i);
+    let mut handles = vec![];
+
+    for i in 0..4 {
+        let q_ref = queue.clone();
+        handles.push(thread::spawn(move || {
+            for j in 0..9 {
+                q_ref.enqueue(i*10 + j);
+            }
+        }));
     }
+
     queue.print_queue();
+
+    for handle in handles {
+        let _ = handle.join();
+    }
 }
