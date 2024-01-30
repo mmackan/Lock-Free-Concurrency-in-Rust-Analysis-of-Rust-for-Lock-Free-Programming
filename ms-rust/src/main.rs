@@ -69,7 +69,7 @@ impl Queue {
                         Err(_) => continue,
                     }
                 } else {
-                    let _ = self.tail.compare_exchange(tail_ptr, new_node, Relaxed, Relaxed);
+                    let _ = self.tail.compare_exchange(tail_ptr, next_ptr, Relaxed, Relaxed);
                 }
             }
         }
