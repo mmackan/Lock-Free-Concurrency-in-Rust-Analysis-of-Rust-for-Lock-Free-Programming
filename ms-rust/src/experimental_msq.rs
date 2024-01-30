@@ -43,7 +43,7 @@ impl Queue {
         loop {                                                                    
             // Snapshots
             let tail_ptr = self.tail.load(Relaxed, &guard);                        
-            let next_ptr = unsafe{ &tail_ptr.deref() }.next.load(Relaxed, &guard); 
+            let next_ptr = unsafe{ tail_ptr.deref() }.next.load(Relaxed, &guard); 
             
             // Tail snapshot still the queue's tail
             if tail_ptr == 
@@ -93,10 +93,7 @@ impl Queue {
             // Snapshots
             let head_ptr = self.head.load(Relaxed, &guard);
             let tail_ptr = self.tail.load(Relaxed, &guard);
-            let next_ptr = unsafe{ &head_ptr.deref() }.next.load(Relaxed, &guard); 
-
-            let head_count = head_ptr.tag();
-            let tail_count = tail_ptr.tag();
+            let next_ptr = unsafe{ head_ptr.deref() }.next.load(Relaxed, &guard); 
 
             // Are head, tail, and next consistent?
             if head_ptr == 
@@ -112,7 +109,7 @@ impl Queue {
                     // Tail is falling behind. Try to advance it
                     let _ = self.tail.compare_exchange(
                         tail_ptr, 
-                        next_ptr.with_tag(tail_count + 1), 
+                        next_ptr.with_tag(tail_ptr.tag() + 1), 
                         Relaxed, 
                         Relaxed, 
                         &guard);
@@ -123,7 +120,7 @@ impl Queue {
                     
                     match self.head.compare_exchange(
                         head_ptr, 
-                        next_ptr.with_tag(head_count + 1),
+                        next_ptr.with_tag(head_ptr.tag() + 1),
                         Relaxed, 
                         Relaxed, 
                         &guard
