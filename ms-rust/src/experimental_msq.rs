@@ -1,5 +1,5 @@
 use crossbeam::epoch::{self, Atomic, Owned};
-use std::sync::atomic::Ordering::{Relaxed, SeqCst};
+use std::sync::atomic::Ordering::{Relaxed};
 
 struct Node {
     value: i32,
@@ -42,12 +42,12 @@ impl Queue {
 
         loop {                                                                    
             // Snapshots
-            let tail_ptr = self.tail.load(SeqCst, &guard);                        
-            let next_ptr = unsafe{ &tail_ptr.deref() }.next.load(SeqCst, &guard); 
+            let tail_ptr = self.tail.load(Relaxed, &guard);                        
+            let next_ptr = unsafe{ &tail_ptr.deref() }.next.load(Relaxed, &guard); 
             
             // Tail snapshot still the queue's tail
             if tail_ptr == 
-                self.tail.load(SeqCst, &guard) {         
+                self.tail.load(Relaxed, &guard) {         
                 
                 // Tail was pointing to the last node
                 if next_ptr.is_null() {                                                
@@ -55,7 +55,7 @@ impl Queue {
                     match unsafe{ tail_ptr.deref() }.next.compare_exchange(   
                         next_ptr, 
                         node.with_tag(next_ptr.tag() + 1), 
-                        SeqCst, 
+                        Relaxed, 
                         Relaxed, 
                         &guard
                     ) {
@@ -64,7 +64,7 @@ impl Queue {
                             let _ = self.tail.compare_exchange(             
                                 tail_ptr,
                                 node.with_tag(tail_ptr.tag() + 1),
-                                SeqCst,
+                                Relaxed,
                                 Relaxed, 
                                 &guard);
                             break;                                          
@@ -77,7 +77,7 @@ impl Queue {
                 let _ = self.tail.compare_exchange(                         
                     tail_ptr, 
                     next_ptr.with_tag(tail_ptr.tag() + 1), 
-                    SeqCst, 
+                    Relaxed, 
                     Relaxed, 
                     &guard);
             }         
@@ -91,16 +91,16 @@ impl Queue {
 
         loop {
             // Snapshots
-            let head_ptr = self.head.load(SeqCst, &guard);
-            let tail_ptr = self.tail.load(SeqCst, &guard);
-            let next_ptr = unsafe{ &head_ptr.deref() }.next.load(SeqCst, &guard); 
+            let head_ptr = self.head.load(Relaxed, &guard);
+            let tail_ptr = self.tail.load(Relaxed, &guard);
+            let next_ptr = unsafe{ &head_ptr.deref() }.next.load(Relaxed, &guard); 
 
             let head_count = head_ptr.tag();
             let tail_count = tail_ptr.tag();
 
             // Are head, tail, and next consistent?
             if head_ptr == 
-                self.head.load(SeqCst, &guard) {
+                self.head.load(Relaxed, &guard) {
 
                 // Is queue empty or Tail falling behind?
                 if head_ptr == tail_ptr {
@@ -113,7 +113,7 @@ impl Queue {
                     let _ = self.tail.compare_exchange(
                         tail_ptr, 
                         next_ptr.with_tag(tail_count + 1), 
-                        SeqCst, 
+                        Relaxed, 
                         Relaxed, 
                         &guard);
                 } else {
@@ -124,7 +124,7 @@ impl Queue {
                     match self.head.compare_exchange(
                         head_ptr, 
                         next_ptr.with_tag(head_count + 1),
-                        SeqCst, 
+                        Relaxed, 
                         Relaxed, 
                         &guard
                     ) {
