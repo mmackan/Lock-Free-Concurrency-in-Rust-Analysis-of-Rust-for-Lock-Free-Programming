@@ -75,8 +75,33 @@ impl Queue {
         }
     }
 
-    fn dequeue(self) -> u64 {
-        todo!()
+    fn dequeue(&self) -> Option<u64> {
+        loop {
+            let head_ptr = self.head.load(Relaxed);
+            let tail_ptr = self.tail.load(Relaxed);
+            let next_ptr = unsafe {
+                (*head_ptr).next.load(Relaxed)
+            };
+
+            if head_ptr == self.head.load(Relaxed) {
+                if head_ptr == tail_ptr {
+                    if next_ptr.is_null() {
+                        return None;
+                    }
+                    let _ = self.tail.compare_exchange(tail_ptr, next_ptr, Relaxed, Relaxed);
+
+                } else {
+                    let res = self.head.compare_exchange(head_ptr, next_ptr, Relaxed, Relaxed);
+                    match res {
+                        Ok(previous_head) => {
+                            let ret = unsafe { *Box::from_raw(previous_head) };    
+                            return Some(ret.value);
+                        }
+                        Err(_) => continue
+                    }
+                }
+            } 
+        }
     }
 }
 
