@@ -170,3 +170,72 @@ impl Queue {
     }
 }
 
+#[cfg(test)]
+mod test {
+    use std::sync::Arc;
+    use std::thread;
+    use super::Queue;
+
+    #[test]
+    fn basics() {
+        let queue = Queue::new();
+
+        // Populate list
+        queue.enqueue(1);
+        queue.enqueue(2);
+        queue.enqueue(3);
+
+        // Normal removal
+        assert_eq!(queue.dequeue(), Some(1));
+        assert_eq!(queue.dequeue(), Some(2));
+
+        // Dequeue after dequeues
+        queue.enqueue(4);
+        queue.enqueue(5);
+
+        // Normal removal to exhaustion
+        assert_eq!(queue.dequeue(), Some(3));
+        assert_eq!(queue.dequeue(), Some(4));
+        assert_eq!(queue.dequeue(), Some(5));
+        assert_eq!(queue.dequeue(), None);
+
+        // Check the exhaustion case fixed the pointer right
+        queue.enqueue(6);
+        queue.enqueue(7);
+
+        // Normal removal again
+        assert_eq!(queue.dequeue(), Some(6));
+        assert_eq!(queue.dequeue(), Some(7));
+        assert_eq!(queue.dequeue(), None);
+    }
+
+    #[test]
+    fn basic_concurrent() {
+        let queue = Arc::new(Queue::new());
+        let mut handles = vec![];
+
+        let n = 10;
+
+        for i in 0..n {
+            let queue = Arc::clone(&queue);
+            let handle = thread::spawn(move || {
+                queue.enqueue(i)
+            });
+        handles.push(handle);
+        }
+
+        for handle in handles {
+            handle.join().unwrap();
+        }
+        
+        let mut dequeue_sum = 0;
+        while let Some(value) = queue.dequeue() {
+            dequeue_sum += value;
+        }
+
+        // Sum of first n natural numbers (0 to n-1)
+        let expected_sum = n * (n - 1) / 2;
+
+        assert_eq!(expected_sum, dequeue_sum, "Sums do not match!");
+    }
+}
