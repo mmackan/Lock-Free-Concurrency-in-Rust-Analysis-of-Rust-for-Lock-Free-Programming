@@ -146,3 +146,41 @@ fn main() {
         let _ = handle.join();
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::Queue;
+
+    #[test]
+    fn basics() {
+        let queue = Queue::new();
+
+        // Populate list
+        queue.enqueue(1);
+        queue.enqueue(2);
+        queue.enqueue(3);
+
+        // Normal removal
+        assert_eq!(queue.dequeue(), Some(1));
+        assert_eq!(queue.dequeue(), Some(2));
+
+        // Dequeue after dequeues
+        queue.enqueue(4);
+        queue.enqueue(5);
+
+        // Normal removal to exhaustion
+        assert_eq!(queue.dequeue(), Some(3));
+        assert_eq!(queue.dequeue(), Some(4));
+        assert_eq!(queue.dequeue(), Some(5));
+        assert_eq!(queue.dequeue(), None);
+
+        // Check the exhaustion case fixed the pointer right
+        queue.enqueue(6);
+        queue.enqueue(7);
+
+        // Normal removal again
+        assert_eq!(queue.dequeue(), Some(6));
+        assert_eq!(queue.dequeue(), Some(7));
+        assert_eq!(queue.dequeue(), None);
+    }
+}
