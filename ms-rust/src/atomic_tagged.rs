@@ -1,8 +1,14 @@
 
-use std::sync::atomic::{AtomicPtr, Ordering};
+use std::{ptr, sync::atomic::{AtomicPtr, Ordering}};
 
 pub struct TaggedPointer<T> {
     data: *mut T
+}
+
+impl<T> PartialEq for TaggedPointer<T> {
+    fn eq(&self, other: &Self) -> bool {
+        ptr::addr_eq(self.data, other.data)
+    }
 }
 
 impl<T> TaggedPointer<T>  {
@@ -25,6 +31,10 @@ impl<T> TaggedPointer<T>  {
     pub fn tag(&self) -> u16 {
         let tag = self.data.addr() >> 48;
         tag as u16
+    }
+
+    pub fn with_tag(&self, tag: u16) -> TaggedPointer<T> {
+        Self::new(self.ptr(), tag)
     }
 }
 
@@ -49,6 +59,20 @@ impl<T> AtomicTagged<T> {
         TaggedPointer { 
             data : self.data.load(order)
         } 
+    }
+
+    pub fn compare_exchange(
+        &self, 
+        current: &TaggedPointer<T>, 
+        new: &TaggedPointer<T>, 
+        success: Ordering, 
+        failure: Ordering
+    ) -> Result<TaggedPointer<T>, TaggedPointer<T>> {
+
+        match self.data.compare_exchange(current.data, new.data, success, failure)  {
+            Ok(previous) => Ok(TaggedPointer { data: previous }),
+            Err(current) => Err(TaggedPointer { data: current }),
+        }
     }
 }
 

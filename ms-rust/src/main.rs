@@ -1,169 +1,172 @@
 #![feature(strict_provenance)]
 #![warn(fuzzy_provenance_casts)]
-
-use std::{sync::atomic::AtomicPtr, sync::{atomic::{Ordering::Relaxed, fence}, Arc}, thread};
-mod experimental_msq;
+use std::{default, sync::atomic::Ordering::{Relaxed, SeqCst}};
 mod atomic_tagged;
+use atomic_tagged::{AtomicTagged, TaggedPointer};
 
+#[derive(Default)]
 struct Node {
-    value: u64,
-    next: AtomicPtr<Node>
+    value: i32,
+    next: AtomicTagged<Node>
 }
+
 impl Node {
-    fn new_raw(value: u64) -> AtomicPtr<Node> {
-        let nullptr: AtomicPtr<Node> = Default::default();
-        let node = Box::new(Node {
-            value : value,
-            next : nullptr,
-        });
-        AtomicPtr::new(Box::into_raw(node))
+    pub fn new(value: i32) -> Node {
+        Node {
+            value,
+            next: AtomicTagged::default()
+        }
     }
 }
-
-struct Queue {
-    head: AtomicPtr<Node>,
-    tail: AtomicPtr<Node>
-}
-
-impl Queue {
-    fn new() -> Self {
-        let node = Node::new_raw(0);
-        Self {
-            head : AtomicPtr::new(node.load(Relaxed)),
-            tail: AtomicPtr::new(node.load(Relaxed))
-        }
-    }
-
-    fn print_queue(&self) {
-        let mut count = 1;
-        let mut current = self.head.load(Relaxed);
-        while !current.is_null() {
-            let next = unsafe {
-                (*current).next.load(Relaxed)
-            };
-            let val = unsafe {
-                (*current).value
-            };
-            println!("Pointer: {:?}, Next: {:?}, Value: {}, count: {}", current, next, val, count);
-            count += 1;
-            current =  unsafe {
-                (*current).next.load(Relaxed)
-            };
-        }
-    }
-
-    fn enqueue(&self, value: u64) {
-        let new_node = Node::new_raw(value).into_inner();
-        loop {
-            let tail_ptr = self.tail.load(Relaxed);
-            let next_ptr = unsafe {
-                (*tail_ptr).next.load(Relaxed)
-            };
-            
-            if tail_ptr == self.tail.load(Relaxed) {
-                if next_ptr.is_null() {
-                    let res = unsafe {
-                        (*tail_ptr).next.compare_exchange(next_ptr, new_node, Relaxed, Relaxed)
-                    };
-                    match res {
-                        Ok(_) => {
-                            let _ = self.tail.compare_exchange(tail_ptr, new_node, Relaxed, Relaxed);
-                            break;
-                        },
-                        Err(_) => continue,
-                    }
-                } else {
-                    let _ = self.tail.compare_exchange(tail_ptr, next_ptr, Relaxed, Relaxed);
-                }
-            }
-        }
-    }
-
-    fn dequeue(&self) -> Option<u64> {
-        loop {
-            let head_ptr = self.head.load(Relaxed);
-            let tail_ptr = self.tail.load(Relaxed);
-            let next_ptr = unsafe {
-                (*head_ptr).next.load(Relaxed)
-            };
-
-            if head_ptr == self.head.load(Relaxed) {
-                if head_ptr == tail_ptr {
-                    if next_ptr.is_null() {
-                        return None;
-                    }
-                    let _ = self.tail.compare_exchange(tail_ptr, next_ptr, Relaxed, Relaxed);
-
-                } else {
-                    let res = self.head.compare_exchange(head_ptr, next_ptr, Relaxed, Relaxed);
-                    match res {
-                        Ok(previous_head) => {
-                            let ret = unsafe { *Box::from_raw(previous_head) };    
-                            return Some(ret.value);
-                        }
-                        Err(_) => continue
-                    }
-                }
-            } 
-        }
-    }
+pub struct Queue {
+    head: AtomicTagged<Node>,
+    tail: AtomicTagged<Node>,
+    first: AtomicTagged<Node>
 }
 
 impl Drop for Queue {
     fn drop(&mut self) {
         // Iterate through the list and free any remaining nodes
-        let mut current = self.head.load(Relaxed);
-        while !current.is_null() {
+        let mut current = self.first.load(Relaxed);
+        while !current.ptr().is_null() {
             let node = unsafe {
-                Box::from_raw(current)
+                Box::from_raw(current.ptr())
             };
-            current = node.next.load(Relaxed);
+            current = unsafe{(*current.ptr()).next.load(Relaxed)};
         }
     }
 }
 
-impl Default for Queue {
-    fn default() -> Self {
-        Self::new()
+impl Queue {
+    pub fn new() -> Queue {
+        let dummy = Box::into_raw(Box::new(Node::new(-1)));
+        
+        Queue {
+            head: AtomicTagged::new(dummy, 0),
+            tail: AtomicTagged::new(dummy, 0),
+            first: AtomicTagged::new(dummy, 0)
+        }
     }
-}
 
-fn main() {
-    let queue = Arc::new(Queue::default());
+    pub fn enqueue(&self, value: i32) {
+        
+        let node_ptr = Box::into_raw(Box::new(Node::new(value)));
 
-    println!("{:?}", queue.tail);
+        loop {                                                                    
+            // Snapshot
+            let tagged_tail = self.tail.load(SeqCst);
+            
+            let tagged_next = unsafe {
+                &*tagged_tail.ptr()
+            }.next.load(Relaxed);
+            
+            // Check tail snapshot is still the queue's tail
+            if tagged_tail == self.tail.load(SeqCst) {         
+                
+                // Tail was pointing to the last node
+                if tagged_next.ptr().is_null() {                                                
+                    // Try link node at the end of linked list         
+                    match unsafe{ &*tagged_next.ptr() }.next.compare_exchange(   
+                        tagged_next, 
+                        TaggedPointer::new(node_ptr, tagged_next.tag() + 1),
+                        SeqCst, 
+                        Relaxed, 
+                    ) {
+                        Ok(_) => {
+                            // Try update tail to inserted node
+                            let _ = self.tail.compare_exchange(             
+                                tagged_tail,
+                                TaggedPointer::new(node_ptr, tagged_tail.tag() + 1),
+                                SeqCst,
+                                Relaxed, 
+                        );
+                            break;                                          
+                        },
+                        Err(_) => continue
+                    }
+                }
+                /* Try to swing tail "forward", i.e. to the "next" node, 
+                 this will be done until the tail is corrected */
+                let _ = self.tail.compare_exchange(                         
+                    tagged_tail,
+                    TaggedPointer::new(tagged_next.ptr(), tagged_tail.tag() + 1),
+                    SeqCst, 
+                    Relaxed, 
+            );
+            }         
+        }
+    }
 
-    let mut handles = vec![];
+    pub fn dequeue(&self) -> Option<i32> {
+        loop {
+            // Snapshots
+            let tagged_head = self.head.load(SeqCst);
+            let tagged_tail = self.tail.load(SeqCst);
 
-    for i in 0..4 {
-        let q_ref = queue.clone();
-        handles.push(thread::spawn(move || {
-            for j in 0..9 {
-                q_ref.enqueue(i*10 + j);
+            let tagged_next = unsafe{ 
+                &*tagged_head.ptr()
+            }.next.load(SeqCst); 
+
+            // Are head, tail, and next consistent?
+            if tagged_head == self.head.load(SeqCst) {
+
+                // Is queue empty or Tail falling behind?
+                if tagged_head.ptr() == tagged_tail.ptr() {
+                    
+                    // Empty queue
+                    if tagged_next.ptr().is_null() {
+                        return None;
+                    }
+                    // Tail is falling behind. Try to advance it
+                    let _ = self.tail.compare_exchange(
+                        tagged_tail, 
+                        TaggedPointer::new(tagged_next.ptr(), tagged_tail.tag() + 1),
+                        SeqCst, 
+                        Relaxed, 
+                );
+                } else {
+
+                    /* Read value before CAS */
+                    let dequeued_value = unsafe{
+                        *tagged_next.ptr()
+                    }.value;
+                    
+                    match self.head.compare_exchange(
+                        tagged_head,
+                        TaggedPointer::new(tagged_next.ptr(), tagged_head.tag() + 1),
+                        SeqCst, 
+                        Relaxed, 
+                    ) {
+                        Ok(_) => {
+                            return Some(dequeued_value);
+                        },
+                        Err(_) => continue
+                    }
+
+                }
+
             }
-        }));
-    }
-
-    queue.print_queue();
-
-    for handle in handles {
-        let _ = handle.join();
+        }
     }
 }
 
 #[cfg(test)]
 mod test {
+    use std::sync::atomic;
+    use std::sync::Arc;
+    use std::thread;
     use super::Queue;
 
     #[test]
     fn basics() {
         let queue = Queue::new();
-
         // Populate list
         queue.enqueue(1);
         queue.enqueue(2);
         queue.enqueue(3);
-
+        
+        // queue.dequeue();
+        
         // Normal removal
         assert_eq!(queue.dequeue(), Some(1));
         assert_eq!(queue.dequeue(), Some(2));
@@ -187,4 +190,59 @@ mod test {
         assert_eq!(queue.dequeue(), Some(7));
         assert_eq!(queue.dequeue(), None);
     }
+
+    #[test]
+    fn basic_concurrent() {
+        let queue = Arc::new(Queue::new());
+        let mut handles = vec![];
+
+        let n = 10;
+
+        for i in 0..n {
+            let queue = Arc::clone(&queue);
+            let handle = thread::spawn(move || {
+                queue.enqueue(i)
+            });
+        handles.push(handle);
+        }
+
+        for handle in handles {
+            handle.join().unwrap();
+        }
+
+        let mut dequeue_sum = 0;
+        while let Some(value) = queue.dequeue() {
+            dequeue_sum += value;
+        }
+
+        // Sum of first n natural numbers (0 to n-1)
+        let expected_sum = n * (n - 1) / 2;
+
+        assert_eq!(expected_sum, dequeue_sum, "Sums do not match!");
+    }
+
+    // fn concurrent_dequeue_enqueue() {
+    //     let queue = Arc::new(Queue::new());
+    //     let mut handles = vec![];
+
+    //     let n = 10;
+    //     let mut elements = 0;
+
+    //     for i in 0..n {
+    //         let queue = Arc::clone(&queue);
+    //         let handle = thread::spawn(move || {
+    //             queue.enqueue(i)
+    //         });
+    //     handles.push(handle);
+    //     }
+
+    //     for i in 0..n {
+    //         let queue = Arc::clone(&queue);
+    //         while elements == 0 {
+    //             continue;
+    //         }
+    //     }
+
+    // }
+    
 }
