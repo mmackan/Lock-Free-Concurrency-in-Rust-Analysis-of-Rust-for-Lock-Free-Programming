@@ -1,5 +1,9 @@
+#![feature(strict_provenance)]
+#![warn(fuzzy_provenance_casts)]
+
 use std::{sync::atomic::AtomicPtr, sync::{atomic::{Ordering::Relaxed, fence}, Arc}, thread};
 mod experimental_msq;
+mod atomic_tagged;
 
 struct Node {
     value: u64,

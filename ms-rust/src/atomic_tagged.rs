@@ -1,6 +1,32 @@
 
 use std::sync::atomic::{AtomicPtr, Ordering};
 
+pub struct TaggedPointer<T> {
+    data: *mut T
+}
+
+impl<T> TaggedPointer<T>  {
+    const TAG_MASK: usize = (0xFFFF << 48);
+    const ADDR_MASK: usize = ! TaggedPointer::<T>::TAG_MASK;
+
+    pub fn new(in_ptr: *mut T, tag: u16) -> Self {
+        let shifted_tag = (tag as usize) << 48;
+        let tagged = in_ptr.map_addr(|addr| (addr | shifted_tag));
+
+        TaggedPointer {
+            data: tagged
+        }
+    }
+
+    pub fn ptr(&self) -> *mut T {
+        self.data.map_addr(| tagged_addr | (tagged_addr & AtomicTagged::<T>::ADDR_MASK))
+    }
+
+    pub fn tag(&self) -> u16 {
+        let tag = self.data.addr() >> 48;
+        tag as u16
+    }
+}
 
 #[derive(Debug, Default)]
 pub struct AtomicTagged<T> {
@@ -8,27 +34,21 @@ pub struct AtomicTagged<T> {
 }
 
 impl<T> AtomicTagged<T> {
-    const TAG_MASK: usize = (0xFF << 48);
+    const TAG_MASK: usize = (0xFFFF << 48);
     const ADDR_MASK: usize = ! AtomicTagged::<T>::TAG_MASK;
 
     pub fn new(in_ptr: *mut T, tag: u16) -> Self {
-        let shifted_tag = (tag as usize) << 48;
-        let tagged = in_ptr.map_addr(|addr| (addr | shifted_tag));
+        let tagged = TaggedPointer::new(in_ptr, tag);
 
         AtomicTagged {
-            data: AtomicPtr::new(tagged)
+            data: AtomicPtr::new(tagged.data)
         }
     }
 
-    pub fn load(&self, order: Ordering) -> *mut T {
-        let tagged = self.data.load(order);
-        tagged.map_addr(| tagged_addr | (tagged_addr & AtomicTagged::<T>::ADDR_MASK))
-    }
-
-    pub fn load_tag(&self, order: Ordering) -> u16 {
-        let tagged = self.data.load(order);
-        let tag = tagged.addr() >> 48;
-        tag as u16
+    pub fn load(&self, order: Ordering) -> TaggedPointer<T> {
+        TaggedPointer { 
+            data : self.data.load(order)
+        } 
     }
 }
 
@@ -45,22 +65,20 @@ mod test {
 
         let p = &mut target as *mut usize;
 
-        let tagged = AtomicTagged::new(p, 2);
+        let tagged = AtomicTagged::new(p, 311);
 
         let p2 = tagged.load(std::sync::atomic::Ordering::Relaxed);
 
-        assert_eq!(p, p2);
+        assert_eq!(p, p2.ptr());
         unsafe {
-            assert_eq!(*p2, 42);
+            assert_eq!(*p2.ptr(), 42);
         }
 
         unsafe {
-            p2.write(10);
-            assert_eq!(*p2, 10);
+            p2.ptr().write(10);
+            assert_eq!(*p2.ptr(), 10);
         }
-
-        let p2_tag = tagged.load_tag(std::sync::atomic::Ordering::Relaxed);
-        assert_eq!(p2_tag, 2);
+        assert_eq!(p2.tag(), 311);
     }
 
     #[test]
