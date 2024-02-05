@@ -126,7 +126,7 @@ impl Queue {
                 );
                 } else {
 
-                    /* Read value before CAS */
+                    // Read value before CAS
                     let dequeued_value = unsafe{
                         (*tagged_next.ptr()).value
                     };
@@ -156,10 +156,11 @@ fn main() {
 
 #[cfg(test)]
 mod test {
-    use std::sync::atomic;
+    use core::time;
     use std::sync::Arc;
     use std::thread;
     use super::Queue;
+    use rand::Rng;
 
     #[test]
     fn basics() {
@@ -168,9 +169,7 @@ mod test {
         queue.enqueue(1);
         queue.enqueue(2);
         queue.enqueue(3);
-        
-        // queue.dequeue();
-        
+                
         // Normal removal
         assert_eq!(queue.dequeue(), Some(1));
         assert_eq!(queue.dequeue(), Some(2));
@@ -207,7 +206,7 @@ mod test {
             let handle = thread::spawn(move || {
                 queue.enqueue(i)
             });
-        handles.push(handle);
+            handles.push(handle);
         }
 
         for handle in handles {
@@ -225,28 +224,33 @@ mod test {
         assert_eq!(expected_sum, dequeue_sum, "Sums do not match!");
     }
 
-    // fn concurrent_dequeue_enqueue() {
-    //     let queue = Arc::new(Queue::new());
-    //     let mut handles = vec![];
+    #[test]
+    fn concurrent_dequeue_enqueue() {
+        let queue = Arc::new(Queue::new());
+        let mut handles = vec![];
+        let mut rng = rand::thread_rng();
 
-    //     let n = 10;
-    //     let mut elements = 0;
+        let n = 10;
+        
+        for i in 0..n {
+            // Random number to simulate "do other work" time
+            let rt = rng.gen_range(50..150);
+            let dur = time::Duration::from_nanos(rt);
 
-    //     for i in 0..n {
-    //         let queue = Arc::clone(&queue);
-    //         let handle = thread::spawn(move || {
-    //             queue.enqueue(i)
-    //         });
-    //     handles.push(handle);
-    //     }
+            let queue = Arc::clone(&queue);
+            let handle = thread::spawn(move || {
+                queue.enqueue(i);
+                thread::sleep(dur);
+                queue.dequeue();
+            });
+            handles.push(handle);
+        }
 
-    //     for i in 0..n {
-    //         let queue = Arc::clone(&queue);
-    //         while elements == 0 {
-    //             continue;
-    //         }
-    //     }
+        for handle in handles {
+            handle.join().unwrap();
+        }
 
-    // }
-    
+        // Should be empty
+        assert_eq!(queue.dequeue(), None);
+    }
 }
