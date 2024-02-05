@@ -32,7 +32,7 @@ impl Drop for Queue {
             let node = unsafe {
                 Box::from_raw(current.ptr())
             };
-            current = unsafe{(*current.ptr()).next.load(Relaxed)};
+            current = node.next.load(Relaxed);
         }
     }
 }
@@ -66,17 +66,17 @@ impl Queue {
                 // Tail was pointing to the last node
                 if tagged_next.ptr().is_null() {                                                
                     // Try link node at the end of linked list         
-                    match unsafe{ &*tagged_next.ptr() }.next.compare_exchange(   
-                        tagged_next, 
-                        TaggedPointer::new(node_ptr, tagged_next.tag() + 1),
+                    match unsafe{ &*tagged_tail.ptr() }.next.compare_exchange(   
+                        &tagged_next, 
+                        &TaggedPointer::new(node_ptr, tagged_next.tag() + 1),
                         SeqCst, 
                         Relaxed, 
                     ) {
                         Ok(_) => {
                             // Try update tail to inserted node
                             let _ = self.tail.compare_exchange(             
-                                tagged_tail,
-                                TaggedPointer::new(node_ptr, tagged_tail.tag() + 1),
+                                &tagged_tail,
+                                &TaggedPointer::new(node_ptr, tagged_tail.tag() + 1),
                                 SeqCst,
                                 Relaxed, 
                         );
@@ -88,8 +88,8 @@ impl Queue {
                 /* Try to swing tail "forward", i.e. to the "next" node, 
                  this will be done until the tail is corrected */
                 let _ = self.tail.compare_exchange(                         
-                    tagged_tail,
-                    TaggedPointer::new(tagged_next.ptr(), tagged_tail.tag() + 1),
+                    &tagged_tail,
+                    &TaggedPointer::new(tagged_next.ptr(), tagged_tail.tag() + 1),
                     SeqCst, 
                     Relaxed, 
             );
@@ -119,8 +119,8 @@ impl Queue {
                     }
                     // Tail is falling behind. Try to advance it
                     let _ = self.tail.compare_exchange(
-                        tagged_tail, 
-                        TaggedPointer::new(tagged_next.ptr(), tagged_tail.tag() + 1),
+                        &tagged_tail, 
+                        &TaggedPointer::new(tagged_next.ptr(), tagged_tail.tag() + 1),
                         SeqCst, 
                         Relaxed, 
                 );
@@ -128,12 +128,12 @@ impl Queue {
 
                     /* Read value before CAS */
                     let dequeued_value = unsafe{
-                        *tagged_next.ptr()
-                    }.value;
+                        (*tagged_next.ptr()).value
+                    };
                     
                     match self.head.compare_exchange(
-                        tagged_head,
-                        TaggedPointer::new(tagged_next.ptr(), tagged_head.tag() + 1),
+                        &tagged_head,
+                        &TaggedPointer::new(tagged_next.ptr(), tagged_head.tag() + 1),
                         SeqCst, 
                         Relaxed, 
                     ) {
@@ -148,6 +148,10 @@ impl Queue {
             }
         }
     }
+}
+
+fn main() {
+
 }
 
 #[cfg(test)]
