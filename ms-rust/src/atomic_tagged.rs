@@ -1,8 +1,15 @@
 
 use std::{ptr, sync::atomic::{AtomicPtr, Ordering}};
 
+#[derive(Copy)]
 pub struct TaggedPointer<T> {
     data: *mut T
+}
+
+impl<T> Clone for TaggedPointer<T> {
+    fn clone(&self) -> Self {
+        Self { data: self.data.clone() }
+    }
 }
 
 impl<T> PartialEq for TaggedPointer<T> {
