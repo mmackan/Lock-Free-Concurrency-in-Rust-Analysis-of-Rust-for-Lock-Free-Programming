@@ -3,6 +3,7 @@
 use std::{default, sync::atomic::Ordering::{Relaxed, SeqCst}};
 mod atomic_tagged;
 use atomic_tagged::{AtomicTagged, TaggedPointer};
+mod hazp;
 
 #[derive(Default)]
 struct Node {
