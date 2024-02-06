@@ -52,9 +52,8 @@ impl Queue {
 
     pub fn enqueue(&self, value: i32) {
         
-        let node_ptr = Box::into_raw(Box::new(Node::new(value)));
+        let node_ptr: AtomicPtr<Node> = AtomicPtr::from(Box::new(Node::new(value)));
         let mut hazp_tail = HazardPointer::new();
-        let mut hazp_next = HazardPointer::new();
 
         loop {                                                                    
             // Snapshot
@@ -66,7 +65,6 @@ impl Queue {
 
             let next = &tail_node.next;
             let next_ptr = next.load_ptr();
-            let next_node = next.safe_load(&mut hazp_next);
             
             // Check tail snapshot is still the queue's tail    
             if tail_ptr == self.tail.load_ptr() {     
@@ -76,18 +74,20 @@ impl Queue {
                                                           
                     // Try link node at the end of linked list    
                     match unsafe {
-                        (*tail_ptr).next.compare_exchange_ptr(next_ptr, node_ptr)
+                        (*tail_ptr).next.compare_exchange_ptr(next_ptr, node_ptr.load_ptr())
                     } {
                         Ok(_) => {
 
                             // Try update tail to inserted node
                             let _ = unsafe {
-                                self.tail.compare_exchange_ptr(tail_ptr, node_ptr)
+                                self.tail.compare_exchange_ptr(tail_ptr, node_ptr.load_ptr())
                             };
 
                             break;                                          
                         },
-                        Err(_) => continue
+                        Err(_) => {
+                            continue
+                        }
                     }
                 }
 
@@ -103,21 +103,15 @@ impl Queue {
     pub fn dequeue(&self) -> Option<i32> {
         
         let mut hazp_head = HazardPointer::new();
-        let mut hazp_tail = HazardPointer::new();
         let mut hazp_next = HazardPointer::new();
 
         loop {
-    
-            // Snapshots
-            let head = &self.head;
-            let tail = &self.tail;
 
-            let head_ptr = head.load_ptr();
-            let tail_ptr = tail.load_ptr();
+            let head_ptr = self.head.load_ptr();
+            let tail_ptr = self.tail.load_ptr();
             
             // Safety: Will always point to a dummy node
             let head_node = self.head.safe_load(&mut hazp_head).unwrap();
-            let tail_node = self.tail.safe_load(&mut hazp_tail).unwrap();
             
             let next = &head_node.next;
             let next_ptr = next.load_ptr();
@@ -148,9 +142,18 @@ impl Queue {
                     match unsafe {
                         self.head.compare_exchange_ptr(head_ptr, next_ptr)
                     } {
-                        Ok(_) => {
+                        Ok(Some(p)) => {
+                            // The node is node dequeued, so we can retire the pointer
+                            unsafe {
+                                p.retire();
+                            }
                             return Some(val);
                         },
+                        Ok(None) => {
+                            // This should not happen, as it would have required a null pointer to somehow make it to this point.
+                            // Since this means a unrecoverable bug somewhere else we just panic
+                            panic!("Somehow after a successful dequeue the pointer was null: Here be dragons")
+                        }
                         Err(_) => continue
                     }
 
