@@ -60,7 +60,7 @@ impl Queue {
             let tail = &self.tail;
             let tail_ptr = tail.load_ptr();
 
-            // Safety: Will always point to a dummy node
+            // Safety: Will always point to at least a dummy node
             let tail_node = tail.safe_load(&mut hazp_tail).unwrap();
 
             let next = &tail_node.next;
