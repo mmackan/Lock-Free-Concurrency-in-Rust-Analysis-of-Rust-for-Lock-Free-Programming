@@ -1,4 +1,3 @@
-// #![warn(fuzzy_provenance_casts)]
 use std::ptr;
 use haphazard::{AtomicPtr, Domain, HazardPointer};
 
