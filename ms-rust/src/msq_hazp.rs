@@ -1,5 +1,5 @@
 use std::ptr;
-use haphazard::{AtomicPtr, Domain, HazardPointer};
+use haphazard::{AtomicPtr, HazardPointer};
 
 struct Node {
     value: i32,
