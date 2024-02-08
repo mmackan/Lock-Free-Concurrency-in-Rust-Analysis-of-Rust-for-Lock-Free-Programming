@@ -1,7 +1,6 @@
 use std::ptr;
 use haphazard::{AtomicPtr, Domain, HazardPointer};
 
-// #[derive(Default)]
 struct Node {
     value: i32,
     next: AtomicPtr<Node>
@@ -21,19 +20,6 @@ pub struct Queue {
     head: AtomicPtr<Node>,
     tail: AtomicPtr<Node>,
 }
-
-// impl Drop for Queue {
-//     fn drop(&mut self) {
-//         // Iterate through the list and free any remaining nodes
-//         let mut current = self.first.load(Relaxed);
-//         while !current.ptr().is_null() {
-//             let node = unsafe {
-//                 Box::from_raw(current.ptr())
-//             };
-//             current = node.next.load(Relaxed);
-//         }
-//     }
-// }
 
 impl Queue {
     pub fn new() -> Queue {
@@ -109,7 +95,7 @@ impl Queue {
             let head_ptr = self.head.load_ptr();
             let tail_ptr = self.tail.load_ptr();
             
-            // Safety: Will always point to a dummy node
+            // Safety: Will always point to at least a dummy node
             let head_node = self.head.safe_load(&mut hazp_head).unwrap();
             
             let next = &head_node.next;
