@@ -14,8 +14,6 @@ const BASE: u32 = 10;
 const DELAY_LOW: u64 = 50;
 const DELAY_UPPER: u64 = 150;
 
-// cargo run --release --bin benchmark1 <threads> [exponent_base_ten]
-
 fn main() {
 
     let args: Vec<String> = env::args().collect();
