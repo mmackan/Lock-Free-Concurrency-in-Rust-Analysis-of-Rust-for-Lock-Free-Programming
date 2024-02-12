@@ -1,7 +1,8 @@
-use core::time;
+use std::arch::asm;
 use std::sync::Arc;
 use std::env;
 use std::thread;
+use rand::rngs::ThreadRng;
 use rand::Rng;
 
 use ms_rust::msq_hazp::Queue;
@@ -9,10 +10,6 @@ use ms_rust::msq_hazp::Queue;
 /// Default exponent for # operations
 const LOGN_OPS: u32 = 7;
 const BASE: u32 = 10;
-
-// Delay will be between 50~150ns
-const DELAY_LOW: u64 = 50;
-const DELAY_UPPER: u64 = 150;
 
 fn main() {
 
@@ -48,29 +45,24 @@ fn benchmark(nprocs: u32, logn: u32) {
 
     let queue = Arc::new(Queue::new());
     let mut handles = vec![];
-    let mut rng = rand::thread_rng();
-
+    
     // Calculate number of operations
     let nops = BASE.pow(logn);
     let tops = (nops / nprocs) as i32;
-
-    for _ in 0..nprocs {
-
-        // Randomized "work" time
-        let rt = rng.gen_range(DELAY_LOW..DELAY_UPPER);
-        let dur = time::Duration::from_nanos(rt);
-
+    
+    for _ in 0..nprocs {       
         let queue = Arc::clone(&queue);
-        let handle = thread::spawn(move || {
 
-            println!(" Thread {:?} running..", thread::current().id());
+        let handle = thread::spawn(move || {
+            let mut rng = rand::thread_rng();
+
             for j in 0..tops {
                 queue.enqueue(j);
-                thread::sleep(dur);
-                queue.dequeue();
-            }
-            println!(" Thread {:?} done", thread::current().id());
+                delay_exec(&mut rng);
 
+                queue.dequeue();
+                delay_exec(&mut rng);
+            }
         });
         handles.push(handle);
     }
@@ -78,7 +70,15 @@ fn benchmark(nprocs: u32, logn: u32) {
     for handle in handles {
         handle.join().unwrap();
     }
+}
 
-    // Should be empty  
-    assert_eq!(queue.dequeue(), None);
+fn delay_exec(state: &mut ThreadRng) {
+    let n = state.gen_range(0..100);
+    let delay_end = 50 + n % 100;
+
+    for _ in 50..delay_end {
+        unsafe {
+            asm!("nop");
+        }
+    }
 }
