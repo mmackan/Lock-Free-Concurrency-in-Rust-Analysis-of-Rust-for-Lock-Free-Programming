@@ -10,5 +10,5 @@ haphazard = "0.1.8"
 rand = "0.8"
 
 [[bin]]
-name = "benchmark1"
-path = "src/bin/benchmark1.rs"
+name = "msq_benchmark"
+path = "src/bin/msq_benchmark.rs"
