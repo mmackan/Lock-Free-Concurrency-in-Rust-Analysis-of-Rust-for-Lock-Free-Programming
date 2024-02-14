@@ -59,7 +59,7 @@ impl Queue {
                                                           
                     // Try link node at the end of linked list    
                     match unsafe {
-                        (*tail_ptr).next.compare_exchange_ptr(next_ptr, node_ptr.load_ptr())
+                        tail_node.next.compare_exchange_ptr(next_ptr, node_ptr.load_ptr())
                     } {
                         Ok(_) => {
 
