@@ -32,79 +32,7 @@ static double means[MAX_ITERS];
 static double covs[MAX_ITERS];
 static volatile int target;
 
-static size_t elapsed_time(size_t us)
-{
-  struct timeval t;
-  gettimeofday(&t, NULL);
-  return t.tv_sec * 1000000 + t.tv_usec - us;
-}
 
-static double compute_mean(const double * times)
-{
-  int i;
-  double sum = 0;
-
-  for (i = 0; i < NUM_ITERS; ++i) {
-    sum += times[i];
-  }
-
-  return sum / NUM_ITERS;
-}
-
-static double compute_cov(const double * times, double mean)
-{
-  double variance = 0;
-
-  int i;
-  for (i = 0; i < NUM_ITERS; ++i) {
-    variance += (times[i] - mean) * (times[i] - mean);
-  }
-
-  variance /= NUM_ITERS;
-
-  double cov = sqrt(variance);;
-  cov /= mean;
-  return cov;
-}
-
-static size_t reduce_min(long val, int id, int nprocs)
-{
-  static long buffer[MAX_PROCS];
-
-  buffer[id] = val;
-  pthread_barrier_wait(&barrier);
-
-  long min = LONG_MAX;
-  int i;
-  for (i = 0; i < nprocs; ++i) {
-    if (buffer[i] < min) min = buffer[i];
-  }
-
-  return min;
-}
-
-static void report(int id, int nprocs, int i, long us)
-{
-  long ms = reduce_min(us, id, nprocs);
-
-  if (id == 0) {
-    times[i] = ms / 1000.0;
-    printf("  #%d elapsed time: %.2f ms\n", i + 1, times[i]);
-
-    if (i + 1 >= NUM_ITERS) {
-      int n = i + 1 - NUM_ITERS;
-
-      means[i] = compute_mean(times + n);
-      covs[i] = compute_cov(times + n, means[i]);
-
-      if (covs[i] < COV_THRESHOLD) {
-        target = i;
-      }
-    }
-  }
-
-  pthread_barrier_wait(&barrier);
-}
 
 static void * thread(void * bits)
 {
@@ -121,17 +49,10 @@ static void * thread(void * bits)
   thread_init(id, nprocs);
   pthread_barrier_wait(&barrier);
 
-  int i;
   void * result = NULL;
 
-  for (i = 0; i < MAX_ITERS && target == 0; ++i) {
-    long us = elapsed_time(0);
-    result = benchmark(id, nprocs);
-    pthread_barrier_wait(&barrier);
-    us = elapsed_time(us);
-    report(id, nprocs, i, us);
-  }
-
+  result = benchmark(id, nprocs);
+  pthread_barrier_wait(&barrier);
   thread_exit(id, nprocs);
   return result;
 }
@@ -188,32 +109,8 @@ int main(int argc, const char *argv[])
     pthread_join(ths[i], &res[i]);
   }
 
-  if (target == 0) {
-    target = NUM_ITERS - 1;
-    double minCov = covs[target];
-
-    /** Pick the result that has the lowest CoV. */
-    int i;
-    for (i = NUM_ITERS; i < MAX_ITERS; ++i) {
-      if (covs[i] < minCov) {
-        minCov = covs[i];
-        target = i;
-      }
-    }
-  }
-
-  double mean = means[target];
-  double cov = covs[target];
-  int i1 = target - NUM_ITERS + 2;
-  int i2 = target + 1;
-
-  printf("  Steady-state iterations: %d~%d\n", i1, i2);
-  printf("  Coefficient of variation: %.2f\n", cov);
-  printf("  Number of measurements: %d\n", NUM_ITERS);
-  printf("  Mean of elapsed time: %.2f ms\n", mean);
-  printf("===========================================\n");
-
   pthread_barrier_destroy(&barrier);
+  printf("  Finished! \n");
   return verify(nprocs, res);
 }
 

@@ -41,7 +41,7 @@ msqueue: CFLAGS += -DMSQUEUE
 faa: CFLAGS += -DFAAQ
 delay: CFLAGS += -DDELAY
 
-$(TESTS): harness.o
+$(TESTS): hyperfine_harness.o
 ifeq (${HALFHALF}, 1)
 $(TESTS): halfhalf.o
 else
