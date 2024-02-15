@@ -38,110 +38,101 @@ impl Queue {
     pub fn enqueue(&self, value: i32, hazp: &mut HazardPointer) {
         
         let node_ptr: AtomicPtr<Node> = AtomicPtr::from(Box::new(Node::new(value)));
-        // let mut hazp = HazardPointer::new();
 
         loop {                                                                    
-            // Snapshot
-            let tail = &self.tail;
-            let tail_ptr = tail.load_ptr();
-
             // Safety: Will always point to at least a dummy node
-            let tail_node = tail.safe_load(hazp).unwrap();
-
-            let next = &tail_node.next;
-            let next_ptr = next.load_ptr();
+            let tail_node = self.tail.safe_load(hazp).unwrap();
             
-            // Check tail snapshot is still the queue's tail    
-            if tail_ptr == self.tail.load_ptr() {     
-                
-                // Tail was pointing to the last node
-                if next_ptr.is_null() {
-                                                          
-                    // Try link node at the end of linked list    
-                    match unsafe {
-                        tail_node.next.compare_exchange_ptr(next_ptr, node_ptr.load_ptr())
-                    } {
-                        Ok(_) => {
+            // Snapshot
+            let tail_ptr = self.tail.load_ptr();
 
-                            // Try update tail to inserted node
-                            let _ = unsafe {
-                                self.tail.compare_exchange_ptr(tail_ptr, node_ptr.load_ptr())
-                            };
+            let next_ptr = tail_node.next.load_ptr();
+            
+            // Check tail snapshot 
+            if tail_ptr != self.tail.load_ptr() {     
+                continue;
+            }         
 
-                            break;                                          
-                        },
-                        Err(_) => {
-                            continue
-                        }
-                    }
-                }
+            // Tail was not pointing to the last node
+            if !next_ptr.is_null() {
 
                 /* Try to swing tail "forward", i.e. to the "next" node, 
                  this will be done until the tail is corrected */
                 let _ = unsafe {
                     self.tail.compare_exchange_ptr(tail_ptr, next_ptr)
-                };
-            }         
+                };                                    
+            }
+
+            // Try link node at the end of linked list    
+            match unsafe {
+                tail_node.next.compare_exchange_ptr(next_ptr, node_ptr.load_ptr())
+            } {
+                Ok(_) => {
+
+                    // Try update tail to inserted node
+                    let _ = unsafe {
+                        self.tail.compare_exchange_ptr(tail_ptr, node_ptr.load_ptr())
+                    };
+                    break;                                          
+                },
+                Err(_) => {
+                    continue
+                }
+            }
         }
     }
 
     pub fn dequeue(&self, hazp_head: &mut HazardPointer, hazp_next: &mut HazardPointer) -> Option<i32> {
         
-        // let mut hazp_head = HazardPointer::new();
-        // let mut hazp_next = HazardPointer::new();
-
         loop {
+            // Safety: Will always point to at least a dummy node
+            let head_node = self.head.safe_load(hazp_head).unwrap();
 
             let head_ptr = self.head.load_ptr();
             let tail_ptr = self.tail.load_ptr();
             
-            // Safety: Will always point to at least a dummy node
-            let head_node = self.head.safe_load(hazp_head).unwrap();
+            let next_node = head_node.next.safe_load(hazp_next);
+            let next_ptr = head_node.next.load_ptr();
+
+            // Are head, tail, and next not consistent?
+            if head_ptr != self.head.load_ptr() {
+                continue;
+            }
             
-            let next = &head_node.next;
-            let next_ptr = next.load_ptr();
+            // Empty queue
+            if next_node.is_none() {
+                return None
+            }
 
-            // Are head, tail, and next consistent?
-            if head_ptr == self.head.load_ptr() {
-    
-                // Is queue empty or Tail falling behind?
-                if head_ptr == tail_ptr {                 
-                    
-                    // Empty queue
-                    if next_ptr.is_null() {
-                        return None;
+            // Is queue empty or Tail falling behind?
+            if head_ptr == tail_ptr {                 
+                
+                // Tail is falling behind. Try to advance it
+                let _ = unsafe {
+                    self.tail.compare_exchange_ptr(tail_ptr, next_ptr)
+                };
+                continue;
+            }
+
+            // Read value before CAS
+            let val = next_node.unwrap().value;
+
+            match unsafe {
+                self.head.compare_exchange_ptr(head_ptr, next_ptr)
+            } {
+                Ok(Some(p)) => {
+                    // The node is node dequeued, so we can retire the pointer
+                    unsafe {
+                        p.retire();
                     }
-
-                    // Tail is falling behind. Try to advance it
-                    let _ = unsafe {
-                        self.tail.compare_exchange_ptr(tail_ptr, next_ptr)
-                    };
-                } else {
-            
-                    // Safety: At this point, next can't be null
-                    let next_node = next.safe_load(hazp_next).unwrap();
-
-                    // Read value before CAS
-                    let val = next_node.value;
-
-                    match unsafe {
-                        self.head.compare_exchange_ptr(head_ptr, next_ptr)
-                    } {
-                        Ok(Some(p)) => {
-                            // The node is node dequeued, so we can retire the pointer
-                            unsafe {
-                                p.retire();
-                            }
-                            return Some(val);
-                        },
-                        Ok(None) => {
-                            // This should not happen, as it would have required a null pointer to somehow make it to this point.
-                            // Since this means a unrecoverable bug somewhere else we just panic
-                            panic!("Somehow after a successful dequeue the pointer was null: Here be dragons")
-                        }
-                        Err(_) => continue
-                    }
+                    return Some(val);
+                },
+                Ok(None) => {
+                    // This should not happen, as it would have required a null pointer to somehow make it to this point.
+                    // Since this means a unrecoverable bug somewhere else we just panic
+                    panic!("Somehow after a successful dequeue the pointer was null: Here be dragons")
                 }
+                Err(_) => continue
             }
         }
     }
