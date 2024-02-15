@@ -33,13 +33,14 @@ fn main() {
         LOGN_OPS
     };
 
-    println!("RUNNING BENCHMARK");
-    println!(" Threads: {}", threads);
-    println!(" Operations: 10^{}", logn);
+    println!("===========================================");
+    println!("  Benchmark: {}", args[0]);
+    println!("  Threads: {}", threads);
+    println!("  Operations: 10^{}", logn);
 
     benchmark(threads, logn);
 
-    println!("BENCHMARK COMPLETED");
+    println!("  Finished");
 }
 
 fn benchmark(nprocs: u32, logn: u32) {
