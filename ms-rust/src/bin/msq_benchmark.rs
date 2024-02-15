@@ -2,6 +2,7 @@ use std::arch::asm;
 use std::sync::Arc;
 use std::env;
 use std::thread;
+use haphazard::HazardPointer;
 use rand::rngs::ThreadRng;
 use rand::Rng;
 
@@ -55,12 +56,14 @@ fn benchmark(nprocs: u32, logn: u32) {
 
         let handle = thread::spawn(move || {
             let mut rng = rand::thread_rng();
+            let mut hazp = HazardPointer::new();
+            let mut hazp2 = HazardPointer::new();
 
             for j in 0..tops {
-                queue.enqueue(j);
+                queue.enqueue(j, &mut hazp);
                 delay_exec(&mut rng);
 
-                queue.dequeue();
+                queue.dequeue(&mut hazp, &mut hazp2);
                 delay_exec(&mut rng);
             }
         });
