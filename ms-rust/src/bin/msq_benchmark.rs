@@ -81,6 +81,7 @@ fn delay_exec(state: &mut ThreadRng) {
     let delay_end = 50 + n % 100;
 
     for _ in 50..delay_end {
+        #[cfg(not(miri))]
         unsafe {
             asm!("nop");
         }

@@ -38,13 +38,14 @@ impl Queue {
     pub fn enqueue(&self, value: i32, hazp: &mut HazardPointer) {
         
         let node_ptr: AtomicPtr<Node> = AtomicPtr::from(Box::new(Node::new(value)));
+        let node_raw = node_ptr.load_ptr();
 
         loop {                                                                    
             // Safety: Will always point to at least a dummy node
             let tail_node = self.tail.safe_load(hazp).unwrap();
             
             // Snapshot
-            let tail_ptr = self.tail.load_ptr();
+            let tail_ptr: *const Node = tail_node;
 
             let next_ptr = tail_node.next.load_ptr();
             
@@ -59,25 +60,24 @@ impl Queue {
                 /* Try to swing tail "forward", i.e. to the "next" node, 
                  this will be done until the tail is corrected */
                 let _ = unsafe {
-                    self.tail.compare_exchange_ptr(tail_ptr, next_ptr)
+                    self.tail.compare_exchange_ptr(tail_ptr.cast_mut(), next_ptr)
                 };                                    
+                continue;
             }
 
             // Try link node at the end of linked list    
             match unsafe {
-                tail_node.next.compare_exchange_ptr(next_ptr, node_ptr.load_ptr())
+                tail_node.next.compare_exchange_ptr(next_ptr, node_raw)
             } {
                 Ok(_) => {
 
                     // Try update tail to inserted node
                     let _ = unsafe {
-                        self.tail.compare_exchange_ptr(tail_ptr, node_ptr.load_ptr())
+                        self.tail.compare_exchange_ptr(tail_ptr.cast_mut(), node_raw)
                     };
                     break;                                          
                 },
-                Err(_) => {
-                    continue
-                }
+                Err(_) => continue
             }
         }
     }
@@ -88,37 +88,41 @@ impl Queue {
             // Safety: Will always point to at least a dummy node
             let head_node = self.head.safe_load(hazp_head).unwrap();
 
-            let head_ptr = self.head.load_ptr();
+            let head_ptr : *const Node = head_node;
             let tail_ptr = self.tail.load_ptr();
             
             let next_node = head_node.next.safe_load(hazp_next);
-            let next_ptr = head_node.next.load_ptr();
+
 
             // Are head, tail, and next not consistent?
             if head_ptr != self.head.load_ptr() {
                 continue;
             }
+
             
             // Empty queue
             if next_node.is_none() {
                 return None
             }
+            let next_ptr: *const Node = next_node.unwrap();
 
             // Is queue empty or Tail falling behind?
             if head_ptr == tail_ptr {                 
                 
                 // Tail is falling behind. Try to advance it
                 let _ = unsafe {
-                    self.tail.compare_exchange_ptr(tail_ptr, next_ptr)
+                    self.tail.compare_exchange_ptr(tail_ptr, next_ptr.cast_mut())
                 };
                 continue;
             }
+
+            assert!(head_ptr != next_ptr);
 
             // Read value before CAS
             let val = next_node.unwrap().value;
 
             match unsafe {
-                self.head.compare_exchange_ptr(head_ptr, next_ptr)
+                self.head.compare_exchange_ptr(head_ptr.cast_mut(), next_ptr.cast_mut())
             } {
                 Ok(Some(p)) => {
                     // The node is node dequeued, so we can retire the pointer
@@ -147,9 +151,6 @@ impl Queue {
                 println!("Queue is empty");
                 return;
             }
-
-            // Skip dummy node
-            // current = (*current).next.load_ptr();
 
             while !current.is_null() {
                 println!("Value: {}, Pointer: {:?}", (*current).value, current as *const _);
@@ -255,7 +256,7 @@ mod test {
                 let mut hazp2 = HazardPointer::new();
                 queue.enqueue(i, &mut hazp);
                 thread::sleep(dur);
-                queue.dequeue(&mut hazp, &mut hazp2);
+                let _v = queue.dequeue(&mut hazp, &mut hazp2).unwrap();
             });
             handles.push(handle);
         }
@@ -265,6 +266,8 @@ mod test {
         }
 
         // Should be empty
-        // assert_eq!(queue.dequeue(), None);
+        let mut hazp = HazardPointer::new();
+        let mut hazp2 = HazardPointer::new();
+        assert_eq!(queue.dequeue(&mut hazp, &mut hazp2), None);
     }
 }
