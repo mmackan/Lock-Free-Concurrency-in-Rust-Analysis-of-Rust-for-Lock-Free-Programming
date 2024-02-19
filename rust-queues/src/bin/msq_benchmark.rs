@@ -6,7 +6,7 @@ use haphazard::HazardPointer;
 use rand::rngs::ThreadRng;
 use rand::Rng;
 
-use ms_rust::msq_hazp::Queue;
+use rust_queues::ms_queue::msq_hazp::Queue;
 
 /// Default exponent for # operations
 const LOGN_OPS: u32 = 7;
