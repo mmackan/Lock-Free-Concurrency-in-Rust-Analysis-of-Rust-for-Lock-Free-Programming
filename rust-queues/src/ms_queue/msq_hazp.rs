@@ -1,29 +1,38 @@
-use std::ptr;
+use std::{fmt::Debug, ptr};
 use haphazard::{AtomicPtr, HazardPointer};
 
-struct Node {
-    value: i32,
-    next: AtomicPtr<Node>
+struct Node<T> {
+    value: Option<T>,
+    next: AtomicPtr<Node<T>>
 }
 
-impl Node {
-    pub fn new(value: i32) -> Node {
+impl<T> Node<T> {
+    pub fn new(value: T) -> Node<T> {
         Node {
-            value,
+            value: Some(value),
+            next: unsafe {
+                AtomicPtr::new(ptr::null_mut())
+            }
+        }
+    }
+    fn empty() -> Node<T> {
+        Node {
+            value: None,
             next: unsafe {
                 AtomicPtr::new(ptr::null_mut())
             }
         }
     }
 }
-pub struct Queue {
-    head: AtomicPtr<Node>,
-    tail: AtomicPtr<Node>,
+pub struct Queue<T> {
+    head: AtomicPtr<Node<T>>,
+    tail: AtomicPtr<Node<T>>,
 }
 
-impl Queue {
-    pub fn new() -> Queue {
-        let dummy = Box::into_raw(Box::new(Node::new(-1)));
+impl<T> Queue<T> 
+    where T: Clone + Copy + Send + Sync {
+    pub fn new() -> Queue<T> {
+        let dummy = Box::into_raw(Box::new(Node::empty()));
         
         Queue {
             head: unsafe {
@@ -35,9 +44,9 @@ impl Queue {
         }
     }
 
-    pub fn enqueue(&self, value: i32, hazp: &mut HazardPointer) {
+    pub fn enqueue(&self, value: T, hazp: &mut HazardPointer) {
         
-        let node_ptr: AtomicPtr<Node> = AtomicPtr::from(Box::new(Node::new(value)));
+        let node_ptr: AtomicPtr<Node<T>> = AtomicPtr::from(Box::new(Node::new(value)));
         let node_raw = node_ptr.load_ptr();
 
         loop {                                                                    
@@ -45,7 +54,7 @@ impl Queue {
             let tail_node = self.tail.safe_load(hazp).unwrap();
             
             // Snapshot
-            let tail_ptr: *const Node = tail_node;
+            let tail_ptr: *const Node<T> = tail_node;
 
             let next_ptr = tail_node.next.load_ptr();
             
@@ -82,13 +91,13 @@ impl Queue {
         }
     }
 
-    pub fn dequeue(&self, hazp_head: &mut HazardPointer, hazp_next: &mut HazardPointer) -> Option<i32> {
+    pub fn dequeue(&self, hazp_head: &mut HazardPointer, hazp_next: &mut HazardPointer) -> Option<T> {
         
         loop {
             // Safety: Will always point to at least a dummy node
             let head_node = self.head.safe_load(hazp_head).unwrap();
 
-            let head_ptr : *const Node = head_node;
+            let head_ptr : *const Node<T> = head_node;
             let tail_ptr = self.tail.load_ptr();
             
             let next_node = head_node.next.safe_load(hazp_next);
@@ -104,7 +113,7 @@ impl Queue {
             if next_node.is_none() {
                 return None
             }
-            let next_ptr: *const Node = next_node.unwrap();
+            let next_ptr: *const Node<T> = next_node.unwrap();
 
             // Is queue empty or Tail falling behind?
             if head_ptr == tail_ptr {                 
@@ -129,7 +138,7 @@ impl Queue {
                     unsafe {
                         p.retire();
                     }
-                    return Some(val);
+                    return Some(val.unwrap());
                 },
                 Ok(None) => {
                     // This should not happen, as it would have required a null pointer to somehow make it to this point.
@@ -141,6 +150,9 @@ impl Queue {
         }
     }
 
+}
+
+impl<T : Debug> Queue<T> {
     /// Debug function to print the queue's current state
     pub fn debug_print(&self) {
         unsafe {
@@ -153,11 +165,12 @@ impl Queue {
             }
 
             while !current.is_null() {
-                println!("Value: {}, Pointer: {:?}", (*current).value, current as *const _);
+                println!("Value: {:?}, Pointer: {:?}", (*current).value, current as *const _);
                 current = (*current).next.load_ptr();
             }
         }
     }
+
 }
 
 #[cfg(test)]
