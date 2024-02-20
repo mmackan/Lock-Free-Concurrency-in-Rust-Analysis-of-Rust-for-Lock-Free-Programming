@@ -1,5 +1,40 @@
-use std::{fmt::Debug, ptr};
+use std::{fmt::Debug, ptr, sync::Arc};
 use haphazard::{AtomicPtr, HazardPointer};
+use crate::shared_queue::SharedQueue;
+
+pub struct MSQueue<'a, T> {
+    queue: Arc<Queue<T>>,
+    hazard1: HazardPointer<'a>,
+    hazard2: HazardPointer<'a>
+}
+
+impl<'a, T> MSQueue<'a, T> 
+    where T : Copy + Clone + Send + Sync {
+    fn new() -> Self {
+        MSQueue {
+            queue: Arc::new(Queue::new()),
+            hazard1: HazardPointer::new(),
+            hazard2: HazardPointer::new()
+        }
+    }
+}
+
+impl<T> Clone for MSQueue<'_, T> {
+    fn clone(&self) -> Self {
+        Self { queue: self.queue.clone(), hazard1: HazardPointer::new(), hazard2: HazardPointer::new()}
+    }
+}
+
+impl<T> SharedQueue<T> for MSQueue<'_, T> 
+    where T : Clone + Copy + Send + Sync {
+    fn enqueue(&mut self, val: T) {
+        self.queue.enqueue(val, &mut self.hazard1)
+    }
+
+    fn dequeue(&mut self) -> Option<T> {
+        self.queue.dequeue(&mut self.hazard1, &mut self.hazard2)
+    }
+}
 
 struct Node<T> {
     value: Option<T>,

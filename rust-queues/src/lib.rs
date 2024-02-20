@@ -3,3 +3,4 @@
 
 pub mod ms_queue;
 
+pub mod shared_queue;
