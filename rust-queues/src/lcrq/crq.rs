@@ -1,16 +1,17 @@
-use std::{array, ptr::null_mut, sync::atomic::{AtomicBool, AtomicU64, Ordering}};
+use std::{array, ptr::null_mut, sync::atomic::{AtomicBool, AtomicPtr, AtomicU64, AtomicUsize, Ordering}};
 
-use haphazard::AtomicPtr;
+use haphazard;
 
 // Make sure cells are on different cache lines
 #[repr(align(64))]
 struct Cell<T> {
     safe_and_epoch: AtomicU64,
-    value: Option<T>
+    // NOTE: This is a std::sync AtomicPtr and not the haphazard one
+    value: AtomicPtr<T> // When the value is being written to this holds the thread token
 }
 impl<T> Default for Cell<T> {
     fn default() -> Self {
-        Self { safe_and_epoch: Cell::<T>::SAFE_BIT_MASK.into(), value: None }
+        Self { safe_and_epoch: Cell::<T>::SAFE_BIT_MASK.into(), value: Default::default() }
     }
 }
 
@@ -23,36 +24,71 @@ impl<T> Cell<T> {
     }
 }
 
-pub struct CRQ<T, const N: usize> {
+pub struct PRQ<T, const N: usize> {
     closed: AtomicBool,
-    head: AtomicU64,
+    head: AtomicUsize,
     array: [Cell<T>; N],
     //Tail placed below the array to make (very) sure head and tail are on different cache lines
-    tail: AtomicU64,
-    next: AtomicPtr<CRQ<T, N>>
+    tail: AtomicUsize,
+    next: haphazard::AtomicPtr<PRQ<T, N>>,
+
 }
 
-impl<T: Copy, const N: usize> CRQ<T, N> {
+impl<T,const N: usize> PRQ<T, N> {
     fn new() -> Self {
-        CRQ { 
+        PRQ { 
             closed: false.into(), 
-            head: (N as u64).into(), 
+            head: N.into(), 
             array: array::from_fn(|_| Default::default()), 
-            tail: (N as u64).into(), 
-            next: unsafe {AtomicPtr::new(null_mut())} 
+            tail: N.into(), 
+            next: unsafe {haphazard::AtomicPtr::new(null_mut())} 
         }
+    }
+
+    // Returns Ok() if enqueue was succesfull, Err() if the queue is closed
+    fn enqueue(&self, val: T) -> Result<(), ()> {
+        loop {
+            let tail_val: usize = self.tail.fetch_add(1, Ordering::Relaxed).try_into().unwrap();
+            // Labeled block to allow breaking to the check step without a function call
+            'main_body: {
+                if self.closed.load(Ordering::Relaxed) {
+                    return Err(())
+                }
+                let cycle = tail_val / N;
+                let index = tail_val % N;
+
+                let (safe, epoch) = self.array[index].load_safe_and_epoch(Ordering::Relaxed);
+
+
+            }
+
+            // Check if the queue is full
+            if tail_val - self.head.load(Ordering::Relaxed) >= N.try_into().unwrap() {
+
+            }
+        }
+    }
+
+    fn deqeue(&self) -> Option<T> {
+        todo!()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::Cell;
+    use super::{Cell, PRQ};
+    use std::sync::atomic::Ordering;
 
     #[test]
     fn basic_cell() {
         let cell: Cell<i32> = Cell::default();
-        let (safe, epoch) = cell.load_safe_and_epoch(std::sync::atomic::Ordering::Relaxed);
+        let (safe, epoch) = cell.load_safe_and_epoch(Ordering::Relaxed);
         assert!(safe);
         assert_eq!(epoch, 0)
+    }
+    #[test]
+    fn basic_prq() {
+        let prq: PRQ<i32, 64> = PRQ::new();
+        assert!(!prq.closed.load(Ordering::Relaxed))
     }
 }
