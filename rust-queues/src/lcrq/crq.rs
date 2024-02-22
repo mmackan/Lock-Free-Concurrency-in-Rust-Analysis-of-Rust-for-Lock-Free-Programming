@@ -56,6 +56,7 @@ impl<T> Cell<T> {
 
 #[derive(Debug)]
 pub struct PRQ<T, const N: usize> {
+    // Not sure if these two need to be on separate cache lines, TODO: benchmark and check
     closed: AtomicBool,
     head: AtomicUsize,
     array: [Cell<T>; N],
@@ -84,6 +85,10 @@ impl<T,const N: usize> PRQ<T, N> {
         loop {
             let tail_val: usize = self.tail.fetch_add(1, Ordering::Relaxed).try_into().unwrap();
             if self.closed.load(Ordering::Relaxed) {
+                // Drop the allocated value since it can no longer be enqueued
+                let _ = unsafe {
+                    Box::from_raw(value_ptr)
+                };
                 return Err(())
             }
             let cycle = tail_val / N;
@@ -113,13 +118,83 @@ impl<T,const N: usize> PRQ<T, N> {
             // Check if the queue is full
             if tail_val - self.head.load(Ordering::Relaxed) >= N.try_into().unwrap() {
                 self.closed.store(true, Ordering::Relaxed);
+
+                // Drop the allocated value since it can no longer be enqueued
+                let _ = unsafe {
+                    Box::from_raw(value_ptr)
+                };
                 return Err(())
             }
         }
     }
 
     fn deqeue(&self) -> Option<T> {
-        todo!()
+        let thread_token: usize = thread::current().id().as_u64().get().try_into().unwrap();
+        loop {
+
+            let head_val = self.head.fetch_add(1, Ordering::Relaxed);
+            let cycle = head_val / N;
+            let index = head_val % N;
+            loop {
+                // Update cell state
+                let cell = &self.array[index];
+                let (safe, epoch) = cell.load_safe_and_epoch(Ordering::Relaxed);
+                let value = cell.value.load(Ordering::Relaxed);
+
+                if (safe, epoch) != cell.load_safe_and_epoch(Ordering::Relaxed) {
+                    // Cell snapshot is inconsistant, retry
+                    continue;
+                }
+
+                if epoch == cycle && (!value.is_null() || value.addr() == thread_token) {
+                    // Dequeue transition
+                    cell.value.store(ptr::null_mut(), Ordering::Relaxed);
+                    return Some(*unsafe {Box::from_raw(value)});
+                }
+                if epoch <= cycle && (value.is_null() || value.addr() == thread_token) {
+                    // Empty transition
+                    // Unlock the cell
+                    if value.addr() == thread_token {
+                        if let Err(_) = cell.value.compare_exchange(value, ptr::null_mut(), Ordering::Relaxed, Ordering::Relaxed) {
+                            continue;
+                        }
+                    }
+                    // Advance the epoch
+                    if let Ok(_) = cell.compare_exchange_safe_and_epoch((safe, epoch), (safe, cycle), Ordering::Relaxed, Ordering::Relaxed) {
+                        break;
+                    }
+                    // If I understand the paper correctly this continue is implied by their wierd when block
+                    continue;
+                }
+                if epoch < cycle && (!value.is_null() || value.addr() == thread_token) {
+                    // Unsafe transition
+                    if let Ok(_) = cell.compare_exchange_safe_and_epoch((safe, epoch), (false, epoch), Ordering::Relaxed, Ordering::Relaxed) {
+                        break;
+                    }
+                    // Same deal here as in the empty transition
+                    continue;
+                }
+                // epoch > cycle, deq is overtaken
+                break;
+            }
+            // Is the queue empty?
+            if self.tail.load(Ordering::Relaxed) <= head_val + 1 {
+                return None;
+            }
+        }
+
+    }
+}
+
+impl<T, const N: usize> Drop for PRQ<T, N> {
+    fn drop(&mut self) {
+        for cell in &self.array {
+            let val = cell.value.load(Ordering::Relaxed);
+            if !val.is_null() {
+                // Since val is not null, we have a non dequeued value that needs to be cleaned up
+                let _ = unsafe {Box::from_raw(val)};
+            }
+        }
     }
 }
 
@@ -144,6 +219,12 @@ mod test {
         for i in 0..5 {
             assert_eq!(prq.enqueue(i), Ok(()));
         }
+        // PRQ is now full, should fail
         assert_eq!(prq.enqueue(5), Err(()));
+
+        for i in 0..5 {
+            assert_eq!(prq.deqeue(), Some(i));
+        }
+        assert_eq!(prq.deqeue(), None);
     }
 }
