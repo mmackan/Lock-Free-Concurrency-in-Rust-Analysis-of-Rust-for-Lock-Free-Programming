@@ -1,4 +1,4 @@
-#![feature(strict_provenance)]
+#![feature(strict_provenance, thread_id_value)]
 #![warn(fuzzy_provenance_casts)]
 
 pub mod ms_queue;
