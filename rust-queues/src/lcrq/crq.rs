@@ -28,6 +28,8 @@ impl<T> Cell<T> {
     const SAFE_BIT_MASK: usize = (1 << 63);
     const EPOCH_MASK: usize = !Cell::<T>::SAFE_BIT_MASK;
 
+    const TOKEN_MASK: usize = (1 << 63);
+
     fn load_safe_and_epoch(&self, order: Ordering) -> (bool, usize) {
         let raw = self.safe_and_epoch.load(order);
         Self::sae_from_usize(raw)
@@ -41,6 +43,18 @@ impl<T> Cell<T> {
             Ok(new_packed) => Ok(Self::sae_from_usize(new_packed)),
             Err(old_packed) => Err(Self::sae_from_usize(old_packed)),
         }
+    }
+
+    fn make_token(thread_id: usize) -> *mut T {
+        let tagged = thread_id & Self::TOKEN_MASK;
+        ptr::invalid_mut(tagged)
+    }
+
+    // Block of utility functions for bitmasking that should all be inlined
+    #[inline]
+    fn is_token(ptr: usize) -> bool {
+        let raw = (ptr & Self::TOKEN_MASK) >> 63;
+        raw == 1
     }
 
     #[inline]
@@ -78,17 +92,12 @@ impl<T,const N: usize> PRQ<T, N> {
     }
 
     // Returns Ok() if enqueue was succesfull, Err() if the queue is closed
-    fn enqueue(&self, val: T) -> Result<(), ()> {
-        let value_ptr = Box::into_raw(Box::new(val));
+    fn enqueue(&self, value_ptr: *const T) -> Result<(), ()> {
         // Get a unique thread token
-        let thread_token: usize = thread::current().id().as_u64().get().try_into().unwrap();
+        let thread_id: usize = thread::current().id().as_u64().get().try_into().unwrap();
         loop {
             let tail_val: usize = self.tail.fetch_add(1, Ordering::Relaxed).try_into().unwrap();
             if self.closed.load(Ordering::Relaxed) {
-                // Drop the allocated value since it can no longer be enqueued
-                let _ = unsafe {
-                    Box::from_raw(value_ptr)
-                };
                 return Err(())
             }
             let cycle = tail_val / N;
@@ -97,20 +106,20 @@ impl<T,const N: usize> PRQ<T, N> {
             let (safe, epoch) = self.array[index].load_safe_and_epoch(Ordering::Relaxed);
             let value = self.array[index].value.load(Ordering::Relaxed);
 
-            if (value.is_null() || value.addr() == thread_token) // Not occupied
+            if (value.is_null() || Cell::<T>::is_token(value.addr())) // Not occupied
                 && epoch < cycle && (safe || self.head.load(Ordering::Relaxed) <= tail_val) { // Enqueue has not been overtaken
                 
                 // Lock the cell using our thread token, ptr::invalid_mut makes sure the thread token "pointer" does not have any provinance so it can not be dereferenced without MIRI complaining
-                if let Ok(_) = self.array[index].value.compare_exchange(value, ptr::invalid_mut(thread_token), Ordering::Relaxed, Ordering::Relaxed) {
+                if let Ok(_) = self.array[index].value.compare_exchange(value, Cell::make_token(thread_id), Ordering::Relaxed, Ordering::Relaxed) {
                     // Advance the epoch
                     if let Ok(_) = self.array[index].compare_exchange_safe_and_epoch((safe, epoch), (true, cycle), Ordering::Relaxed, Ordering::Relaxed) {
                         // Attempt to publish the value
-                        if let Ok(_) = self.array[index].value.compare_exchange(ptr::invalid_mut(thread_token), value_ptr, Ordering::Relaxed, Ordering::Relaxed) {
+                        if let Ok(_) = self.array[index].value.compare_exchange(Cell::make_token(thread_id), value_ptr.cast_mut(), Ordering::Relaxed, Ordering::Relaxed) {
                             return Ok(());
                         }
                     } else {
                         // Clean up if the safe and epoch CAS fails
-                        let _ = self.array[index].value.compare_exchange(ptr::invalid_mut(thread_token), ptr::null_mut(), Ordering::Relaxed, Ordering::Relaxed);
+                        let _ = self.array[index].value.compare_exchange(Cell::make_token(thread_id), ptr::null_mut(), Ordering::Relaxed, Ordering::Relaxed);
                     }
                 }
             }
@@ -118,18 +127,12 @@ impl<T,const N: usize> PRQ<T, N> {
             // Check if the queue is full
             if tail_val - self.head.load(Ordering::Relaxed) >= N.try_into().unwrap() {
                 self.closed.store(true, Ordering::Relaxed);
-
-                // Drop the allocated value since it can no longer be enqueued
-                let _ = unsafe {
-                    Box::from_raw(value_ptr)
-                };
                 return Err(())
             }
         }
     }
 
-    fn deqeue(&self) -> Option<T> {
-        let thread_token: usize = thread::current().id().as_u64().get().try_into().unwrap();
+    fn dequeue(&self) -> Option<*mut T> {
         loop {
 
             let head_val = self.head.fetch_add(1, Ordering::Relaxed);
@@ -146,15 +149,15 @@ impl<T,const N: usize> PRQ<T, N> {
                     continue;
                 }
 
-                if epoch == cycle && (!value.is_null() || value.addr() == thread_token) {
+                if epoch == cycle && (!value.is_null() || Cell::<T>::is_token(value.addr())) {
                     // Dequeue transition
                     cell.value.store(ptr::null_mut(), Ordering::Relaxed);
-                    return Some(*unsafe {Box::from_raw(value)});
+                    return Some(value);
                 }
-                if epoch <= cycle && (value.is_null() || value.addr() == thread_token) {
+                if epoch <= cycle && (value.is_null() || Cell::<T>::is_token(value.addr())) {
                     // Empty transition
                     // Unlock the cell
-                    if value.addr() == thread_token {
+                    if Cell::<T>::is_token(value.addr()) {
                         if let Err(_) = cell.value.compare_exchange(value, ptr::null_mut(), Ordering::Relaxed, Ordering::Relaxed) {
                             continue;
                         }
@@ -166,7 +169,7 @@ impl<T,const N: usize> PRQ<T, N> {
                     // If I understand the paper correctly this continue is implied by their wierd when block
                     continue;
                 }
-                if epoch < cycle && (!value.is_null() || value.addr() == thread_token) {
+                if epoch < cycle && (!value.is_null() || Cell::<T>::is_token(value.addr())) {
                     // Unsafe transition
                     if let Ok(_) = cell.compare_exchange_safe_and_epoch((safe, epoch), (false, epoch), Ordering::Relaxed, Ordering::Relaxed) {
                         break;
@@ -202,7 +205,7 @@ impl<T, const N: usize> Drop for PRQ<T, N> {
 #[cfg(test)]
 mod test {
     use super::{Cell, PRQ};
-    use std::sync::atomic::Ordering;
+    use std::{sync::{atomic::Ordering, Arc}, thread};
 
     #[test]
     fn basic_cell() {
@@ -217,14 +220,51 @@ mod test {
         assert!(!prq.closed.load(Ordering::Relaxed));
 
         for i in 0..5 {
-            assert_eq!(prq.enqueue(i), Ok(()));
+            let item = Box::into_raw(Box::new(i));
+            assert_eq!(prq.enqueue(item), Ok(()));
         }
         // PRQ is now full, should fail
-        assert_eq!(prq.enqueue(5), Err(()));
+        let item = Box::into_raw(Box::new(5));
+        assert_eq!(prq.enqueue(item), Err(()));
+        let _ = unsafe {Box::from_raw(item)};
 
         for i in 0..5 {
-            assert_eq!(prq.deqeue(), Some(i));
+            let value = unsafe {Box::from_raw(prq.dequeue().unwrap())};
+            assert_eq!(value, Box::new(i));
         }
-        assert_eq!(prq.deqeue(), None);
+        assert_eq!(prq.dequeue(), None);
+    }
+
+    #[test]
+    fn prq_concurrent() {
+        const N: usize = 10;
+        let prq: Arc<PRQ<usize, N>> = Arc::new(PRQ::new());
+
+        let mut handles = vec![];
+
+
+        for i in 0..N {
+            let queue = Arc::clone(&prq);
+            let handle = thread::spawn(move || {
+                let v = Box::into_raw(Box::new(i));
+                queue.enqueue(v)
+            });
+            handles.push(handle);
+        }
+        
+        for handle in handles {
+            let _ = handle.join().expect("Enqueue that should have succeded failed");
+        }
+
+        let mut dequeue_sum = 0;
+        while let Some(ptr) = prq.dequeue() {
+            let value = unsafe{Box::from_raw(ptr)};
+            dequeue_sum += *value;
+        }
+
+        // Sum of first n natural numbers (0 to n-1)
+        let expected_sum = N * (N - 1) / 2;
+
+        assert_eq!(expected_sum, dequeue_sum, "Sums do not match!");
     }
 }
