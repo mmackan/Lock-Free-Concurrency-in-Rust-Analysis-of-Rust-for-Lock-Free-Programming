@@ -76,12 +76,12 @@ pub struct PRQ<T, const N: usize> {
     array: [Cell<T>; N],
     //Tail placed below the array to make (very) sure head and tail are on different cache lines
     tail: AtomicUsize,
-    next: haphazard::AtomicPtr<PRQ<T, N>>,
+    pub next: haphazard::AtomicPtr<PRQ<T, N>>,
 
 }
 
 impl<T,const N: usize> PRQ<T, N> {
-    fn new() -> Self {
+    pub fn new() -> Self {
         PRQ { 
             closed: false.into(), 
             head: N.into(), 
@@ -92,7 +92,7 @@ impl<T,const N: usize> PRQ<T, N> {
     }
 
     // Returns Ok() if enqueue was succesfull, Err() if the queue is closed
-    fn enqueue(&self, value_ptr: *const T) -> Result<(), ()> {
+    pub fn enqueue(&self, value_ptr: *const T) -> Result<(), ()> {
         // Get a unique thread token
         let thread_id: usize = thread::current().id().as_u64().get().try_into().unwrap();
         loop {
@@ -132,7 +132,7 @@ impl<T,const N: usize> PRQ<T, N> {
         }
     }
 
-    fn dequeue(&self) -> Option<*mut T> {
+    pub fn dequeue(&self) -> Option<*mut T> {
         loop {
 
             let head_val = self.head.fetch_add(1, Ordering::Relaxed);
