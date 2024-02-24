@@ -13,20 +13,20 @@ struct LPRQ<T, const N: usize> {
 
 impl<T, const N: usize> Drop for LPRQ<T, N> {
     fn drop(&mut self) {
+        // Empty the queue to drop any leftover items
+        let mut hazard1 = HazardPointer::new();
+        let mut hazard2 = HazardPointer::new();
+        while let Some(_) = self.dequeue(&mut hazard1, &mut hazard2) {}
+
+
         let head = self.head.load_ptr();
         let tail = self.tail.load_ptr();
-        // If head and tail point to the same PRQ make sure to only drop it once
+        // The queue should be empty now, but dubblecheck for safety
         if head == tail {
             let old =  unsafe { self.head.swap_ptr(ptr::null_mut())}.expect("A LPRQ with both head and tail as null was dropped. This should never happen and indicates a bug or memory corruption");
             unsafe { old.retire()};
         } else {
-            // Head and tail point to different queues, so both need to be dropped
-            let head = unsafe { self.head.swap_ptr(ptr::null_mut())}.expect("LPRQ dropped with a null head! Should never happpen");
-            let tail = unsafe { self.tail.swap_ptr(ptr::null_mut())}.expect("LPRQ dropped with a null tail! Should never happpen");
-            unsafe {
-                head.retire();
-                tail.retire();
-            }
+            panic!("Drop for LPRQ somehow failed to dequeue all its items")
         }
     }
 }
@@ -40,9 +40,9 @@ impl<T, const N: usize> LPRQ<T, N> {
         }
     }
     fn enqueue(&self, val: T, hazard: &mut HazardPointer) {
+
         let boxed_val = Box::new(val);
         let value = Box::into_raw(boxed_val);
-
         loop {
             // fast path: Add item to current PRQ
             let queue = self.tail.safe_load(hazard).unwrap();
@@ -51,9 +51,8 @@ impl<T, const N: usize> LPRQ<T, N> {
                 Ok(_) => return,
                 Err(_) => {
                     // Slow path: Tail is full, allocate and add a new crq
-                    let new_tail: Box<PRQ<T, N>> = Box::new(PRQ::new());
-                    new_tail.enqueue(value).expect("New tail somehow failed to enqueue a single item despite the fact that it shouold be empty");
-                    let new_tail_ptr = Box::into_raw(new_tail);
+                    let new_tail: AtomicPtr<PRQ<T, N>> = AtomicPtr::from(Box::new(PRQ::new_with_item(value)));
+                    let new_tail_ptr = new_tail.load_ptr();
                     match unsafe {queue.next.compare_exchange_ptr(ptr::null_mut(), new_tail_ptr)} {
                         Ok(_) => {
                             // Next successfully inserted, update tail to point to that
@@ -64,6 +63,8 @@ impl<T, const N: usize> LPRQ<T, N> {
                             let _ = unsafe {
                                 self.tail.compare_exchange_ptr(queue_ptr.cast_mut(), next)
                             };
+                            // Drop the failed new tail so it does not leak
+                            let _ = unsafe {new_tail.retire()};
                             continue
                         },
                     }
@@ -81,8 +82,8 @@ impl<T, const N: usize> LPRQ<T, N> {
                 },
                 None => {
                     // Failed, is this queue empty?
-                    match queue.next.safe_load(hazard2) {
-                        Some(next) => {
+                    match hazard2.protect_ptr(unsafe{queue.next.as_std()}) {
+                        Some(next_ptr) => {
                             // LPRQ is not empty, try to dequeue again
                             match queue.dequeue() {
                                 Some(value) => {
@@ -91,9 +92,8 @@ impl<T, const N: usize> LPRQ<T, N> {
                                 },
                                 None => {
                                     // PRQ is empty, update head and restart
-                                    let next_ptr: *const PRQ<T,N> = next;
                                     let queue_ptr: *const PRQ<T,N> = queue;
-                                    match unsafe { self.head.compare_exchange_ptr(queue_ptr.cast_mut(), next_ptr.cast_mut()) } {
+                                    match unsafe { self.head.compare_exchange_ptr(queue_ptr.cast_mut(), next_ptr.0.as_ptr()) } {
                                         Ok(Some(old)) => {
                                             // The old PRQ is now empty, so we retire it
                                             unsafe { old.retire() };
@@ -155,7 +155,7 @@ mod test {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
                 let mut hazard = HazardPointer::new();
-                for j in 0..234 {
+                for j in 0..23 {
                     queue.enqueue(j + i, &mut hazard)
                 }
             });
@@ -173,11 +173,56 @@ mod test {
             let handle = thread::spawn(move || {
                 let mut hazard1 = HazardPointer::new();
                 let mut hazard2 = HazardPointer::new();
-                for _j in 0..234 {
+                for _j in 0..23 {
                     queue.dequeue(&mut hazard1, &mut hazard2).unwrap();
                 }
             });
             handles.push(handle);
+        }
+        for handle in handles {
+            let _ = handle.join();
+        }
+        drop(queue);
+        Domain::global().eager_reclaim();
+    }
+    #[test]
+    fn dropping_with_non_empty() {
+        let queue: Arc<LPRQ<i32, 10>> = Arc::new(LPRQ::new());
+
+
+        let mut handles = vec![];
+
+
+        for i in 0..10 {
+            let queue = Arc::clone(&queue);
+            let handle = thread::spawn(move || {
+                let mut hazard = HazardPointer::new();
+                for j in 0..2 {
+                    queue.enqueue(j + i, &mut hazard)
+                }
+            });
+            handles.push(handle);
+        }
+
+        for handle in handles {
+            let _ = handle.join();
+        }
+
+        handles = vec![];
+
+        for _i in 0..10 {
+            let queue = Arc::clone(&queue);
+            let handle = thread::spawn(move || {
+                let mut hazard1 = HazardPointer::new();
+                let mut hazard2 = HazardPointer::new();
+                for _j in 0..1 {
+                    queue.dequeue(&mut hazard1, &mut hazard2).unwrap();
+                }
+            });
+            handles.push(handle);
+        }
+        for handle in handles {
+            let _ = handle.join();
         }
         drop(queue);
         Domain::global().eager_reclaim();

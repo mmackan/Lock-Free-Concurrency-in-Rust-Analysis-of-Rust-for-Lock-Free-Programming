@@ -91,6 +91,18 @@ impl<T,const N: usize> PRQ<T, N> {
         }
     }
 
+    pub fn new_with_item(value_ptr: *const T) -> Self {
+        let prq = PRQ { 
+            closed: false.into(), 
+            head: N.into(), 
+            array: array::from_fn(|_| Default::default()), 
+            tail: N.into(), 
+            next: unsafe {haphazard::AtomicPtr::new(null_mut())} 
+        };
+        let _ = prq.enqueue(value_ptr).expect("Failed to enqueue an item in a new and empty PRQ, Should not happen ever");
+        return prq
+    }
+
     // Returns Ok() if enqueue was succesfull, Err() if the queue is closed
     pub fn enqueue(&self, value_ptr: *const T) -> Result<(), ()> {
         // Get a unique thread token
@@ -186,18 +198,6 @@ impl<T,const N: usize> PRQ<T, N> {
             }
         }
 
-    }
-}
-
-impl<T, const N: usize> Drop for PRQ<T, N> {
-    fn drop(&mut self) {
-        for cell in &self.array {
-            let val = cell.value.load(Ordering::Relaxed);
-            if !val.is_null() {
-                // Since val is not null, we have a non dequeued value that needs to be cleaned up
-                let _ = unsafe {Box::from_raw(val)};
-            }
-        }
     }
 }
 
