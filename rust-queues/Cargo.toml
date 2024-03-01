@@ -8,8 +8,8 @@ haphazard = "0.1.8"
 rand = "0.8"
 
 [[bin]]
-name = "msq_benchmark"
-path = "src/bin/msq_benchmark.rs"
+name = "msq_pairwise"
+path = "src/bin/msq_pairwise.rs"
 [[bin]]
 name = "lprq_pairwise"
 path = "src/bin/lprq_pairwise.rs"
