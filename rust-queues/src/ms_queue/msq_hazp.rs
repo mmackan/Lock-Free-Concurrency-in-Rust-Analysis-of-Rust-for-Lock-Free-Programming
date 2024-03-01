@@ -8,16 +8,6 @@ pub struct MSQueue<'a, T> {
     hazard2: HazardPointer<'a>
 }
 
-impl<'a, T> MSQueue<'a, T> 
-    where T : Copy + Clone + Send + Sync {
-    fn new() -> Self {
-        MSQueue {
-            queue: Arc::new(Queue::new()),
-            hazard1: HazardPointer::new(),
-            hazard2: HazardPointer::new()
-        }
-    }
-}
 
 impl<T> Clone for MSQueue<'_, T> {
     fn clone(&self) -> Self {
@@ -27,6 +17,13 @@ impl<T> Clone for MSQueue<'_, T> {
 
 impl<T> SharedQueue<T> for MSQueue<'_, T> 
     where T : Clone + Copy + Send + Sync {
+    fn new() -> Self {
+        MSQueue {
+            queue: Arc::new(Queue::new()),
+            hazard1: HazardPointer::new(),
+            hazard2: HazardPointer::new()
+        }
+    }
     fn enqueue(&mut self, val: T) {
         self.queue.enqueue(val, &mut self.hazard1)
     }

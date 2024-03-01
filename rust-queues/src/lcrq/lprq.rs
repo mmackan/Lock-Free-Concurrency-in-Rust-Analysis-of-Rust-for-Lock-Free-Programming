@@ -1,10 +1,40 @@
-use std::ptr;
+use std::{ptr, sync::Arc};
 
-use haphazard::{AtomicPtr, HazardPointer, Replaced};
+use haphazard::{AtomicPtr, HazardPointer};
+
+use crate::shared_queue::SharedQueue;
 
 use super::crq::PRQ;
 
+pub struct SharedLPRQ<'a, T, const N: usize> {
+    queue: Arc<LPRQ<T, N>>,
+    hazard1: HazardPointer<'a>,
+    hazard2: HazardPointer<'a>
+}
 
+impl<'a, T, const N: usize> SharedQueue<T> for SharedLPRQ<'a, T, N> {
+    fn new() -> Self {
+        Self {
+            queue: Arc::new(LPRQ::new()),
+            hazard1: HazardPointer::new(),
+            hazard2: HazardPointer::new(),
+        }
+    }
+
+    fn enqueue(&mut self, val: T) {
+        self.queue.enqueue(val, &mut self.hazard1)
+    }
+
+    fn dequeue(&mut self) -> Option<T> {
+        self.queue.dequeue(&mut self.hazard1, &mut self.hazard2)
+    }
+}
+
+impl<'a, T, const N: usize> Clone for SharedLPRQ<'a, T, N> {
+    fn clone(&self) -> Self {
+        Self { queue: self.queue.clone(), hazard1: HazardPointer::new(), hazard2: HazardPointer::new() }
+    }
+}
 
 struct LPRQ<T, const N: usize> {
     head: AtomicPtr<PRQ<T, N>>,
