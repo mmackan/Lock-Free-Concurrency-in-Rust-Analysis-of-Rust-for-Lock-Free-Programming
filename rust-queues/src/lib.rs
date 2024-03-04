@@ -4,5 +4,5 @@
 pub mod ms_queue;
 
 pub mod shared_queue;
-pub mod lcrq;
+pub mod lprq;
 pub mod pairwise_benchmark;

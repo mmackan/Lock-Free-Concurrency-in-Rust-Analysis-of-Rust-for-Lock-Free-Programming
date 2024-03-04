@@ -70,13 +70,12 @@ impl<T> Cell<T> {
 
 #[derive(Debug)]
 pub struct PRQ<T, const N: usize> {
-    // Not sure if these two need to be on separate cache lines, TODO: benchmark and check
-    closed: AtomicBool,
     head: AtomicUsize,
     array: [Cell<T>; N],
     //Tail placed below the array to make (very) sure head and tail are on different cache lines
     tail: AtomicUsize,
     pub next: haphazard::AtomicPtr<PRQ<T, N>>,
+    closed: AtomicBool,
 
 }
 

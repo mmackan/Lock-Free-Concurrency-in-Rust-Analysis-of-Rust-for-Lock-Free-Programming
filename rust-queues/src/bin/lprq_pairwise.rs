@@ -1,6 +1,6 @@
 use std::env;
 
-use rust_queues::{lcrq::lprq::SharedLPRQ, pairwise_benchmark, shared_queue::SharedQueue};
+use rust_queues::{lprq::lprq::SharedLPRQ, pairwise_benchmark, shared_queue::SharedQueue};
 
 
 const LOGN_OPS: u32 = 7;

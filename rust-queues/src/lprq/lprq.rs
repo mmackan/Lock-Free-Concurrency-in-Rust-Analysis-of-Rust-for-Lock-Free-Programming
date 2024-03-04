@@ -4,7 +4,7 @@ use haphazard::{AtomicPtr, HazardPointer};
 
 use crate::shared_queue::SharedQueue;
 
-use super::crq::PRQ;
+use super::prq::PRQ;
 
 pub struct SharedLPRQ<'a, T, const N: usize> {
     queue: Arc<LPRQ<T, N>>,
