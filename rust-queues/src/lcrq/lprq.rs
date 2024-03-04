@@ -1,4 +1,4 @@
-use std::{ptr, sync::Arc};
+use std::{ptr, sync::{atomic::AtomicUsize, Arc}};
 
 use haphazard::{AtomicPtr, HazardPointer};
 
@@ -38,7 +38,7 @@ impl<'a, T, const N: usize> Clone for SharedLPRQ<'a, T, N> {
 
 struct LPRQ<T, const N: usize> {
     head: AtomicPtr<PRQ<T, N>>,
-    tail: AtomicPtr<PRQ<T, N>>
+    tail: AtomicPtr<PRQ<T, N>>,
 }
 
 impl<T, const N: usize> Drop for LPRQ<T, N> {

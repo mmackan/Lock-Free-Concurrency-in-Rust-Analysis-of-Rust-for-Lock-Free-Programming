@@ -137,7 +137,7 @@ impl<T,const N: usize> PRQ<T, N> {
             }
 
             // Check if the queue is full
-            if tail_val - self.head.load(Ordering::Relaxed) >= N.try_into().unwrap() {
+            if tail_val.saturating_sub(self.head.load(Ordering::Relaxed)) >= N.try_into().unwrap() {
                 self.closed.store(true, Ordering::Relaxed);
                 return Err(())
             }
