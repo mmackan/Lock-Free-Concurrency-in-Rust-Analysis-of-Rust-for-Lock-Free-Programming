@@ -75,6 +75,7 @@ pub struct PRQ<T, const N: usize> {
     //Tail placed below the array to make (very) sure head and tail are on different cache lines
     tail: AtomicUsize,
     pub next: haphazard::AtomicPtr<PRQ<T, N>>,
+    // In the reference this is stored as the top bit of tail
     closed: AtomicBool,
 
 }
@@ -136,7 +137,7 @@ impl<T,const N: usize> PRQ<T, N> {
             }
 
             // Check if the queue is full
-            if tail_val.saturating_sub(self.head.load(Ordering::Relaxed)) >= N.try_into().unwrap() {
+            if tail_val.saturating_sub(self.head.load(Ordering::Relaxed)) >= N {
                 self.closed.store(true, Ordering::Relaxed);
                 return Err(())
             }
