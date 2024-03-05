@@ -3,7 +3,7 @@ use std::env;
 use rust_queues::ms_queue::msq_hazp::MSQueue;
 use rust_queues::shared_queue::SharedQueue;
 
-use rust_queues::umpmc_benchmark;
+use rust_queues::mpmc_benchmark;
 
 /// Default exponent for # operations
 const LOGN_OPS: u32 = 7;
@@ -42,7 +42,7 @@ fn main() {
 
     let queue = MSQueue::new();
 
-    umpmc_benchmark::benchmark(producers, consumers, logn, queue);
+    mpmc_benchmark::benchmark(producers, consumers, logn, queue);
 
     println!("  Finished");
 }
