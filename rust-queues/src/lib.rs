@@ -6,3 +6,4 @@ pub mod ms_queue;
 pub mod shared_queue;
 pub mod lprq;
 pub mod pairwise_benchmark;
+pub mod umpmc_benchmark;
