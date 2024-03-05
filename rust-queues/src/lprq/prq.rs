@@ -107,7 +107,7 @@ impl<T,const N: usize> PRQ<T, N> {
         // Get a unique thread token
         let thread_id: usize = thread::current().id().as_u64().get().try_into().unwrap();
         loop {
-            let tail_val: usize = self.tail.fetch_add(1, Ordering::Relaxed).try_into().unwrap();
+            let tail_val: usize = self.tail.fetch_add(1, Ordering::Relaxed);
             if self.closed.load(Ordering::Relaxed) {
                 return Err(())
             }
