@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 haphazard = "0.1.8"
 rand = "0.8"
+crossbeam-channel = "0.5"
 
 [[bin]]
 name = "msq_pairwise"
