@@ -137,7 +137,7 @@ impl<T,const N: usize> PRQ<T, N> {
             }
 
             // Check if the queue is full
-            if tail_val.saturating_sub(self.head.load(Ordering::Relaxed)) >= N {
+            if tail_val >= self.head.load(Ordering::Relaxed) + N {
                 self.closed.store(true, Ordering::Relaxed);
                 return Err(())
             }
@@ -150,9 +150,9 @@ impl<T,const N: usize> PRQ<T, N> {
             let head_val = self.head.fetch_add(1, Ordering::Relaxed);
             let cycle = head_val / N;
             let index = head_val % N;
+            let cell = &self.array[index];
             loop {
                 // Update cell state
-                let cell = &self.array[index];
                 let (safe, epoch) = cell.load_safe_and_epoch(Ordering::Relaxed);
                 let value = cell.value.load(Ordering::Relaxed);
 
