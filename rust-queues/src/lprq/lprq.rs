@@ -2,6 +2,8 @@ use std::{ptr, sync::{atomic::AtomicUsize, Arc}};
 
 use haphazard::{AtomicPtr, HazardPointer};
 
+use crossbeam_utils::CachePadded;
+
 use crate::shared_queue::SharedQueue;
 
 use super::prq::PRQ;
@@ -37,8 +39,8 @@ impl<'a, T, const N: usize> Clone for SharedLPRQ<'a, T, N> {
 }
 
 struct LPRQ<T, const N: usize> {
-    head: AtomicPtr<PRQ<T, N>>,
-    tail: AtomicPtr<PRQ<T, N>>,
+    head: CachePadded<AtomicPtr<PRQ<T, N>>>,
+    tail: CachePadded<AtomicPtr<PRQ<T, N>>>,
 }
 
 impl<T, const N: usize> Drop for LPRQ<T, N> {
@@ -65,8 +67,8 @@ impl<T, const N: usize> LPRQ<T, N> {
     fn new() -> Self {
         let initial: *mut PRQ<T, N> = Box::into_raw(Box::new(PRQ::new()));
         Self {
-            head: unsafe{AtomicPtr::new(initial)},
-            tail: unsafe{AtomicPtr::new(initial)},
+            head: unsafe{AtomicPtr::new(initial)}.into(),
+            tail: unsafe{AtomicPtr::new(initial)}.into(),
         }
     }
     fn enqueue(&self, val: T, hazard: &mut HazardPointer) {
