@@ -71,11 +71,14 @@ impl<T> Cell<T> {
 #[derive(Debug)]
 pub struct PRQ<T, const N: usize> {
     head: AtomicUsize,
+    _padding: [u8; 63],
     array: [Cell<T>; N],
     //Tail placed below the array to make (very) sure head and tail are on different cache lines
     tail: AtomicUsize,
+    _padding2: [u8; 63],
     pub next: haphazard::AtomicPtr<PRQ<T, N>>,
     // In the reference this is stored as the top bit of tail
+    _padding3: [u8; 63],
     closed: AtomicBool,
 
 }
@@ -87,7 +90,10 @@ impl<T,const N: usize> PRQ<T, N> {
             head: N.into(), 
             array: array::from_fn(|_| Default::default()), 
             tail: N.into(), 
-            next: unsafe {haphazard::AtomicPtr::new(null_mut())} 
+            next: unsafe {haphazard::AtomicPtr::new(null_mut())} ,
+            _padding: [0; 63],
+            _padding2: [0; 63],
+            _padding3: [0; 63],
         }
     }
 
@@ -97,7 +103,10 @@ impl<T,const N: usize> PRQ<T, N> {
             head: N.into(), 
             array: array::from_fn(|_| Default::default()), 
             tail: N.into(), 
-            next: unsafe {haphazard::AtomicPtr::new(null_mut())} 
+            next: unsafe {haphazard::AtomicPtr::new(null_mut())},
+            _padding: [0; 63],
+            _padding2: [0; 63],
+            _padding3: [0; 63],
         };
         let _ = prq.enqueue(value_ptr).expect("Failed to enqueue an item in a new and empty PRQ, Should not happen ever");
         return prq
