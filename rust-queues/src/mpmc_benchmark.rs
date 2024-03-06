@@ -68,10 +68,10 @@ pub fn benchmark<Q>(nproducer: u32, nconsumer: u32, logn: u32, queue: Q)
 
     for p in producer_handles {
         p.join().unwrap();
-
-        // Notify consumers no more elements will be enqueued
-        stop_flag.store(true, SeqCst);
     }
+    
+    // Notify consumers no more elements will be enqueued
+    stop_flag.store(true, SeqCst);
 
     for c in consumer_handles {
         c.join().unwrap();
