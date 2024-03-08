@@ -7,3 +7,4 @@ pub mod shared_queue;
 pub mod lprq;
 pub mod pairwise_benchmark;
 pub mod mpmc_benchmark;
+pub mod benchmark_utils;

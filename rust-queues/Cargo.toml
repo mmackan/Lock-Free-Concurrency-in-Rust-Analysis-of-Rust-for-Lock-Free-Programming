@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+core_affinity = "0.8.1"
 crossbeam-utils = "0.8.19"
 haphazard = "0.1.8"
 rand = "0.8"

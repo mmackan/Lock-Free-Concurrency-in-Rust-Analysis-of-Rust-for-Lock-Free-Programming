@@ -5,25 +5,39 @@ use rand::Rng;
 
 use crate::shared_queue::SharedQueue;
 
-const BASE: u32 = 10;
+use core_affinity;
 
-pub fn benchmark<Q>(nprocs: u32, logn: u32, queue: Q) 
+const BASE: usize = 10;
+
+pub fn benchmark<Q>(nprocs: usize, logn: usize, even_cores_only: bool, queue: Q) 
     where Q: SharedQueue<i32> + Clone + Send + 'static{
+    
+
+    
+    // Calculate number of operations
+    let nops = BASE.pow(logn as u32);
+    let tops = nops / nprocs;
+
+
+    let binding = core_affinity::get_core_ids().unwrap();
+    let mut core_ids = binding.iter();
+
 
     let mut handles = vec![];
     
-    // Calculate number of operations
-    let nops = BASE.pow(logn);
-    let tops = (nops / nprocs) as i32;
-    
-    for _ in 0..nprocs {       
+    for _i in 0..nprocs {       
         let mut queue_handle = queue.clone();
-
+        let core_id = core_ids.next().expect("Ran out of cores! Maybe used fewer threads").clone();
+        if even_cores_only {
+            // Skip a core so we only use even ones, for use on the server
+            let _ = core_ids.next();
+        }
         let handle = thread::spawn(move || {
+            let _ = core_affinity::set_for_current(core_id);
             let mut rng = rand::thread_rng();
 
             for j in 0..tops {
-                queue_handle.enqueue(j);
+                queue_handle.enqueue(j.try_into().unwrap());
                 delay_exec(&mut rng);
 
                 queue_handle.dequeue();
