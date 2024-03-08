@@ -1,18 +1,19 @@
-use std::arch::asm;
-use std::sync::Arc;
-use std::thread;
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering::SeqCst;
 use rand::rngs::ThreadRng;
 use rand::Rng;
+use std::arch::asm;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering::SeqCst;
+use std::sync::Arc;
+use std::thread;
 
 use crate::shared_queue::SharedQueue;
 
 const BASE: u32 = 10;
 
 pub fn benchmark<Q>(nproducer: u32, nconsumer: u32, logn: u32, queue: Q)
-    where Q: SharedQueue<i32> + Clone + Send + 'static {
-
+where
+    Q: SharedQueue<i32> + Clone + Send + 'static,
+{
     let stop_flag = Arc::new(AtomicBool::new(false));
 
     let mut producer_handles = vec![];
@@ -23,17 +24,17 @@ pub fn benchmark<Q>(nproducer: u32, nconsumer: u32, logn: u32, queue: Q)
     let tops = (nops / nproducer) as i32;
 
     // Producers
-    for _ in 0..nproducer {       
+    for _ in 0..nproducer {
         let mut queue_handle = queue.clone();
 
         let handle = thread::spawn(move || {
             let mut rng = rand::thread_rng();
 
             /* The LPRQ paper does this differently, they:
-                - rely on stop_flag for producers also, thus relying on
-                  loadbalancing to limit on the amount of enqueue operations
-                - load balances when first segment PRQ reaches 70% 
-                - Benchmark runs for 1000ms, then stops */
+            - rely on stop_flag for producers also, thus relying on
+              loadbalancing to limit on the amount of enqueue operations
+            - load balances when first segment PRQ reaches 70%
+            - Benchmark runs for 1000ms, then stops */
             for j in 0..tops {
                 queue_handle.enqueue(j);
                 delay_exec(&mut rng);
@@ -52,13 +53,13 @@ pub fn benchmark<Q>(nproducer: u32, nconsumer: u32, logn: u32, queue: Q)
 
             loop {
                 // TODO: Seperate successful and failed dequeues (as paper)
-                match queue_handle.dequeue(){
+                match queue_handle.dequeue() {
                     Some(_) => continue,
                     None => {
                         if stop_flag_handle.load(SeqCst) {
-                            break
+                            break;
                         }
-                    },
+                    }
                 }
                 delay_exec(&mut rng);
             }
@@ -69,7 +70,7 @@ pub fn benchmark<Q>(nproducer: u32, nconsumer: u32, logn: u32, queue: Q)
     for p in producer_handles {
         p.join().unwrap();
     }
-    
+
     // Notify consumers no more elements will be enqueued
     stop_flag.store(true, SeqCst);
 

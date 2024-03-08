@@ -12,17 +12,24 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 3 {
-        eprintln!("Usage: {} <producers> <consumers> [exponent_base_ten]", args[0]);
+        eprintln!(
+            "Usage: {} <producers> <consumers> [exponent_base_ten]",
+            args[0]
+        );
         std::process::exit(1);
     }
 
-    let producers: u32 = args[1].parse().expect("Number of producers must be a positive integer");
+    let producers: u32 = args[1]
+        .parse()
+        .expect("Number of producers must be a positive integer");
     if producers == 0 {
         eprintln!("Number of producers cannot be 0.");
         std::process::exit(1);
     }
 
-    let consumers: u32 = args[2].parse().expect("Number of consumers must be a positive integer");
+    let consumers: u32 = args[2]
+        .parse()
+        .expect("Number of consumers must be a positive integer");
     if consumers == 0 {
         eprintln!("Number of consumers cannot be 0.");
         std::process::exit(1);

@@ -1,2 +1,2 @@
-mod prq;
 pub mod lprq;
+mod prq;
