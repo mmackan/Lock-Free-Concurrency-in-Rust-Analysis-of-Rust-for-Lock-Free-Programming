@@ -7,13 +7,13 @@ args = ["fmt", "--", "--emit=files"]
 command = "cargo"
 args = ["clean"]
 
-[tasks.build_release]
+[tasks.build_debug]
 command = "cargo"
-args = ["build", "--release"]
+args = ["build"]
 dependencies = ["clean"]
 
-[tasks.build-flow]
+[tasks.build]
 dependencies = [
     "format",
-    "build_release",
+    "build_debug",
 ]
