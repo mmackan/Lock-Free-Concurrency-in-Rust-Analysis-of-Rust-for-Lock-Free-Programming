@@ -1,0 +1,106 @@
+[env]
+LOGN = "1"
+C_MSQ_DIR = "${PWD}/../c-reference"
+C_LPRQ_DIR = "${PWD}/../c++-reference"
+RUST_DIR = "${PWD}"
+RESULT_DIR = "${PWD}/../benchmark-results"
+
+# TODO (OPTIONAL): set conditions if only compatible with linux
+# [tasks.test-condition]
+# condition = { platforms = ["windows", "linux"], channels = ["beta", "nightly"] }
+# script = [
+#     "echo \"condition was met\""
+# ]
+
+
+# Generic tasks for building and cleaning
+[tasks.build-generic]
+description = "Build project"
+category = "Build"
+script_runner = "bash"
+script = [
+    "echo Building $TARGET",
+    "cd $CWD",
+    "$CMD $ARGS"
+]
+
+[tasks.clean-generic]
+description = "Clean project"
+category = "Clean"
+script_runner = "bash"
+script = [
+    "echo Cleaning in $CWD",
+    "cd $CWD",
+    "$CMD $ARGS"
+]
+
+# TODO (OPTIONAL): Check the correct directory
+
+# Build and clean tasks for each queue using the generic
+[tasks.build-rust-queues]
+extend = "build-generic"
+env = { TARGET = "Rust queues", CWD = "${RUST_DIR}", CMD = "cargo", ARGS = "build --release" }
+
+[tasks.build-c-msq]
+extend = "build-generic"
+env = { TARGET = "C MSQueue", CWD = "${C_MSQ_DIR}", CMD = "make", ARGS = ""}
+
+# TODO: build for c++-reference
+# [tasks.build-c-lprq]
+
+[tasks.clean-rust-queues]
+extend = "clean-generic"
+env = { CWD = "${RUST_DIR}", CMD = "cargo", ARGS = "clean" }
+
+[tasks.clean-c-msq]
+extend = "clean-generic"
+env = { CWD = "${C_MSQ_DIR}", CMD = "make", ARGS = "clean"}
+
+# TODO: clean for c++-reference
+# [tasks.clean-c-lprq]
+# extend = "clean-generic"
+# env = { CWD = "${PWD}/../c++-reference", CMD = "make", ARGS = "clean"}
+
+
+# Build and clean all projects
+[tasks.build-all]
+dependencies = ["clean-all", "build-rust-queues", "build-c-msq"] #, "build-c-lprq"]
+
+[tasks.clean-all]
+dependencies = ["clean-rust-queues", "clean-c-msq"] #, "clean-c-lprq"]
+
+# Generic parameter scan benchmark
+[tasks.parameter-scan-generic]
+description = "Hyperfine parameter scan"
+script = [
+    "export HALF_THREADS=$(($(nproc) / 2))",
+    "echo Running parameter scan '\n' $TARGET [1, $HALF_THREADS]",
+    "hyperfine --parameter-scan num_threads 1 $HALF_THREADS '$BINARY_PATH {num_threads} $LOGN' --export-json ${RESULT_DIR}/$JSON"
+]
+
+# MSQ benchmarks
+[tasks.benchmark-rust-msq]
+extend = "parameter-scan-generic"
+env = { TARGET = "Rust MSQueue", BINARY_PATH = "${RUST_DIR}/target/release/msq_pairwise", JSON = "msq_rust.json"}
+
+[tasks.benchmark-c-msq]
+extend = "parameter-scan-generic"
+env = { TARGET = "C MSQueue", BINARY_PATH = "${C_MSQ_DIR}/msqueue", JSON = "msq_c.json"}
+
+[tasks.run-benchmark-msq]
+description = "Hyperfine parameter scan"
+dependencies = ["benchmark-c-msq", "benchmark-rust-msq"]
+
+# Benchmark all
+[tasks.build-and-benchmark]
+description = "Build all projects and benchmark"
+script = [
+    "echo Running in directory: $PWD",
+]
+dependencies = ["build-all", "run-benchmark-msq"]
+
+
+
+
+
+# TODO: Call python script to get image
