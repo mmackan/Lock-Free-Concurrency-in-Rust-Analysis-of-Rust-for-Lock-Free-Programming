@@ -1,17 +1,33 @@
 [env]
-LOGN = "1"
-C_MSQ_DIR = "${PWD}/../c-reference"
-C_LPRQ_DIR = "${PWD}/../c++-reference"
-RUST_DIR = "${PWD}"
-RESULT_DIR = "${PWD}/../benchmark-results"
+# Benchmarking parameters
+LOGN = "7"
+FACTOR = "1" # Amount of available threads divded by factor
 
-# TODO (OPTIONAL): set conditions if only compatible with linux
-# [tasks.test-condition]
-# condition = { platforms = ["windows", "linux"], channels = ["beta", "nightly"] }
-# script = [
-#     "echo \"condition was met\""
-# ]
+# Directories
+BASE_DIR = "${PWD}"
+C_MSQ_DIR = "${BASE_DIR}/../c-reference"
+C_LPRQ_DIR = "${BASE_DIR}/../c++-reference"
+RUST_DIR = "${BASE_DIR}"
+SCRIPT_DIR = "${BASE_DIR}/../hyperfine_scripts"
+RESULT_DIR = "${BASE_DIR}/../benchmark-results"
 
+# Scripts to plot final results
+PLOT_SCRIPT = "${SCRIPT_DIR}/plot_parametrized.py"
+
+# Results from pairwise benchmark
+C_LPRQ_PW_JSON = "${RESULT_DIR}/lprq_c_pairwise.json"
+C_MSQ_PW_JSON = "${RESULT_DIR}/msq_c_pairwise.json"
+RUST_LPRQ_PW_JSON = "${RESULT_DIR}/lprq_rust_pairwise.json"
+RUST_MSQ_PW_JSON = "${RESULT_DIR}/msq_rust_pairwise.json"
+
+# Results from producer-consumer benchmarks
+C_LPRQ_PC_JSON = "${RESULT_DIR}/lprq_c_pc.json"
+C_MSQ_PC_JSON = "${RESULT_DIR}/msq_c_pc.json"
+RUST_LPRQ_PC_JSON = "${RESULT_DIR}/lprq_rust_pc.json"
+RUST_MSQ_PC_JSON = "${RESULT_DIR}/msq_rust_pc.json"
+
+# Graph output
+MSQ_GRAPH_PW = "${RESULT_DIR}/msq_pairwise_graph"
 
 # Generic tasks for building and cleaning
 [tasks.build-generic]
@@ -33,8 +49,6 @@ script = [
     "cd $CWD",
     "$CMD $ARGS"
 ]
-
-# TODO (OPTIONAL): Check the correct directory
 
 # Build and clean tasks for each queue using the generic
 [tasks.build-rust-queues]
@@ -58,9 +72,6 @@ env = { CWD = "${C_MSQ_DIR}", CMD = "make", ARGS = "clean"}
 
 # TODO: clean for c++-reference
 # [tasks.clean-c-lprq]
-# extend = "clean-generic"
-# env = { CWD = "${PWD}/../c++-reference", CMD = "make", ARGS = "clean"}
-
 
 # Build and clean all projects
 [tasks.build-all]
@@ -73,34 +84,52 @@ dependencies = ["clean-rust-queues", "clean-c-msq"] #, "clean-c-lprq"]
 [tasks.parameter-scan-generic]
 description = "Hyperfine parameter scan"
 script = [
-    "export HALF_THREADS=$(($(nproc) / 2))",
-    "echo Running parameter scan '\n' $TARGET [1, $HALF_THREADS]",
-    "hyperfine --parameter-scan num_threads 1 $HALF_THREADS '$BINARY_PATH {num_threads} $LOGN' --export-json ${RESULT_DIR}/$JSON"
+    "export THREADS=$(($(nproc) / ${FACTOR}))",
+    "echo Running parameter scan '\n' $TARGET [1, $THREADS]",
+    "hyperfine --parameter-scan num_threads 1 $THREADS '$BINARY_PATH {num_threads} $LOGN' --export-json $JSON"
 ]
 
-# MSQ benchmarks
-[tasks.benchmark-rust-msq]
+# MSQ pairwise benchmarks
+[tasks.pairwise-rust-msq]
 extend = "parameter-scan-generic"
-env = { TARGET = "Rust MSQueue", BINARY_PATH = "${RUST_DIR}/target/release/msq_pairwise", JSON = "msq_rust.json"}
+env = { TARGET = "Rust MSQueue", BINARY_PATH = "${RUST_DIR}/target/release/msq_pairwise", JSON = "${RUST_MSQ_PW_JSON}"}
+dependencies = ["build-rust-queues"]
 
-[tasks.benchmark-c-msq]
+[tasks.pairwise-c-msq]
 extend = "parameter-scan-generic"
-env = { TARGET = "C MSQueue", BINARY_PATH = "${C_MSQ_DIR}/msqueue", JSON = "msq_c.json"}
+env = { TARGET = "C MSQueue", BINARY_PATH = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PW_JSON}"}
+dependencies = ["build-c-msq"]
 
-[tasks.run-benchmark-msq]
-description = "Hyperfine parameter scan"
-dependencies = ["benchmark-c-msq", "benchmark-rust-msq"]
+[tasks.benchmark-msq-pairwise]
+description = "Hyperfine parameter scan for MSQueue"
+dependencies = ["pairwise-c-msq", "pairwise-rust-msq"]
+
+# LPRQ pairwise benchmarks
+[tasks.pairwise-rust-lprq]
+extend = "parameter-scan-generic"
+env = { TARGET = "Rust LPRQ", BINARY_PATH = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON}"}
+dependencies = ["build-rust-queues"]
+
+# TODO: Add pairwise for c++-reference
 
 # Benchmark all
 [tasks.build-and-benchmark]
-description = "Build all projects and benchmark"
+description = "Build all queues and benchmark"
 script = [
-    "echo Running in directory: $PWD",
+    "echo Running in directory: ${BASE_DIR}",
 ]
-dependencies = ["build-all", "run-benchmark-msq"]
+dependencies = ["build-all", "benchmark-msq-pairwise"]
 
+# Plot graphs
+[tasks.graph-pairwise-msq]
+description = "Plot graph for msq pairwise benchmark"
+category = "Utility"
+script_runner = "bash"
+script = [
+    "python ${PLOT_SCRIPT} ${RUST_MSQ_PW_JSON} ${C_MSQ_PW_JSON} -o ${MSQ_GRAPH_PW} --titles Rust,C"
+]
 
-
-
-
-# TODO: Call python script to get image
+# The "main" command to gather the final results
+[tasks.run]
+description = "Clean, Build, Benchmark and Graph all queues"
+dependencies = ["build-and-benchmark", "graph-pairwise-msq"]
