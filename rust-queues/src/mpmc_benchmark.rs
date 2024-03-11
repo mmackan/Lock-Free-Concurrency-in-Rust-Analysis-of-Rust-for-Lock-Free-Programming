@@ -8,10 +8,15 @@ use std::thread;
 
 use crate::shared_queue::SharedQueue;
 
-const BASE: u32 = 10;
+const BASE: usize = 10;
 
-pub fn benchmark<Q>(nproducer: u32, nconsumer: u32, logn: u32, queue: Q)
-where
+pub fn benchmark<Q>(
+    nproducer: usize,
+    nconsumer: usize,
+    logn: usize,
+    even_cores_only: bool,
+    queue: Q,
+) where
     Q: SharedQueue<i32> + Clone + Send + 'static,
 {
     let stop_flag = Arc::new(AtomicBool::new(false));
@@ -20,8 +25,8 @@ where
     let mut consumer_handles = vec![];
 
     // Calculate number of operations
-    let nops = BASE.pow(logn);
-    let tops = (nops / nproducer) as i32;
+    let nops = BASE.pow(logn as u32);
+    let tops = nops / nproducer;
 
     // Producers
     for _ in 0..nproducer {
@@ -36,7 +41,7 @@ where
             - load balances when first segment PRQ reaches 70%
             - Benchmark runs for 1000ms, then stops */
             for j in 0..tops {
-                queue_handle.enqueue(j);
+                queue_handle.enqueue(j.try_into().unwrap());
                 delay_exec(&mut rng);
             }
         });
