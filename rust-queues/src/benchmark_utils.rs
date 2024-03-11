@@ -55,7 +55,10 @@ pub fn parse_args(benchmark: &str) -> BenchmarkType {
 
         "mpmc" => {
             if args.len() < 3 {
-                eprintln!("Usage for mpmc: {} <producers> <consumers> [logn] [even_cores_only]", args[0]);
+                eprintln!(
+                    "Usage for mpmc: {} <producers> <consumers> [logn] [even_cores_only]",
+                    args[0]
+                );
                 std::process::exit(1);
             }
 
