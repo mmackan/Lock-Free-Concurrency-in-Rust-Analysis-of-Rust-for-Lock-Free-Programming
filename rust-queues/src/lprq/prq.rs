@@ -127,18 +127,18 @@ impl<T, const N: usize> PRQ<T, N> {
         // Get a unique thread token
         let thread_id: usize = thread::current().id().as_u64().get().try_into().unwrap();
         loop {
-            let tail_val: usize = self.tail.fetch_add(1, Ordering::Relaxed);
-            if self.closed.load(Ordering::Relaxed) {
+            let tail_val: usize = self.tail.fetch_add(1, Ordering::SeqCst);
+            if self.closed.load(Ordering::SeqCst) {
                 return Err(());
             }
             let cycle = tail_val / N;
             let index = tail_val % N;
 
-            let (safe, epoch) = self.array[index].load_safe_and_epoch(Ordering::Relaxed);
-            let value = self.array[index].value.load(Ordering::Relaxed);
+            let (safe, epoch) = self.array[index].load_safe_and_epoch(Ordering::SeqCst);
+            let value = self.array[index].value.load(Ordering::SeqCst);
 
             if (value.is_null() || Cell::<T>::is_token(value.addr())) // Not occupied
-                && epoch < cycle && (safe || self.head.load(Ordering::Relaxed) <= tail_val)
+                && epoch < cycle && (safe || self.head.load(Ordering::SeqCst) <= tail_val)
             {
                 // Enqueue has not been overtaken
 
@@ -146,22 +146,22 @@ impl<T, const N: usize> PRQ<T, N> {
                 if let Ok(_) = self.array[index].value.compare_exchange(
                     value,
                     Cell::make_token(thread_id),
-                    Ordering::Relaxed,
-                    Ordering::Relaxed,
+                    Ordering::SeqCst,
+                    Ordering::SeqCst,
                 ) {
                     // Advance the epoch
                     if let Ok(_) = self.array[index].compare_exchange_safe_and_epoch(
                         (safe, epoch),
                         (true, cycle),
-                        Ordering::Relaxed,
-                        Ordering::Relaxed,
+                        Ordering::SeqCst,
+                        Ordering::SeqCst,
                     ) {
                         // Attempt to publish the value
                         if let Ok(_) = self.array[index].value.compare_exchange(
                             Cell::make_token(thread_id),
                             value_ptr.cast_mut(),
-                            Ordering::Relaxed,
-                            Ordering::Relaxed,
+                            Ordering::SeqCst,
+                            Ordering::SeqCst,
                         ) {
                             return Ok(());
                         }
@@ -170,16 +170,16 @@ impl<T, const N: usize> PRQ<T, N> {
                         let _ = self.array[index].value.compare_exchange(
                             Cell::make_token(thread_id),
                             ptr::null_mut(),
-                            Ordering::Relaxed,
-                            Ordering::Relaxed,
+                            Ordering::SeqCst,
+                            Ordering::SeqCst,
                         );
                     }
                 }
             }
 
             // Check if the queue is full
-            if tail_val >= self.head.load(Ordering::Relaxed) + N {
-                self.closed.store(true, Ordering::Relaxed);
+            if tail_val >= self.head.load(Ordering::SeqCst) + N {
+                self.closed.store(true, Ordering::SeqCst);
                 return Err(());
             }
         }
@@ -187,23 +187,18 @@ impl<T, const N: usize> PRQ<T, N> {
 
     pub fn dequeue(&self) -> Option<*mut T> {
         loop {
-            let head_val = self.head.fetch_add(1, Ordering::Relaxed);
+            let head_val = self.head.fetch_add(1, Ordering::SeqCst);
             let cycle = head_val / N;
             let index = head_val % N;
             let cell = &self.array[index];
             loop {
                 // Update cell state
-                let (safe, epoch) = cell.load_safe_and_epoch(Ordering::Relaxed);
-                let value = cell.value.load(Ordering::Relaxed);
-
-                if (safe, epoch) != cell.load_safe_and_epoch(Ordering::Relaxed) {
-                    // Cell snapshot is inconsistant, retry
-                    continue;
-                }
+                let (safe, epoch) = cell.load_safe_and_epoch(Ordering::SeqCst);
+                let value = cell.value.load(Ordering::SeqCst);
 
                 if epoch == cycle && (!value.is_null() || Cell::<T>::is_token(value.addr())) {
                     // Dequeue transition
-                    cell.value.store(ptr::null_mut(), Ordering::Relaxed);
+                    cell.value.store(ptr::null_mut(), Ordering::SeqCst);
                     return Some(value);
                 }
                 if epoch <= cycle && (value.is_null() || Cell::<T>::is_token(value.addr())) {
@@ -213,8 +208,8 @@ impl<T, const N: usize> PRQ<T, N> {
                         if let Err(_) = cell.value.compare_exchange(
                             value,
                             ptr::null_mut(),
-                            Ordering::Relaxed,
-                            Ordering::Relaxed,
+                            Ordering::SeqCst,
+                            Ordering::SeqCst,
                         ) {
                             continue;
                         }
@@ -223,8 +218,8 @@ impl<T, const N: usize> PRQ<T, N> {
                     if let Ok(_) = cell.compare_exchange_safe_and_epoch(
                         (safe, epoch),
                         (safe, cycle),
-                        Ordering::Relaxed,
-                        Ordering::Relaxed,
+                        Ordering::SeqCst,
+                        Ordering::SeqCst,
                     ) {
                         break;
                     }
@@ -236,8 +231,8 @@ impl<T, const N: usize> PRQ<T, N> {
                     if let Ok(_) = cell.compare_exchange_safe_and_epoch(
                         (safe, epoch),
                         (false, epoch),
-                        Ordering::Relaxed,
-                        Ordering::Relaxed,
+                        Ordering::SeqCst,
+                        Ordering::SeqCst,
                     ) {
                         break;
                     }
@@ -248,7 +243,7 @@ impl<T, const N: usize> PRQ<T, N> {
                 break;
             }
             // Is the queue empty?
-            if self.tail.load(Ordering::Relaxed) <= head_val + 1 {
+            if self.tail.load(Ordering::SeqCst) <= head_val + 1 {
                 return None;
             }
         }
