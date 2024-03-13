@@ -244,8 +244,25 @@ impl<T, const N: usize> PRQ<T, N> {
             }
             // Is the queue empty?
             if self.tail.load(Ordering::SeqCst) <= head_val + 1 {
+                self.fix_state();
                 return None;
             }
+        }
+    }
+    fn fix_state(&self) {
+        loop {
+            let tail = self.tail.load(Ordering::SeqCst);
+            let head = self.head.load(Ordering::SeqCst);
+            if tail != self.tail.load(Ordering::SeqCst) {
+                continue;
+            }
+            if head > tail {
+                if let Ok(_) = self.tail.compare_exchange(tail, head, Ordering::SeqCst, Ordering::SeqCst) {
+                    break;
+                }
+                continue;
+            }
+            break;
         }
     }
 }
