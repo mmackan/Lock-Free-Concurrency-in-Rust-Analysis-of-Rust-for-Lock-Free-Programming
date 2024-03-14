@@ -1,7 +1,7 @@
 [env]
 # Benchmarking parameters
 LOGN = "7"
-FACTOR = "1" # Amount of available threads divded by factor
+FACTOR = "2" # Divdes the available cores
 
 # Directories
 BASE_DIR = "${PWD}"
@@ -12,7 +12,7 @@ SCRIPT_DIR = "${BASE_DIR}/../hyperfine_scripts"
 RESULT_DIR = "${BASE_DIR}/../benchmark-results"
 
 # Scripts to plot final results
-PLOT_SCRIPT = "${SCRIPT_DIR}/plot_parametrized.py"
+PARAM_PLOT = "${SCRIPT_DIR}/plot_parametrized.py"
 
 # Results from pairwise benchmark
 C_LPRQ_PW_JSON = "${RESULT_DIR}/lprq_c_pairwise.json"
@@ -20,7 +20,7 @@ C_MSQ_PW_JSON = "${RESULT_DIR}/msq_c_pairwise.json"
 RUST_LPRQ_PW_JSON = "${RESULT_DIR}/lprq_rust_pairwise.json"
 RUST_MSQ_PW_JSON = "${RESULT_DIR}/msq_rust_pairwise.json"
 
-# Results from producer-consumer benchmarks
+# Results from producers-consumers benchmarks
 C_LPRQ_PC_JSON = "${RESULT_DIR}/lprq_c_pc.json"
 C_MSQ_PC_JSON = "${RESULT_DIR}/msq_c_pc.json"
 RUST_LPRQ_PC_JSON = "${RESULT_DIR}/lprq_rust_pc.json"
@@ -28,8 +28,11 @@ RUST_MSQ_PC_JSON = "${RESULT_DIR}/msq_rust_pc.json"
 
 # Graph output
 MSQ_GRAPH_PW = "${RESULT_DIR}/msq_pairwise_graph"
+LPRQ_GRAPH_PW = "${RESULT_DIR}/lprq_pairwise_graph"
+MSQ_GRAPH_PC = "${RESULT_DIR}/msq_pc_graph"
+LPRQ_GRAPH_PC = "${RESULT_DIR}/lprq_pc_graph"
 
-# Generic tasks for building and cleaning
+# Generic tasks for building
 [tasks.build-generic]
 description = "Build project"
 category = "Build"
@@ -39,7 +42,9 @@ script = [
     "cd $CWD",
     "$CMD $ARGS"
 ]
+private = true
 
+# Generic tasks for cleaning
 [tasks.clean-generic]
 description = "Clean project"
 category = "Clean"
@@ -49,87 +54,221 @@ script = [
     "cd $CWD",
     "$CMD $ARGS"
 ]
+private = true
 
-# Build and clean tasks for each queue using the generic
+# Build both Rust MSQ and LPRQ
 [tasks.build-rust-queues]
 extend = "build-generic"
 env = { TARGET = "Rust queues", CWD = "${RUST_DIR}", CMD = "cargo", ARGS = "build --release" }
 
+# Build C MSQ
 [tasks.build-c-msq]
 extend = "build-generic"
-env = { TARGET = "C MSQueue", CWD = "${C_MSQ_DIR}", CMD = "make", ARGS = ""}
+env = { TARGET = "C MSQ", CWD = "${C_MSQ_DIR}", CMD = "make", ARGS = ""}
 
-# TODO: build for c++-reference
-# [tasks.build-c-lprq]
+# Build C LPRQ
+[tasks.build-c-lprq]
+description = "Build LPRQ with cmake"
+category = "Build"
+script_runner = "bash"
+script = [
+    "echo Building ${C_LPRQ_DIR}",
+    "cd ${C_LPRQ_DIR}",
+    "mkdir -p ./build",
+    "cd ./build",
+    "cmake -DCMAKE_BUILD_TYPE=Release ..",
+    "make -j8"
+]
 
+# Clean both Rust MSQ and LPRQ
 [tasks.clean-rust-queues]
 extend = "clean-generic"
 env = { CWD = "${RUST_DIR}", CMD = "cargo", ARGS = "clean" }
+private = true
 
+# Clean C MSQ
 [tasks.clean-c-msq]
 extend = "clean-generic"
 env = { CWD = "${C_MSQ_DIR}", CMD = "make", ARGS = "clean"}
+private = true
 
-# TODO: clean for c++-reference
-# [tasks.clean-c-lprq]
+# Clean C LPRQ
+[tasks.clean-c-lprq]
+category = "Clean"
+script_runner = "bash"
+script = [
+    "echo Cleaning in ${C_LPRQ_DIR}",
+    "cd ${C_LPRQ_DIR}",
+    "rm -rf ./build"
+]
+private = true
 
-# Build and clean all projects
-[tasks.build-all]
-dependencies = ["clean-all", "build-rust-queues", "build-c-msq"] #, "build-c-lprq"]
+# Build whole project
+[tasks.build]
+dependencies = ["build-rust-queues", "build-c-msq", "build-c-lprq"]
 
-[tasks.clean-all]
-dependencies = ["clean-rust-queues", "clean-c-msq"] #, "clean-c-lprq"]
+# Clean whole project
+[tasks.clean]
+dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]
 
 # Generic parameter scan benchmark
 [tasks.parameter-scan-generic]
 description = "Hyperfine parameter scan"
 script = [
     "export THREADS=$(($(nproc) / ${FACTOR}))",
-    "echo Running parameter scan '\n' $TARGET [1, $THREADS]",
-    "hyperfine --parameter-scan num_threads 1 $THREADS '$BINARY_PATH {num_threads} $LOGN' --export-json $JSON"
+    "echo '\n'===========================================",
+    "echo Running parameter scan for: $TARGET [1, $THREADS]",
+    "hyperfine --parameter-scan num_threads 1 $THREADS '$BINARY {num_threads} $LOGN' --export-json $JSON"
 ]
+private = true
 
-# MSQ pairwise benchmarks
-[tasks.pairwise-rust-msq]
+# MSQ pairwise benchmark (Rust)
+[tasks.pairwise-msq-rust]
 extend = "parameter-scan-generic"
-env = { TARGET = "Rust MSQueue", BINARY_PATH = "${RUST_DIR}/target/release/msq_pairwise", JSON = "${RUST_MSQ_PW_JSON}"}
+env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", JSON = "${RUST_MSQ_PW_JSON}"}
 dependencies = ["build-rust-queues"]
+private = true
 
-[tasks.pairwise-c-msq]
+# MSQ pairwise benchmark (C)
+[tasks.pairwise-msq-c]
 extend = "parameter-scan-generic"
-env = { TARGET = "C MSQueue", BINARY_PATH = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PW_JSON}"}
+env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PW_JSON}"}
 dependencies = ["build-c-msq"]
+private = true
 
-[tasks.benchmark-msq-pairwise]
-description = "Hyperfine parameter scan for MSQueue"
-dependencies = ["pairwise-c-msq", "pairwise-rust-msq"]
+# MSQ pairwise benchmarks (Rust and C)
+[tasks.benchmark-pairwise-msq]
+description = "Parameter scan for pairwise MSQ"
+dependencies = ["pairwise-msq-c", "pairwise-msq-rust"]
 
-# LPRQ pairwise benchmarks
-[tasks.pairwise-rust-lprq]
+# LPRQ pairwise benchmarks (Rust)
+[tasks.pairwise-lprq-rust]
 extend = "parameter-scan-generic"
-env = { TARGET = "Rust LPRQ", BINARY_PATH = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON}"}
+env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON}"}
 dependencies = ["build-rust-queues"]
+private = true
 
 # TODO: Add pairwise for c++-reference
+# # LPRQ pairwise benchmark (C)
+# [tasks.pairwise-lprq-c]
+# extend = "parameter-scan-generic"
+# env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/lprq", JSON = "${C_LPRQ_PW_JSON}"}
+# dependencies = ["build-c-lprq"]
+# private = true
+ 
+# # LPRQ benchmarks (Rust and C)
+# [tasks.benchmark-pairwise-lprq]
+# description = "Parameter scan for pairwise LPRQ"
+# dependencies = ["pairwise-lprq-c", "pairwise-lprq-rust"]
 
-# Benchmark all
-[tasks.build-and-benchmark]
-description = "Build all queues and benchmark"
-script = [
-    "echo Running in directory: ${BASE_DIR}",
-]
-dependencies = ["build-all", "benchmark-msq-pairwise"]
 
-# Plot graphs
-[tasks.graph-pairwise-msq]
-description = "Plot graph for msq pairwise benchmark"
+# MSQ multi-producer multi-consumer benchmark (Rust)
+[tasks.mpmc-msq-rust]
+extend = "parameter-scan-generic"
+env = { TARGET = "MPMC MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON}"}
+dependencies = ["build-rust-queues"]
+private = true
+
+# MSQ multi-producer multi-consumer benchmark (C)
+[tasks.mpmc-msq-c]
+extend = "parameter-scan-generic"
+env = { TARGET = "MPMC MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON}"}
+dependencies = ["build-c-msq"]
+private = true
+
+# MSQ multi-producer multi-consumer benchmarks (Rust and C)
+[tasks.benchmark-mpmc-msq]
+description = "Parameter scan for mpmc MSQ"
+dependencies = ["mpmc-msq-c", "mpmc-msq-rust"]
+
+# LPRQ multi-producer multi-consumer benchmarks (Rust)
+[tasks.mpmc-lprq-rust]
+extend = "parameter-scan-generic"
+env = { TARGET = "MPMC LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON}"}
+dependencies = ["build-rust-queues"]
+private = true
+
+# TODO: Add mpmc for c++-reference
+# # LPRQ multi-producer multi-consumer benchmark (C)
+# [tasks.mpmc-lprq-c]
+# extend = "parameter-scan-generic"
+# env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/lprq", JSON = "${C_LPRQ_PC_JSON}"}
+# dependencies = ["build-c-lprq"]
+# private = true
+ 
+# # LPRQ benchmarks (Rust and C)
+# [tasks.benchmark-mpmc-lprq]
+# description = "Parameter scan for mpmc LPRQ"
+# dependencies = ["mpmc-lprq-c", "mpmc-lprq-rust"]
+
+# MSQ pairwise and mpmc benchmarks
+[tasks.benchmark-msq]
+description = "All benchmarks for MSQ"
+dependencies = ["benchmark-pairwise-msq", "benchmark-mpmc-msq"]
+
+# LPRQ pairwise and mpmc benchmarks
+[tasks.benchmark-lprq]
+description = "All benchmarks for LPRQ"
+dependencies = ["benchmark-pairwise-lprq", "benchmark-mpmc-lprq"]
+
+# Run all benchmarks for all queues
+[tasks.benchmark]
+description = "All benchmarks for all queues"
+dependencies = ["benchmark-msq", "benchmark-lprq"]
+
+# Generic task for creating graphs
+[tasks.create-graph]
+description = "Outputs a .png of the graph"
 category = "Utility"
 script_runner = "bash"
 script = [
-    "python ${PLOT_SCRIPT} ${RUST_MSQ_PW_JSON} ${C_MSQ_PW_JSON} -o ${MSQ_GRAPH_PW} --titles Rust,C"
+    "python ${SCRIPT} ${RUST_JSON} ${C_JSON} -o ${FILE} --titles Rust,C"
 ]
+private = true
 
-# The "main" command to gather the final results
+# MSQ pairwise comparison between Rust and C
+[tasks._graph-pairwise-msq]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PW_JSON}", C_JSON = "${C_MSQ_PW_JSON}", FILE = "${MSQ_GRAPH_PW}"}
+[tasks.graph-pairwise-msq]
+dependencies = ["_graph-pairwise-msq"]
+
+# LPRQ pairwise comparison between Rust and C
+[tasks._graph-pairwise-lprq]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PC_JSON}", C_JSON = "${C_MSQ_PC_JSON}", FILE = "${MSQ_GRAPH_PC}"}
+[tasks.graph-pairwise-lprq]
+dependencies = ["_graph-pairwise-lprq"]
+
+# MSQ mpmc comparison between Rust and C
+[tasks._graph-mpmc-msq]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PC_JSON}", C_JSON = "${C_MSQ_PC_JSON}", FILE = "${MSQ_GRAPH_PC}"}
+[tasks.graph-mpmc-msq]
+dependencies = ["_graph-mpmc-msq"]
+
+# LPRQ mpmc comparison between Rust and C
+[tasks._graph-mpmc-lprq]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PC_JSON}", C_JSON = "${C_MSQ_PC_JSON}", FILE = "${MSQ_GRAPH_PC}"}
+[tasks.graph-mpmc-lprq]
+
+# MSQ pairwise and mpmc graphs
+[tasks.graph-msq]
+description = "All graphs for MSQ"
+dependencies = ["graph-pairwise-msq", "graph-mpmc-msq"]
+
+# LPRQ pairwise and mpmc graphs
+[tasks.graph-lprq]
+description = "All graphs for LPRQ"
+dependencies = ["graph-pairwise-lprq", "graph-mpmc-lprq"]
+
+# Generate all graphs
+[tasks.graph-all]
+description = "Graphs for all benchmarks"
+dependencies = ["graph-pairwise-msq", "graph-pairwise-lprq", "graph-mpmc-msq", "graph-mpmc-lprq"]
+
+# Runs all benchmarks and generate all graphs, might take some time
 [tasks.run]
-description = "Clean, Build, Benchmark and Graph all queues"
-dependencies = ["build-and-benchmark", "graph-pairwise-msq"]
+description = "Run all benchmarks and generate all graphs"
+dependencies = ["benchmark-all", "graph-all"]
