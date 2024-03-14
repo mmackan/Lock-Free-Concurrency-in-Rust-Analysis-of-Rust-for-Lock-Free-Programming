@@ -126,6 +126,7 @@ impl<T, const N: usize> PRQ<T, N> {
     pub fn enqueue(&self, value_ptr: *const T) -> Result<(), ()> {
         // Get a unique thread token
         let thread_id: usize = thread::current().id().as_u64().get().try_into().unwrap();
+        let thread_token = Cell::<T>::make_token(thread_id);
         loop {
             let tail_val: usize = self.tail.fetch_add(1, Ordering::SeqCst);
             if self.closed.load(Ordering::SeqCst) {
@@ -134,45 +135,19 @@ impl<T, const N: usize> PRQ<T, N> {
             let cycle = tail_val / N;
             let index = tail_val % N;
 
-            let (safe, epoch) = self.array[index].load_safe_and_epoch(Ordering::SeqCst);
-            let value = self.array[index].value.load(Ordering::SeqCst);
+            let cell = &self.array[index];
 
-            if (value.is_null() || Cell::<T>::is_token(value.addr())) // Not occupied
-                && epoch < cycle && (safe || self.head.load(Ordering::SeqCst) <= tail_val)
-            {
-                // Enqueue has not been overtaken
+            let (safe, epoch) = cell.load_safe_and_epoch(Ordering::SeqCst);
+            let value = cell.value.load(Ordering::SeqCst);
 
-                // Lock the cell using our thread token, ptr::invalid_mut makes sure the thread token "pointer" does not have any provinance so it can not be dereferenced without MIRI complaining
-                if let Ok(_) = self.array[index].value.compare_exchange(
-                    value,
-                    Cell::make_token(thread_id),
-                    Ordering::SeqCst,
-                    Ordering::SeqCst,
-                ) {
-                    // Advance the epoch
-                    if let Ok(_) = self.array[index].compare_exchange_safe_and_epoch(
-                        (safe, epoch),
-                        (true, cycle),
-                        Ordering::SeqCst,
-                        Ordering::SeqCst,
-                    ) {
-                        // Attempt to publish the value
-                        if let Ok(_) = self.array[index].value.compare_exchange(
-                            Cell::make_token(thread_id),
-                            value_ptr.cast_mut(),
-                            Ordering::SeqCst,
-                            Ordering::SeqCst,
-                        ) {
+            if value.is_null() && epoch <= cycle && (safe || self.head.load(Ordering::SeqCst) <= cycle) {
+                if let Ok(_) = cell.value.compare_exchange(value, thread_token, Ordering::SeqCst, Ordering::SeqCst) {
+                    if let Ok(_) = cell.compare_exchange_safe_and_epoch((safe, epoch), (true, cycle), Ordering::SeqCst, Ordering::SeqCst) {
+                        if let Ok(_) = cell.value.compare_exchange(thread_token, value_ptr.cast_mut(), Ordering::SeqCst, Ordering::SeqCst) {
                             return Ok(());
                         }
                     } else {
-                        // Clean up if the safe and epoch CAS fails
-                        let _ = self.array[index].value.compare_exchange(
-                            Cell::make_token(thread_id),
-                            ptr::null_mut(),
-                            Ordering::SeqCst,
-                            Ordering::SeqCst,
-                        );
+                        let _ = cell.value.compare_exchange(thread_token, ptr::null_mut(), Ordering::SeqCst, Ordering::SeqCst);
                     }
                 }
             }
@@ -188,59 +163,55 @@ impl<T, const N: usize> PRQ<T, N> {
     pub fn dequeue(&self) -> Option<*mut T> {
         loop {
             let head_val = self.head.fetch_add(1, Ordering::SeqCst);
-            let cycle = head_val / N;
             let index = head_val % N;
+            let cycle = head_val / N;
             let cell = &self.array[index];
+
+            let mut r: u64 = 0;
+            let mut tail = 0;
+            let mut closed = false;
             loop {
                 // Update cell state
                 let (safe, epoch) = cell.load_safe_and_epoch(Ordering::SeqCst);
                 let value = cell.value.load(Ordering::SeqCst);
 
-                if epoch == cycle && (!value.is_null() || Cell::<T>::is_token(value.addr())) {
-                    // Dequeue transition
-                    cell.value.store(ptr::null_mut(), Ordering::SeqCst);
-                    return Some(value);
+                if epoch > head_val + N {
+                    break;
                 }
-                if epoch <= cycle && (value.is_null() || Cell::<T>::is_token(value.addr())) {
-                    // Empty transition
-                    // Unlock the cell
+
+                if (!value.is_null()) && (!Cell::<T>::is_token(value.addr())) {
+                    if epoch == cycle {
+                        cell.value.store(ptr::null_mut(), Ordering::SeqCst);
+                        return Some(value)
+                    }
+                    if !safe {
+                        let new: (bool, usize) = cell.load_safe_and_epoch(Ordering::SeqCst);
+                        if new == (safe, epoch) {
+                            break;
+                        }
+
+                        if let Ok(_) = cell.compare_exchange_safe_and_epoch((safe, epoch), (false, epoch), Ordering::SeqCst, Ordering::SeqCst) {
+                            break;
+                        }
+                    }
+                }
+                if (r % 255) == 0 {
+                    tail = self.tail.load(Ordering::SeqCst);
+                    closed = self.closed.load(Ordering::SeqCst);
+                }
+
+                if !safe || tail < head_val + 1 || closed || r > (4*N).try_into().unwrap() {
                     if Cell::<T>::is_token(value.addr()) {
-                        if let Err(_) = cell.value.compare_exchange(
-                            value,
-                            ptr::null_mut(),
-                            Ordering::SeqCst,
-                            Ordering::SeqCst,
-                        ) {
+                        if let Ok(_) = cell.value.compare_exchange(value, ptr::null_mut(), Ordering::SeqCst, Ordering::SeqCst) {
                             continue;
                         }
                     }
-                    // Advance the epoch
-                    if let Ok(_) = cell.compare_exchange_safe_and_epoch(
-                        (safe, epoch),
-                        (safe, cycle),
-                        Ordering::SeqCst,
-                        Ordering::SeqCst,
-                    ) {
+                    if let Ok(_) = cell.compare_exchange_safe_and_epoch((safe, epoch), (false, head_val), Ordering::SeqCst, Ordering::SeqCst) {
                         break;
                     }
-                    // If I understand the paper correctly this continue is implied by their wierd when block
-                    continue;
                 }
-                if epoch < cycle && (!value.is_null() || Cell::<T>::is_token(value.addr())) {
-                    // Unsafe transition
-                    if let Ok(_) = cell.compare_exchange_safe_and_epoch(
-                        (safe, epoch),
-                        (false, epoch),
-                        Ordering::SeqCst,
-                        Ordering::SeqCst,
-                    ) {
-                        break;
-                    }
-                    // Same deal here as in the empty transition
-                    continue;
-                }
-                // epoch > cycle, deq is overtaken
-                break;
+                r = r + 1;
+
             }
             // Is the queue empty?
             if self.tail.load(Ordering::SeqCst) <= head_val + 1 {
