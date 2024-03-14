@@ -11,15 +11,15 @@ Benchmark the queues with pairwise or multi-producer multi-consumer (MPMC) workl
 **Run all benchmarks for all queues**
 - `cargo make benchmark-all` (not working: require C++ LPRQ binary)
 
+**Both benchmarks for MSQ and LPRQ respectively:**
+- `cargo make benchmark-msq`
+- `cargo make benchmark-lprq`
+
 **Run individual benchmarks**
 - `cargo make benchmark-pairwise-msq`
 - `cargo make benchmark-pairwise-lprq` (not working: require C++ LPRQ binary)
 - `cargo make benchmark-mpmc-msq`
 - `cargo make benchmark-mpmc-lprq` (not working: require C++ LPRQ binary)
-
-**Both benchmarks for MSQ and LPRQ respectively:**
-- `cargo make benchmark-msq`
-- `cargo make benchmark-lprq`
 
 ***
 
@@ -44,6 +44,8 @@ These commands will generate graphs that show the comparison between the two lan
 
 **Create graphs for all benchmarks**
 - `cargo make graph-all` (not working: require C++ LPRQ binary)
+
+**Create graphs for MSQ and LPRQ respectively**
 - `cargo make graph-msq`
 - `cargo make graph-lprq` (not working: require C++ LPRQ binary)
 
