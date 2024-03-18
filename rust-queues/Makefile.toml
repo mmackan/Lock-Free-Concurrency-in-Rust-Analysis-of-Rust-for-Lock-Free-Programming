@@ -148,18 +148,17 @@ env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lp
 dependencies = ["build-rust-queues"]
 private = true
 
-# TODO: Add pairwise for c++-reference
-# # LPRQ pairwise benchmark (C)
-# [tasks.pairwise-lprq-c]
-# extend = "parameter-scan-generic"
-# env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/lprq", JSON = "${C_LPRQ_PW_JSON}"}
-# dependencies = ["build-c-lprq"]
-# private = true
+# LPRQ pairwise benchmark (C)
+[tasks.pairwise-lprq-c]
+extend = "parameter-scan-generic"
+env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", JSON = "${C_LPRQ_PW_JSON}"}
+dependencies = ["build-c-lprq"]
+private = true
  
-# # LPRQ benchmarks (Rust and C)
-# [tasks.benchmark-pairwise-lprq]
-# description = "Parameter scan for pairwise LPRQ"
-# dependencies = ["pairwise-lprq-c", "pairwise-lprq-rust"]
+# LPRQ benchmarks (Rust and C)
+[tasks.benchmark-pairwise-lprq]
+description = "Parameter scan for pairwise LPRQ"
+dependencies = ["pairwise-lprq-c", "pairwise-lprq-rust"]
 
 
 # MSQ multi-producer multi-consumer benchmark (Rust)
@@ -188,18 +187,17 @@ env = { TARGET = "MPMC LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_m
 dependencies = ["build-rust-queues"]
 private = true
 
-# TODO: Add mpmc for c++-reference
-# # LPRQ multi-producer multi-consumer benchmark (C)
-# [tasks.mpmc-lprq-c]
-# extend = "parameter-scan-generic"
-# env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/lprq", JSON = "${C_LPRQ_PC_JSON}"}
-# dependencies = ["build-c-lprq"]
-# private = true
+# LPRQ multi-producer multi-consumer benchmark (C)
+[tasks.mpmc-lprq-c]
+extend = "parameter-scan-generic"
+env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON}"}
+dependencies = ["build-c-lprq"]
+private = true
  
-# # LPRQ benchmarks (Rust and C)
-# [tasks.benchmark-mpmc-lprq]
-# description = "Parameter scan for mpmc LPRQ"
-# dependencies = ["mpmc-lprq-c", "mpmc-lprq-rust"]
+# LPRQ benchmarks (Rust and C)
+[tasks.benchmark-mpmc-lprq]
+description = "Parameter scan for mpmc LPRQ"
+dependencies = ["mpmc-lprq-c", "mpmc-lprq-rust"]
 
 # MSQ pairwise and mpmc benchmarks
 [tasks.benchmark-msq]
@@ -236,7 +234,7 @@ dependencies = ["_graph-pairwise-msq"]
 # LPRQ pairwise comparison between Rust and C
 [tasks._graph-pairwise-lprq]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PC_JSON}", C_JSON = "${C_MSQ_PC_JSON}", FILE = "${MSQ_GRAPH_PC}"}
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON}", C_JSON = "${C_LPRQ_PW_JSON}", FILE = "${LPRQ_GRAPH_PW}"}
 [tasks.graph-pairwise-lprq]
 dependencies = ["_graph-pairwise-lprq"]
 
@@ -250,7 +248,7 @@ dependencies = ["_graph-mpmc-msq"]
 # LPRQ mpmc comparison between Rust and C
 [tasks._graph-mpmc-lprq]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PC_JSON}", C_JSON = "${C_MSQ_PC_JSON}", FILE = "${MSQ_GRAPH_PC}"}
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON}", C_JSON = "${C_LPRQ_PC_JSON}", FILE = "${LPRQ_GRAPH_PC}"}
 [tasks.graph-mpmc-lprq]
 
 # MSQ pairwise and mpmc graphs
