@@ -24,7 +24,7 @@ void delay_exec(std::mt19937& gen) {
 }
 
 int main(int argc, char *argv[]){
-    CLI::App app{"Queue benchmarks"};
+    CLI::App app{"Pairwise LPRQ benchmarks"};
 
     int numThreads = 8;
     app.add_option("numThreads", numThreads, "Number of threads")
@@ -46,15 +46,16 @@ int main(int argc, char *argv[]){
     // Initialize the queue
     auto queue = new LPRQueue<int, false, 1024, true>(numThreads);
 
+    int core = 0;
     for (int i = 0; i < numThreads; i++) {
-        handles[i] = std::thread([&tops, &nops, i, &queue](){
+        handles[i] = std::thread([&tops, &nops, i, &queue, core](){
             // Thread rng
             auto engine = std::mt19937(std::random_device{}());
 
             // Cpu affinity
             cpu_set_t cpuset;
             CPU_ZERO(&cpuset);
-            CPU_SET(i, &cpuset);
+            CPU_SET(core, &cpuset);
             int result = pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset);
 
             if (result != 0) {
@@ -68,9 +69,9 @@ int main(int argc, char *argv[]){
                 delay_exec(engine);
             }
         });
-
+        core++;
         if (evenCores) {
-            i++;
+            core++;
         }
     }
 
