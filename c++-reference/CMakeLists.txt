@@ -51,6 +51,8 @@ endfunction()
 
 make_bench(enq-deq "src/pairs-benchmark.cpp;src/AdditionalWork.cpp;src/Forked.cpp")
 make_bench(prod-cons "src/pc-benchmark.cpp;src/AdditionalWork.cpp;src/Forked.cpp")
+make_bench(lprq-pairwise "src/lprq_pairwise.cpp")
+make_bench(lprq-mpmc "src/lprq_mpmc.cpp")
 
 add_executable(tests src/test.cpp)
 target_link_libraries(tests PRIVATE ccqueue scqueue Threads::Threads gtest_main)
