@@ -1,42 +1,42 @@
 # Pairwise benchmarks (Rust)
 [tasks.pairwise-lprq-rust-t]
-extend = "parameter-scan-generic-threads"
+extend = "parameter-scan-pairwise-threads"
 env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON_T}"}
 private = true
 [tasks.pairwise-lprq-rust-o]
-extend = "parameter-scan-generic-ops"
+extend = "parameter-scan-pairwise-ops"
 env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON_O}"}
 private = true
 
 # Pairwise benchmarks (C)
 [tasks.pairwise-lprq-c-t]
-extend = "parameter-scan-generic-threads"
+extend = "parameter-scan-pairwise-threads"
 env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", JSON = "${C_LPRQ_PW_JSON_T}"}
 private = true
 [tasks.pairwise-lprq-c-o]
-extend = "parameter-scan-generic-ops"
+extend = "parameter-scan-pairwise-ops"
 env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", JSON = "${C_LPRQ_PW_JSON_O}"}
 private = true
  
-# MPMC benchmarks (Rust)
-[tasks.mpmc-lprq-rust-t]
-extend = "parameter-scan-generic-threads"
-env = { TARGET = "MPMC LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON_T}"}
-private = true
-[tasks.mpmc-lprq-rust-o]
-extend = "parameter-scan-generic-ops"
-env = { TARGET = "MPMC LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON_O}"}
-private = true
+# TODO: MPMC benchmarks (Rust)
+[tasks.mpmc-lprq-rust]
+# extend = "parameter-scan-pairwise-threads"
+# env = { TARGET = "MPMC LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON_T}"}
+# private = true
+# [tasks.mpmc-lprq-rust-o]
+# extend = "parameter-scan-pairwise-ops"
+# env = { TARGET = "MPMC LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON_O}"}
+# private = true
 
-# MPMC benchmarks (C)
-[tasks.mpmc-lprq-c-t]
-extend = "parameter-scan-generic-threads"
-env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_T}"}
-private = true
-[tasks.mpmc-lprq-c-o]
-extend = "parameter-scan-generic-ops"
-env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_O}"}
-private = true
+# TODO: MPMC benchmarks (C)
+[tasks.mpmc-lprq-c]
+# extend = "parameter-scan-pairwise-threads"
+# env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_T}"}
+# private = true
+# [tasks.mpmc-lprq-c-o]
+# extend = "parameter-scan-pairwise-ops"
+# env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_O}"}
+# private = true
 
 # Commands for Pairwise benchmarks (Rust and C)
 [tasks.benchmark-pairwise-lprq-t]
@@ -49,16 +49,8 @@ dependencies = ["pairwise-lprq-c-o", "pairwise-lprq-rust-o"]
 description = "Parameter scan for pairwise LPRQ"
 dependencies = ["benchmark-pairwise-lprq-t", "benchmark-pairwise-lprq-o"]
 
-# Commands for MPMC benchmarks (Rust and C)
-[tasks.benchmark-mpmc-lprq-t]
-description = "Parameter scan over threads for mpmc LPRQ"
-dependencies = ["mpmc-lprq-c-t", "mpmc-lprq-rust-t"]
-[tasks.benchmark-mpmc-lprq-o]
-description = "Parameter scan over operations for mpmc LPRQ"
-dependencies = ["mpmc-lprq-c-o", "mpmc-lprq-rust-o"]
+# TODO: Commands for MPMC benchmarks (Rust and C)
 [tasks.benchmark-mpmc-lprq]
-description = "Parameter scan for mpmc LPRQ"
-dependencies = ["benchmark-mpmc-lprq-t", "benchmark-mpmc-lprq-o"]
 
 # Command for Pairwise and MPMC benchmarks
 [tasks.benchmark-lprq]

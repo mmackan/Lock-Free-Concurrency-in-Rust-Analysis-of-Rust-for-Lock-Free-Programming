@@ -3,9 +3,9 @@ extend = [
     {path = "lprq_benchmarks.toml"}
 ]
 
-# Parameter scan over threads with fixed operations
-[tasks.parameter-scan-generic-threads]
-description = "Hyperfine threads parameter scan"
+# Pairwise benchmarking, threads varies, fixed operations
+[tasks.parameter-scan-pairwise-threads]
+description = "Hyperfine parameter scan over threads"
 script = [
     "export MAX_THREADS=$(($(nproc) / $FACTOR))",
     "echo '\n'===========================================",
@@ -14,12 +14,39 @@ script = [
 ]
 private = true
 
-# Parameter scan over operations with fixed threads
-[tasks.parameter-scan-generic-ops]
-description = "Hyperfine operations parameter scan"
+# Pairwise benchmarking, operations varies, fixed threads
+[tasks.parameter-scan-pairwise-ops]
+description = "Hyperfine parameter scan over operations"
 script = [
     "echo '\n'===========================================",
     "echo Parameter scan over log\\(N\\)'\n' Workload and Queue: $TARGET'\n' Interval: [${MIN_LOGN}, ${MAX_LOGN}] '\n' Threads: $THREADS",
     "hyperfine --parameter-scan num_ops ${MIN_LOGN} ${MAX_LOGN} '$BINARY ${THREADS} {num_ops}' --export-json ${RESULT_DIR}/$JSON"
+]
+private = true
+
+# TODO: MPMC benchmarking 1:1 producer:consumer ratio
+[tasks.parameter-scan-mpmc-1-1]
+description = ""
+script = [
+    "echo '\n'===========================================",
+    "echo ",
+]
+private = true
+
+# TODO: MPMC benchmarking 2:1 producer:consumer ratio
+[tasks.parameter-scan-mpmc-2-1]
+description = ""
+script = [
+    "echo '\n'===========================================",
+    "echo ",
+]
+private = true
+
+# TODO: MPMC benchmarking 1:2 producer:consumer ratio
+[tasks.parameter-scan-mpmc-1-2]
+description = ""
+script = [
+    "echo '\n'===========================================",
+    "echo ",
 ]
 private = true

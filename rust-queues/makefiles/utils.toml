@@ -68,11 +68,3 @@ script = [
     "rm -rf ./build"
 ]
 private = true
-
-# Build whole project
-[tasks.build]
-dependencies = ["build-rust-queues", "build-c-msq", "build-c-lprq"]
-
-# Clean whole project
-[tasks.clean]
-dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]

@@ -1,42 +1,42 @@
 # Pairwise benchmarks (Rust)
 [tasks.pairwise-msq-rust-t]
-extend = "parameter-scan-generic-threads"
+extend = "parameter-scan-pairwise-threads"
 env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", JSON = "${RUST_MSQ_PW_JSON_T}" }
 private = true
 [tasks.pairwise-msq-rust-o]
-extend = "parameter-scan-generic-ops"
+extend = "parameter-scan-pairwise-ops"
 env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", JSON = "${RUST_MSQ_PW_JSON_O}" }
 private = true
 
 # Pairwise benchmarks (C)
 [tasks.pairwise-msq-c-t]
-extend = "parameter-scan-generic-threads"
+extend = "parameter-scan-pairwise-threads"
 env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PW_JSON_T}" }
 private = true
 [tasks.pairwise-msq-c-o]
-extend = "parameter-scan-generic-ops"
+extend = "parameter-scan-pairwise-ops"
 env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PW_JSON_O}" }
 private = true
 
-# MPMC benchmarks (Rust)
-[tasks.mpmc-msq-rust-t]
-extend = "parameter-scan-generic-threads"
-env = { TARGET = "MPMC MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON_T}"}
-private = true
-[tasks.mpmc-msq-rust-o]
-extend = "parameter-scan-generic-ops"
-env = { TARGET = "MPMC MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON_O}"}
-private = true
+# TODO: MPMC benchmarks (Rust)
+[tasks.mpmc-msq-rust]
+# extend = "parameter-scan-pairwise-threads"
+# env = { TARGET = "MPMC MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON_T}"}
+# private = true
+# [tasks.mpmc-msq-rust-o]
+# extend = "parameter-scan-pairwise-ops"
+# env = { TARGET = "MPMC MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON_O}"}
+# private = true
 
-# MPMC benchmarks (C)
-[tasks.mpmc-msq-c-t]
-extend = "parameter-scan-generic-threads"
-env = { TARGET = "MPMC MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_T}"}
-private = true
-[tasks.mpmc-msq-c-o]
-extend = "parameter-scan-generic-ops"
-env = { TARGET = "MPMC MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_O}"}
-private = true
+# TODO: MPMC benchmarks (C)
+[tasks.mpmc-msq-c]
+# extend = "parameter-scan-pairwise-threads"
+# env = { TARGET = "MPMC MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_T}"}
+# private = true
+# [tasks.mpmc-msq-c-o]
+# extend = "parameter-scan-pairwise-ops"
+# env = { TARGET = "MPMC MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_O}"}
+# private = true
 
 # Commands for Pairwise benchmarks (Rust and C)
 [tasks.benchmark-pairwise-msq-t]
@@ -49,16 +49,8 @@ dependencies = ["pairwise-msq-c-o", "pairwise-msq-rust-o"]
 description = "Parameter scan for pairwise MSQ"
 dependencies = ["benchmark-pairwise-msq-t", "benchmark-pairwise-msq-o"]
 
-# Commands for MPMC benchmarks (Rust and C)
-[tasks.benchmark-mpmc-msq-t]
-description = "Parameter scan over threads for mpmc MSQ"
-dependencies = ["mpmc-msq-c-t", "mpmc-msq-rust-t"]
-[tasks.benchmark-mpmc-msq-o]
-description = "Parameter scan over operations for mpmc MSQ"
-dependencies = ["mpmc-msq-c-o", "mpmc-msq-rust-o"]
+# TODO: Commands for MPMC benchmarks (Rust and C)
 [tasks.benchmark-mpmc-msq]
-description = "Parameter scan for mpmc MSQ"
-dependencies = ["benchmark-mpmc-msq-t", "benchmark-mpmc-msq-o"]
 
 # Command for Pairwise and MPMC benchmarks
 [tasks.benchmark-msq]
