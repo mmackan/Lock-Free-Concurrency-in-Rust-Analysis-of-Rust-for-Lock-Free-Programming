@@ -1,36 +1,61 @@
 [env]
-# Benchmarking parameters
+# Parameters for fixed operations benchmark
 LOGN = "7"
-FACTOR = "2" # Divdes the available cores
+
+# Parameters for fixed threads benchmark
+THREADS  = "8"
+MIN_LOGN = "4"
+MAX_LOGN = "8"
+
+# Divdes the available cores
+FACTOR = "2" 
 
 # Directories
-BASE_DIR = "${PWD}"
-C_MSQ_DIR = "${BASE_DIR}/../c-reference"
-C_LPRQ_DIR = "${BASE_DIR}/../c++-reference"
-RUST_DIR = "${BASE_DIR}"
-SCRIPT_DIR = "${BASE_DIR}/../hyperfine_scripts"
-RESULT_DIR = "${BASE_DIR}/../benchmark-results"
+BASE_DIR    = "${PWD}"
+C_MSQ_DIR   = "${BASE_DIR}/../c-reference"
+C_LPRQ_DIR  = "${BASE_DIR}/../c++-reference"
+RUST_DIR    = "${BASE_DIR}"
+SCRIPT_DIR  = "${BASE_DIR}/../hyperfine_scripts"
+RESULT_DIR  = "${BASE_DIR}/../benchmark-results"
 
 # Scripts to plot final results
-PARAM_PLOT = "${SCRIPT_DIR}/plot_parametrized.py"
+PARAM_PLOT = "plot_parametrized.py"
 
-# Results from pairwise benchmark
-C_LPRQ_PW_JSON = "${RESULT_DIR}/lprq_c_pairwise.json"
-C_MSQ_PW_JSON = "${RESULT_DIR}/msq_c_pairwise.json"
-RUST_LPRQ_PW_JSON = "${RESULT_DIR}/lprq_rust_pairwise.json"
-RUST_MSQ_PW_JSON = "${RESULT_DIR}/msq_rust_pairwise.json"
+# Results from pairwise benchmark (thread scan)
+C_LPRQ_PW_JSON_T    = "lprq_c_pairwise_threads.json"
+C_MSQ_PW_JSON_T     = "msq_c_pairwise_threads.json"
+RUST_LPRQ_PW_JSON_T = "lprq_rust_pairwise_threads.json"
+RUST_MSQ_PW_JSON_T  = "msq_rust_pairwise_threads.json"
 
-# Results from producers-consumers benchmarks
-C_LPRQ_PC_JSON = "${RESULT_DIR}/lprq_c_pc.json"
-C_MSQ_PC_JSON = "${RESULT_DIR}/msq_c_pc.json"
-RUST_LPRQ_PC_JSON = "${RESULT_DIR}/lprq_rust_pc.json"
-RUST_MSQ_PC_JSON = "${RESULT_DIR}/msq_rust_pc.json"
+# Results from pairwise benchmark (operation scan)
+C_LPRQ_PW_JSON_O    = "lprq_c_pairwise_ops.json"
+C_MSQ_PW_JSON_O     = "msq_c_pairwise_ops.json"
+RUST_LPRQ_PW_JSON_O = "lprq_rust_pairwise_ops.json"
+RUST_MSQ_PW_JSON_O  = "msq_rust_pairwise_ops.json"
 
-# Graph output
-MSQ_GRAPH_PW = "${RESULT_DIR}/msq_pairwise_graph"
-LPRQ_GRAPH_PW = "${RESULT_DIR}/lprq_pairwise_graph"
-MSQ_GRAPH_PC = "${RESULT_DIR}/msq_pc_graph"
-LPRQ_GRAPH_PC = "${RESULT_DIR}/lprq_pc_graph"
+# Results from producers-consumers benchmarks (thread scan)
+C_LPRQ_PC_JSON_T    = "lprq_c_pc_threads.json"
+C_MSQ_PC_JSON_T     = "msq_c_pc_threads.json"
+RUST_LPRQ_PC_JSON_T = "lprq_rust_pc_threads.json"
+RUST_MSQ_PC_JSON_T  = "msq_rust_pc_threads.json"
+
+# Results from producers-consumers benchmarks (operation scan)
+C_LPRQ_PC_JSON_O    = "lprq_c_pc_ops.json"
+C_MSQ_PC_JSON_O     = "msq_c_pc_ops.json"
+RUST_LPRQ_PC_JSON_O = "lprq_rust_pc_ops.json"
+RUST_MSQ_PC_JSON_O  = "msq_rust_pc_ops.json"
+
+# Graph output (thread scan)
+MSQ_GRAPH_PW_T  = "graph_threads_pairwise_msq"
+LPRQ_GRAPH_PW_T = "graph_threads_pairwise_lprq"
+MSQ_GRAPH_PC_T  = "graph_threads_pc_msq"
+LPRQ_GRAPH_PC_T = "graph_threads_pc_lprq"
+
+# Graph output (operation scan)
+MSQ_GRAPH_PW_O  = "graph_ops_pairwise_msq"
+LPRQ_GRAPH_PW_O = "graph_ops_pairwise_lprq"
+MSQ_GRAPH_PC_O  = "graph_ops_pc_msq"
+LPRQ_GRAPH_PC_O = "graph_ops_pc_lprq"
 
 # Generic tasks for building
 [tasks.build-generic]
@@ -111,93 +136,150 @@ dependencies = ["build-rust-queues", "build-c-msq", "build-c-lprq"]
 [tasks.clean]
 dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]
 
-# Generic parameter scan benchmark
-[tasks.parameter-scan-generic]
-description = "Hyperfine parameter scan"
+# Parameter scan over threads with fixed operations
+[tasks.parameter-scan-generic-threads]
+description = "Hyperfine threads parameter scan"
 script = [
-    "export THREADS=$(($(nproc) / ${FACTOR}))",
+    "export MAX_THREADS=$(($(nproc) / $FACTOR))",
     "echo '\n'===========================================",
-    "echo Running parameter scan for: $TARGET [1, $THREADS]",
-    "hyperfine --parameter-scan num_threads 1 $THREADS '$BINARY {num_threads} $LOGN' --export-json $JSON"
+    "echo Parameter scan over threads'\n' Workload and Queue: $TARGET'\n' Interval: [1, $MAX_THREADS]'\n' Operations: 10^$LOGN",
+    "hyperfine --parameter-scan num_threads 1 $MAX_THREADS '$BINARY {num_threads} $LOGN' --export-json ${RESULT_DIR}/$JSON"
 ]
 private = true
 
-# MSQ pairwise benchmark (Rust)
-[tasks.pairwise-msq-rust]
-extend = "parameter-scan-generic"
-env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", JSON = "${RUST_MSQ_PW_JSON}"}
-dependencies = ["build-rust-queues"]
+# Parameter scan over operations with fixed threads
+[tasks.parameter-scan-generic-ops]
+description = "Hyperfine operations parameter scan"
+script = [
+    "echo '\n'===========================================",
+    "echo Parameter scan over log\\(N\\)'\n' Workload and Queue: $TARGET'\n' Interval: [${MIN_LOGN}, ${MAX_LOGN}] '\n' Threads: $THREADS",
+    "hyperfine --parameter-scan num_ops ${MIN_LOGN} ${MAX_LOGN} '$BINARY ${THREADS} {num_ops}' --export-json ${RESULT_DIR}/$JSON"
+]
 private = true
 
-# MSQ pairwise benchmark (C)
-[tasks.pairwise-msq-c]
-extend = "parameter-scan-generic"
-env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PW_JSON}"}
-dependencies = ["build-c-msq"]
+# MSQ threads & operations pairwise benchmark (Rust)
+[tasks.pairwise-msq-rust-t]
+extend = "parameter-scan-generic-threads"
+env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", JSON = "${RUST_MSQ_PW_JSON_T}" }
+private = true
+[tasks.pairwise-msq-rust-o]
+extend = "parameter-scan-generic-ops"
+env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", JSON = "${RUST_MSQ_PW_JSON_O}" }
+private = true
+
+# MSQ threads & operations pairwise benchmark (C)
+[tasks.pairwise-msq-c-t]
+extend = "parameter-scan-generic-threads"
+env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PW_JSON_T}" }
+private = true
+[tasks.pairwise-msq-c-o]
+extend = "parameter-scan-generic-ops"
+env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PW_JSON_O}" }
 private = true
 
 # MSQ pairwise benchmarks (Rust and C)
+[tasks.benchmark-pairwise-msq-t]
+description = "Parameter scan over threads for pairwise MSQ"
+dependencies = ["pairwise-msq-c-t", "pairwise-msq-rust-t"]
+[tasks.benchmark-pairwise-msq-o]
+description = "Parameter scan over operations for pairwise MSQ"
+dependencies = ["pairwise-msq-c-o", "pairwise-msq-rust-o"]
 [tasks.benchmark-pairwise-msq]
 description = "Parameter scan for pairwise MSQ"
-dependencies = ["pairwise-msq-c", "pairwise-msq-rust"]
+dependencies = ["benchmark-pairwise-msq-t", "benchmark-pairwise-msq-o"]
 
-# LPRQ pairwise benchmarks (Rust)
-[tasks.pairwise-lprq-rust]
-extend = "parameter-scan-generic"
-env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON}"}
-dependencies = ["build-rust-queues"]
+# LPRQ threads & operations pairwise benchmarks (Rust)
+[tasks.pairwise-lprq-rust-t]
+extend = "parameter-scan-generic-threads"
+env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON_T}"}
+private = true
+[tasks.pairwise-lprq-rust-o]
+extend = "parameter-scan-generic-ops"
+env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON_O}"}
 private = true
 
-# LPRQ pairwise benchmark (C)
-[tasks.pairwise-lprq-c]
-extend = "parameter-scan-generic"
-env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", JSON = "${C_LPRQ_PW_JSON}"}
-dependencies = ["build-c-lprq"]
+# LPRQ threads & operations pairwise benchmark (C)
+[tasks.pairwise-lprq-c-t]
+extend = "parameter-scan-generic-threads"
+env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", JSON = "${C_LPRQ_PW_JSON_T}"}
+private = true
+[tasks.pairwise-lprq-c-o]
+extend = "parameter-scan-generic-ops"
+env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", JSON = "${C_LPRQ_PW_JSON_O}"}
 private = true
  
-# LPRQ benchmarks (Rust and C)
+# LPRQ pairwise benchmarks (Rust and C)
+[tasks.benchmark-pairwise-lprq-t]
+description = "Parameter scan over threads for pairwise LPRQ"
+dependencies = ["pairwise-lprq-c-t", "pairwise-lprq-rust-t"]
+[tasks.benchmark-pairwise-lprq-o]
+description = "Parameter scan over operations for pairwise LPRQ"
+dependencies = ["pairwise-lprq-c-o", "pairwise-lprq-rust-o"]
 [tasks.benchmark-pairwise-lprq]
 description = "Parameter scan for pairwise LPRQ"
-dependencies = ["pairwise-lprq-c", "pairwise-lprq-rust"]
+dependencies = ["benchmark-pairwise-lprq-t", "benchmark-pairwise-lprq-o"]
 
-
-# MSQ multi-producer multi-consumer benchmark (Rust)
-[tasks.mpmc-msq-rust]
-extend = "parameter-scan-generic"
-env = { TARGET = "MPMC MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON}"}
-dependencies = ["build-rust-queues"]
+# MSQ threads & operations multi-producer multi-consumer benchmark (Rust)
+[tasks.mpmc-msq-rust-t]
+extend = "parameter-scan-generic-threads"
+env = { TARGET = "MPMC MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON_T}"}
+private = true
+[tasks.mpmc-msq-rust-o]
+extend = "parameter-scan-generic-ops"
+env = { TARGET = "MPMC MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON_O}"}
 private = true
 
-# MSQ multi-producer multi-consumer benchmark (C)
-[tasks.mpmc-msq-c]
-extend = "parameter-scan-generic"
-env = { TARGET = "MPMC MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON}"}
-dependencies = ["build-c-msq"]
+# MSQ threads & operations multi-producer multi-consumer benchmark (C)
+[tasks.mpmc-msq-c-t]
+extend = "parameter-scan-generic-threads"
+env = { TARGET = "MPMC MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_T}"}
+private = true
+[tasks.mpmc-msq-c-o]
+extend = "parameter-scan-generic-ops"
+env = { TARGET = "MPMC MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_O}"}
 private = true
 
 # MSQ multi-producer multi-consumer benchmarks (Rust and C)
+[tasks.benchmark-mpmc-msq-t]
+description = "Parameter scan over threads for mpmc MSQ"
+dependencies = ["mpmc-msq-c-t", "mpmc-msq-rust-t"]
+[tasks.benchmark-mpmc-msq-o]
+description = "Parameter scan over operations for mpmc MSQ"
+dependencies = ["mpmc-msq-c-o", "mpmc-msq-rust-o"]
 [tasks.benchmark-mpmc-msq]
 description = "Parameter scan for mpmc MSQ"
-dependencies = ["mpmc-msq-c", "mpmc-msq-rust"]
+dependencies = ["benchmark-mpmc-msq-t", "benchmark-mpmc-msq-o"]
 
-# LPRQ multi-producer multi-consumer benchmarks (Rust)
-[tasks.mpmc-lprq-rust]
-extend = "parameter-scan-generic"
-env = { TARGET = "MPMC LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON}"}
-dependencies = ["build-rust-queues"]
+# LPRQ threads & operations multi-producer multi-consumer benchmarks (Rust)
+[tasks.mpmc-lprq-rust-t]
+extend = "parameter-scan-generic-threads"
+env = { TARGET = "MPMC LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON_T}"}
+private = true
+[tasks.mpmc-lprq-rust-o]
+extend = "parameter-scan-generic-ops"
+env = { TARGET = "MPMC LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON_O}"}
 private = true
 
-# LPRQ multi-producer multi-consumer benchmark (C)
-[tasks.mpmc-lprq-c]
-extend = "parameter-scan-generic"
-env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON}"}
-dependencies = ["build-c-lprq"]
+# LPRQ threads & operations multi-producer multi-consumer benchmark (C)
+[tasks.mpmc-lprq-c-t]
+extend = "parameter-scan-generic-threads"
+env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_T}"}
 private = true
- 
-# LPRQ benchmarks (Rust and C)
+[tasks.mpmc-lprq-c-o]
+extend = "parameter-scan-generic-ops"
+env = { TARGET = "MPMC LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_O}"}
+private = true
+
+# LPRQ mpmc benchmarks (Rust and C)
+[tasks.benchmark-mpmc-lprq-t]
+description = "Parameter scan over threads for mpmc LPRQ"
+dependencies = ["mpmc-lprq-c-t", "mpmc-lprq-rust-t"]
+[tasks.benchmark-mpmc-lprq-o]
+description = "Parameter scan over operations for mpmc LPRQ"
+dependencies = ["mpmc-lprq-c-o", "mpmc-lprq-rust-o"]
 [tasks.benchmark-mpmc-lprq]
 description = "Parameter scan for mpmc LPRQ"
-dependencies = ["mpmc-lprq-c", "mpmc-lprq-rust"]
+dependencies = ["benchmark-mpmc-lprq-t", "benchmark-mpmc-lprq-o"]
 
 # MSQ pairwise and mpmc benchmarks
 [tasks.benchmark-msq]
@@ -220,51 +302,76 @@ description = "Outputs a .png of the graph"
 category = "Utility"
 script_runner = "bash"
 script = [
-    "python ${SCRIPT} ${RUST_JSON} ${C_JSON} -o ${FILE} --titles Rust,C"
+    "python ${SCRIPT_DIR}/${SCRIPT} ${RESULT_DIR}/${RUST_JSON} ${RESULT_DIR}/${C_JSON} -o ${RESULT_DIR}/${FILE} --titles Rust,C"
 ]
 private = true
 
 # MSQ pairwise comparison between Rust and C
-[tasks._graph-pairwise-msq]
+[tasks._graph-pairwise-msq-t]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PW_JSON}", C_JSON = "${C_MSQ_PW_JSON}", FILE = "${MSQ_GRAPH_PW}"}
-[tasks.graph-pairwise-msq]
-dependencies = ["_graph-pairwise-msq"]
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PW_JSON_T}", C_JSON = "${C_MSQ_PW_JSON_T}", FILE = "${MSQ_GRAPH_PW_T}"}
+[tasks.graph-pairwise-msq-t]
+dependencies = ["_graph-pairwise-msq-t"]
+
+[tasks._graph-pairwise-msq-o]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PW_JSON_O}", C_JSON = "${C_MSQ_PW_JSON_O}", FILE = "${MSQ_GRAPH_PW_O}"}
+[tasks.graph-pairwise-msq-o]
+dependencies = ["_graph-pairwise-msq-o"]
 
 # LPRQ pairwise comparison between Rust and C
-[tasks._graph-pairwise-lprq]
+[tasks._graph-pairwise-lprq-t]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON}", C_JSON = "${C_LPRQ_PW_JSON}", FILE = "${LPRQ_GRAPH_PW}"}
-[tasks.graph-pairwise-lprq]
-dependencies = ["_graph-pairwise-lprq"]
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_T}", C_JSON = "${C_LPRQ_PW_JSON_T}", FILE = "${LPRQ_GRAPH_PW_T}"}
+[tasks.graph-pairwise-lprq-t]
+dependencies = ["_graph-pairwise-lprq-t"]
+
+[tasks._graph-pairwise-lprq-o]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_O}", C_JSON = "${C_LPRQ_PW_JSON_O}", FILE = "${LPRQ_GRAPH_PW_O}"}
+[tasks.graph-pairwise-lprq-o]
+dependencies = ["_graph-pairwise-lprq-o"]
 
 # MSQ mpmc comparison between Rust and C
-[tasks._graph-mpmc-msq]
+[tasks._graph-mpmc-msq-t]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PC_JSON}", C_JSON = "${C_MSQ_PC_JSON}", FILE = "${MSQ_GRAPH_PC}"}
-[tasks.graph-mpmc-msq]
-dependencies = ["_graph-mpmc-msq"]
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PC_JSON_T}", C_JSON = "${C_MSQ_PC_JSON_T}", FILE = "${MSQ_GRAPH_PC_T}"}
+[tasks.graph-mpmc-msq-t]
+dependencies = ["_graph-mpmc-msq-t"]
+
+[tasks._graph-mpmc-msq-o]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PC_JSON_O}", C_JSON = "${C_MSQ_PC_JSON_O}", FILE = "${MSQ_GRAPH_PC_O}"}
+[tasks.graph-mpmc-msq-o]
+dependencies = ["_graph-mpmc-msq-o"]
 
 # LPRQ mpmc comparison between Rust and C
-[tasks._graph-mpmc-lprq]
+[tasks._graph-mpmc-lprq-t]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON}", C_JSON = "${C_LPRQ_PC_JSON}", FILE = "${LPRQ_GRAPH_PC}"}
-[tasks.graph-mpmc-lprq]
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_T}", C_JSON = "${C_LPRQ_PC_JSON_T}", FILE = "${LPRQ_GRAPH_PC_T}"}
+[tasks.graph-mpmc-lprq-t]
+dependencies = ["_graph-mpmc-lprq-t"]
+
+[tasks._graph-mpmc-lprq-o]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_O}", C_JSON = "${C_LPRQ_PC_JSON_O}", FILE = "${LPRQ_GRAPH_PC_O}"}
+[tasks.graph-mpmc-lprq-o]
+dependencies = ["_graph-mpmc-lprq-o"]
 
 # MSQ pairwise and mpmc graphs
 [tasks.graph-msq]
 description = "All graphs for MSQ"
-dependencies = ["graph-pairwise-msq", "graph-mpmc-msq"]
+dependencies = ["graph-pairwise-msq-t", "graph-mpmc-msq-t", "graph-pairwise-msq-o", "graph-mpmc-msq-o"]
 
 # LPRQ pairwise and mpmc graphs
 [tasks.graph-lprq]
 description = "All graphs for LPRQ"
-dependencies = ["graph-pairwise-lprq", "graph-mpmc-lprq"]
+dependencies = ["graph-pairwise-lprq-t", "graph-mpmc-lprq-t", "graph-pairwise-lprq-o", "graph-mpmc-lprq-o"]
 
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
-dependencies = ["graph-pairwise-msq", "graph-pairwise-lprq", "graph-mpmc-msq", "graph-mpmc-lprq"]
+dependencies = ["graph-msq", "graph-lprq"]
 
 # Runs all benchmarks and generate all graphs, might take some time
 [tasks.run]
