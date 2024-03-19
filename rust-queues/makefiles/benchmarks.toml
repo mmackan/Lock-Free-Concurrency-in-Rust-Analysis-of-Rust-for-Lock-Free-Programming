@@ -23,8 +23,3 @@ script = [
     "hyperfine --parameter-scan num_ops ${MIN_LOGN} ${MAX_LOGN} '$BINARY ${THREADS} {num_ops}' --export-json ${RESULT_DIR}/$JSON"
 ]
 private = true
-
-# Run all benchmarks for all queues
-[tasks.benchmark]
-description = "All benchmarks for all queues"
-dependencies = ["benchmark-msq", "benchmark-lprq"]

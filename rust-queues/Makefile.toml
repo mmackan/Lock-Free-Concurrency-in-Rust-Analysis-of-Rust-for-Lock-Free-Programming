@@ -1,6 +1,6 @@
 extend = [
-    {path = "./makefiles/utils.toml"},
     {path = "./makefiles/env.toml"},
+    {path = "./makefiles/utils.toml"},
     {path = "./makefiles/benchmarks.toml"},
     {path = "./makefiles/plots.toml"},
 ]
@@ -13,12 +13,17 @@ dependencies = ["build-rust-queues", "build-c-msq", "build-c-lprq"]
 [tasks.clean]
 dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]
 
-# Runs all benchmarks and generate all graphs, might take some time
-[tasks.run]
-description = "Run all benchmarks and generate all graphs"
-dependencies = ["benchmark", "graph-all"]
+# Run all benchmarks for all queues
+[tasks.benchmark]
+description = "All benchmarks for all queues"
+dependencies = ["benchmark-msq", "benchmark-lprq"]
 
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
 dependencies = ["graph-msq", "graph-lprq"]
+
+# Run all benchmarks and generate all graphs
+[tasks.run]
+description = "Run all benchmarks and generate all graphs"
+dependencies = ["benchmark", "graph-all"]
