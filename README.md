@@ -7,20 +7,28 @@ NOTE: This command might take some time to finnish, the following sections will 
 ***
 
 ## Benchmarking
-Benchmark the queues with pairwise or multi-producer multi-consumer (MPMC) workload.  These commands will also build the corresponding project before running the benchmark.
+Benchmark the queues with pairwise or multi-producer multi-consumer (MPMC) workload. Each benchmark will run two parameter scans each based on the categories:
+1. Fixed number of operations and different # threads.
+2. Fixed number of threads and different # operations.
 
-**Run all benchmarks for all queues**
+**All benchmarks**
 - `cargo make benchmark-all`
 
 **Both benchmarks for MSQ and LPRQ respectively:**
 - `cargo make benchmark-msq`
 - `cargo make benchmark-lprq`
 
-**Run individual benchmarks**
+**Individual benchmarks for both categories**
 - `cargo make benchmark-pairwise-msq`
 - `cargo make benchmark-pairwise-lprq`
 - `cargo make benchmark-mpmc-msq`
 - `cargo make benchmark-mpmc-lprq`
+
+**Benchmark each individual category**
+
+Adding a `-t` or `-o` will test individual categories
+- e.g., `cargo make benchmark-pairwise-msq-t`
+
 
 ***
 
@@ -55,3 +63,8 @@ These commands will generate graphs that show the comparison between the two lan
 - `cargo make graph-pairwise-lprq`
 - `cargo make graph-mpmc-msq`
 - `cargo make graph-mpmc-lprq`
+
+**Create graphs for each individual category**
+
+Adding a `-t` or `-o` will graph individual categories
+- e.g., `cargo make graph-pairwise-msq-t`
