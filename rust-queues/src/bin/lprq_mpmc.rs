@@ -12,7 +12,7 @@ fn main() {
     };
 
     let queue: SharedLPRQ<'_, i32, 1028> = SharedLPRQ::new();
-    
+
     mpmc_benchmark::benchmark(producers, consumers, logn, even_only, queue);
 
     println!("  Finished");

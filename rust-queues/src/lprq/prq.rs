@@ -90,17 +90,15 @@ impl<T> Cell<T> {
 #[derive(Debug)]
 pub struct PRQ<T, const N: usize> {
     head: CachePadded<AtomicUsize>,
-    tail: CachePadded<AtomicUsize>,
-    closed: CachePadded<AtomicBool>,
+    tail: CachePadded<AtomicUsize>, // Top bit here is set if the queue is closed
+    //closed: CachePadded<AtomicBool>,
     array: [Cell<T>; N],
     pub next: haphazard::AtomicPtr<PRQ<T, N>>,
-    // In the reference this is stored as the top bit of tail
 }
 
 impl<T, const N: usize> PRQ<T, N> {
     pub fn new() -> Self {
         PRQ {
-            closed: AtomicBool::new(false).into(),
             head: AtomicUsize::new(N).into(),
             array: array::from_fn(|_| Default::default()),
             tail: AtomicUsize::new(N).into(),
@@ -110,7 +108,6 @@ impl<T, const N: usize> PRQ<T, N> {
 
     pub fn new_with_item(value_ptr: *const T) -> Self {
         let prq = PRQ {
-            closed: AtomicBool::new(false).into(),
             head: AtomicUsize::new(N).into(),
             tail: AtomicUsize::new(N).into(),
             array: array::from_fn(|_| Default::default()),
@@ -128,8 +125,10 @@ impl<T, const N: usize> PRQ<T, N> {
         let thread_id: usize = thread::current().id().as_u64().get().try_into().unwrap();
         let thread_token = Cell::<T>::make_token(thread_id);
         loop {
-            let tail_val: usize = self.tail.fetch_add(1, Ordering::SeqCst);
-            if self.closed.load(Ordering::SeqCst) {
+            let tail_ticket: usize = self.tail.fetch_add(1, Ordering::SeqCst);
+            let tail_val: usize = (!(1 << 63)) & tail_ticket;
+            let closed = tail_ticket & (1 << 63) != 0;
+            if closed {
                 return Err(());
             }
             let cycle = tail_val / N;
@@ -140,21 +139,45 @@ impl<T, const N: usize> PRQ<T, N> {
             let (safe, epoch) = cell.load_safe_and_epoch(Ordering::SeqCst);
             let value = cell.value.load(Ordering::SeqCst);
 
-            if value.is_null() && epoch <= cycle && (safe || self.head.load(Ordering::SeqCst) <= cycle) {
-                if let Ok(_) = cell.value.compare_exchange(value, thread_token, Ordering::SeqCst, Ordering::SeqCst) {
-                    if let Ok(_) = cell.compare_exchange_safe_and_epoch((safe, epoch), (true, cycle), Ordering::SeqCst, Ordering::SeqCst) {
-                        if let Ok(_) = cell.value.compare_exchange(thread_token, value_ptr.cast_mut(), Ordering::SeqCst, Ordering::SeqCst) {
+            if value.is_null()
+                && epoch <= cycle
+                && (safe || self.head.load(Ordering::SeqCst) <= cycle)
+            {
+                if let Ok(_) = cell.value.compare_exchange(
+                    value,
+                    thread_token,
+                    Ordering::SeqCst,
+                    Ordering::SeqCst,
+                ) {
+                    if let Ok(_) = cell.compare_exchange_safe_and_epoch(
+                        (safe, epoch),
+                        (true, cycle),
+                        Ordering::SeqCst,
+                        Ordering::SeqCst,
+                    ) {
+                        if let Ok(_) = cell.value.compare_exchange(
+                            thread_token,
+                            value_ptr.cast_mut(),
+                            Ordering::SeqCst,
+                            Ordering::SeqCst,
+                        ) {
                             return Ok(());
                         }
                     } else {
-                        let _ = cell.value.compare_exchange(thread_token, ptr::null_mut(), Ordering::SeqCst, Ordering::SeqCst);
+                        let _ = cell.value.compare_exchange(
+                            thread_token,
+                            ptr::null_mut(),
+                            Ordering::SeqCst,
+                            Ordering::SeqCst,
+                        );
                     }
                 }
             }
 
             // Check if the queue is full
             if tail_val >= self.head.load(Ordering::SeqCst) + N {
-                self.closed.store(true, Ordering::SeqCst);
+                // Set the top bit of the tail to indicate that the queue is closed
+                self.tail.fetch_or(1 << 63, Ordering::SeqCst);
                 return Err(());
             }
         }
@@ -182,7 +205,7 @@ impl<T, const N: usize> PRQ<T, N> {
                 if (!value.is_null()) && (!Cell::<T>::is_token(value.addr())) {
                     if epoch == cycle {
                         cell.value.store(ptr::null_mut(), Ordering::SeqCst);
-                        return Some(value)
+                        return Some(value);
                     }
                     if !safe {
                         let new: (bool, usize) = cell.load_safe_and_epoch(Ordering::SeqCst);
@@ -190,31 +213,47 @@ impl<T, const N: usize> PRQ<T, N> {
                             break;
                         }
 
-                        if let Ok(_) = cell.compare_exchange_safe_and_epoch((safe, epoch), (false, epoch), Ordering::SeqCst, Ordering::SeqCst) {
+                        if let Ok(_) = cell.compare_exchange_safe_and_epoch(
+                            (safe, epoch),
+                            (false, epoch),
+                            Ordering::SeqCst,
+                            Ordering::SeqCst,
+                        ) {
                             break;
                         }
                     }
                 }
                 if (r % 255) == 0 {
-                    tail = self.tail.load(Ordering::SeqCst);
-                    closed = self.closed.load(Ordering::SeqCst);
+                    let tail_ticket = self.tail.load(Ordering::SeqCst);
+                    tail = tail_ticket & (!(1 << 63));
+                    closed = tail_ticket & (1 << 63) != 0;
                 }
 
-                if !safe || tail < head_val + 1 || closed || r > (4*N).try_into().unwrap() {
+                if !safe || tail < head_val + 1 || closed || r > (4 * N).try_into().unwrap() {
                     if Cell::<T>::is_token(value.addr()) {
-                        if let Ok(_) = cell.value.compare_exchange(value, ptr::null_mut(), Ordering::SeqCst, Ordering::SeqCst) {
+                        if let Ok(_) = cell.value.compare_exchange(
+                            value,
+                            ptr::null_mut(),
+                            Ordering::SeqCst,
+                            Ordering::SeqCst,
+                        ) {
                             continue;
                         }
                     }
-                    if let Ok(_) = cell.compare_exchange_safe_and_epoch((safe, epoch), (false, head_val), Ordering::SeqCst, Ordering::SeqCst) {
+                    if let Ok(_) = cell.compare_exchange_safe_and_epoch(
+                        (safe, epoch),
+                        (false, head_val),
+                        Ordering::SeqCst,
+                        Ordering::SeqCst,
+                    ) {
                         break;
                     }
                 }
                 r = r + 1;
-
             }
             // Is the queue empty?
-            if self.tail.load(Ordering::SeqCst) <= head_val + 1 {
+            let tail_ticket = self.tail.load(Ordering::SeqCst);
+            if ((!(1 << 63)) & tail_ticket) <= head_val + 1 {
                 self.fix_state();
                 return None;
             }
@@ -222,13 +261,18 @@ impl<T, const N: usize> PRQ<T, N> {
     }
     fn fix_state(&self) {
         loop {
-            let tail = self.tail.load(Ordering::SeqCst);
+            let tail_ticket = self.tail.load(Ordering::SeqCst);
             let head = self.head.load(Ordering::SeqCst);
-            if tail != self.tail.load(Ordering::SeqCst) {
+            if tail_ticket != self.tail.load(Ordering::SeqCst) {
                 continue;
             }
-            if head > tail {
-                if let Ok(_) = self.tail.compare_exchange(tail, head, Ordering::SeqCst, Ordering::SeqCst) {
+            if head > ((!(1 << 63)) & tail_ticket) {
+                if let Ok(_) = self.tail.compare_exchange(
+                    tail_ticket,
+                    head,
+                    Ordering::SeqCst,
+                    Ordering::SeqCst,
+                ) {
                     break;
                 }
                 continue;
@@ -256,7 +300,8 @@ mod test {
     #[test]
     fn basic_prq() {
         let prq: PRQ<i32, 5> = PRQ::new();
-        assert!(!prq.closed.load(Ordering::Relaxed));
+        let tail_ticket = prq.tail.load(Ordering::SeqCst);
+        assert_eq!(false, tail_ticket & (1 << 63) != 0);
 
         for i in 0..5 {
             let item = Box::into_raw(Box::new(i));
