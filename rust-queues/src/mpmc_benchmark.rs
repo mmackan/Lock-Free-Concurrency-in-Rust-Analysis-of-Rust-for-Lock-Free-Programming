@@ -8,6 +8,8 @@ use std::thread;
 
 use crate::shared_queue::SharedQueue;
 
+use core_affinity;
+
 const BASE: usize = 10;
 
 pub fn benchmark<Q>(
@@ -28,11 +30,23 @@ pub fn benchmark<Q>(
     let nops = BASE.pow(logn as u32);
     let tops = nops / nproducer;
 
+    let binding = core_affinity::get_core_ids().unwrap();
+    let mut core_ids = binding.iter();
+
     // Producers
     for _ in 0..nproducer {
         let mut queue_handle = queue.clone();
+        let core_id = core_ids
+            .next()
+            .expect("Ran out of cores! Maybe used fewer threads")
+            .clone();
+        if even_cores_only {
+            // Skip a core so we only use even ones, for use on the server
+            let _ = core_ids.next();
+        }
 
         let handle = thread::spawn(move || {
+            let _ = core_affinity::set_for_current(core_id);
             let mut rng = rand::thread_rng();
 
             /* The LPRQ paper does this differently, they:
@@ -52,9 +66,18 @@ pub fn benchmark<Q>(
     for _ in 0..nconsumer {
         let mut queue_handle = queue.clone();
         let stop_flag_handle = stop_flag.clone();
+        let core_id = core_ids
+            .next()
+            .expect("Ran out of cores! Maybe used fewer threads")
+            .clone();
+        if even_cores_only {
+            // Skip a core so we only use even ones, for use on the server
+            let _ = core_ids.next();
+        }
 
         let handle = thread::spawn(move || {
             let mut rng = rand::thread_rng();
+            let _ = core_affinity::set_for_current(core_id);
 
             loop {
                 // TODO: Seperate successful and failed dequeues (as paper)
