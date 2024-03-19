@@ -1,0 +1,78 @@
+# Generic tasks for building
+[tasks.build-generic]
+description = "Build project"
+category = "Build"
+script_runner = "bash"
+script = [
+    "echo Building $TARGET",
+    "cd $CWD",
+    "$CMD $ARGS"
+]
+private = true
+
+# Generic tasks for cleaning
+[tasks.clean-generic]
+description = "Clean project"
+category = "Clean"
+script_runner = "bash"
+script = [
+    "echo Cleaning in $CWD",
+    "cd $CWD",
+    "$CMD $ARGS"
+]
+private = true
+
+# Build both Rust MSQ and LPRQ
+[tasks.build-rust-queues]
+extend = "build-generic"
+env = { TARGET = "Rust queues", CWD = "${RUST_DIR}", CMD = "cargo", ARGS = "build --release" }
+
+# Build C MSQ
+[tasks.build-c-msq]
+extend = "build-generic"
+env = { TARGET = "C MSQ", CWD = "${C_MSQ_DIR}", CMD = "make", ARGS = ""}
+
+# Build C LPRQ
+[tasks.build-c-lprq]
+description = "Build LPRQ with cmake"
+category = "Build"
+script_runner = "bash"
+script = [
+    "echo Building ${C_LPRQ_DIR}",
+    "cd ${C_LPRQ_DIR}",
+    "mkdir -p ./build",
+    "cd ./build",
+    "cmake -DCMAKE_BUILD_TYPE=Release ..",
+    "make -j8"
+]
+
+# Clean both Rust MSQ and LPRQ
+[tasks.clean-rust-queues]
+extend = "clean-generic"
+env = { CWD = "${RUST_DIR}", CMD = "cargo", ARGS = "clean" }
+private = true
+
+# Clean C MSQ
+[tasks.clean-c-msq]
+extend = "clean-generic"
+env = { CWD = "${C_MSQ_DIR}", CMD = "make", ARGS = "clean"}
+private = true
+
+# Clean C LPRQ
+[tasks.clean-c-lprq]
+category = "Clean"
+script_runner = "bash"
+script = [
+    "echo Cleaning in ${C_LPRQ_DIR}",
+    "cd ${C_LPRQ_DIR}",
+    "rm -rf ./build"
+]
+private = true
+
+# Build whole project
+[tasks.build]
+dependencies = ["build-rust-queues", "build-c-msq", "build-c-lprq"]
+
+# Clean whole project
+[tasks.clean]
+dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]

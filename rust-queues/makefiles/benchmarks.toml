@@ -1,0 +1,30 @@
+extend = [
+    {path = "msq_benchmarks.toml"},
+    {path = "lprq_benchmarks.toml"}
+]
+
+# Parameter scan over threads with fixed operations
+[tasks.parameter-scan-generic-threads]
+description = "Hyperfine threads parameter scan"
+script = [
+    "export MAX_THREADS=$(($(nproc) / $FACTOR))",
+    "echo '\n'===========================================",
+    "echo Parameter scan over threads'\n' Workload and Queue: $TARGET'\n' Interval: [1, $MAX_THREADS]'\n' Operations: 10^$LOGN",
+    "hyperfine --parameter-scan num_threads 1 $MAX_THREADS '$BINARY {num_threads} $LOGN' --export-json ${RESULT_DIR}/$JSON"
+]
+private = true
+
+# Parameter scan over operations with fixed threads
+[tasks.parameter-scan-generic-ops]
+description = "Hyperfine operations parameter scan"
+script = [
+    "echo '\n'===========================================",
+    "echo Parameter scan over log\\(N\\)'\n' Workload and Queue: $TARGET'\n' Interval: [${MIN_LOGN}, ${MAX_LOGN}] '\n' Threads: $THREADS",
+    "hyperfine --parameter-scan num_ops ${MIN_LOGN} ${MAX_LOGN} '$BINARY ${THREADS} {num_ops}' --export-json ${RESULT_DIR}/$JSON"
+]
+private = true
+
+# Run all benchmarks for all queues
+[tasks.benchmark]
+description = "All benchmarks for all queues"
+dependencies = ["benchmark-msq", "benchmark-lprq"]

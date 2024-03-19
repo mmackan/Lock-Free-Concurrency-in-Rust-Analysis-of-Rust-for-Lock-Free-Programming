@@ -1,0 +1,29 @@
+
+# Pairwise comparison between Rust and C
+[tasks._graph-pairwise-lprq-t]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_T}", C_JSON = "${C_LPRQ_PW_JSON_T}", FILE = "${LPRQ_GRAPH_PW_T}"}
+[tasks.graph-pairwise-lprq-t]
+dependencies = ["_graph-pairwise-lprq-t"]
+[tasks._graph-pairwise-lprq-o]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_O}", C_JSON = "${C_LPRQ_PW_JSON_O}", FILE = "${LPRQ_GRAPH_PW_O}"}
+[tasks.graph-pairwise-lprq-o]
+dependencies = ["_graph-pairwise-lprq-o"]
+
+# MPMC comparison between Rust and C
+[tasks._graph-mpmc-lprq-t]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_T}", C_JSON = "${C_LPRQ_PC_JSON_T}", FILE = "${LPRQ_GRAPH_PC_T}"}
+[tasks.graph-mpmc-lprq-t]
+dependencies = ["_graph-mpmc-lprq-t"]
+[tasks._graph-mpmc-lprq-o]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_O}", C_JSON = "${C_LPRQ_PC_JSON_O}", FILE = "${LPRQ_GRAPH_PC_O}"}
+[tasks.graph-mpmc-lprq-o]
+dependencies = ["_graph-mpmc-lprq-o"]
+
+# Pairwise and MPMC graphs
+[tasks.graph-lprq]
+description = "All graphs for LPRQ"
+dependencies = ["graph-pairwise-lprq-t", "graph-mpmc-lprq-t", "graph-pairwise-lprq-o", "graph-mpmc-lprq-o"]
