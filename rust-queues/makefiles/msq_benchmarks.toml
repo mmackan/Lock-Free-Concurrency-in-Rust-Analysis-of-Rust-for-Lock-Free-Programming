@@ -38,21 +38,3 @@ private = true
 # env = { TARGET = "MPMC MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_O}"}
 # private = true
 
-# Commands for Pairwise benchmarks (Rust and C)
-[tasks.benchmark-pairwise-msq-t]
-description = "Parameter scan over threads for pairwise MSQ"
-dependencies = ["pairwise-msq-c-t", "pairwise-msq-rust-t"]
-[tasks.benchmark-pairwise-msq-o]
-description = "Parameter scan over operations for pairwise MSQ"
-dependencies = ["pairwise-msq-c-o", "pairwise-msq-rust-o"]
-[tasks.benchmark-pairwise-msq]
-description = "Parameter scan for pairwise MSQ"
-dependencies = ["benchmark-pairwise-msq-t", "benchmark-pairwise-msq-o"]
-
-# TODO: Commands for MPMC benchmarks (Rust and C)
-[tasks.benchmark-mpmc-msq]
-
-# Command for Pairwise and MPMC benchmarks
-[tasks.benchmark-msq]
-description = "All benchmarks for MSQ"
-dependencies = ["benchmark-pairwise-msq", "benchmark-mpmc-msq"]

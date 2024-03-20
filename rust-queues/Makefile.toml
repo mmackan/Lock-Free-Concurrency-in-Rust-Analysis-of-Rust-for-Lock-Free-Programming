@@ -18,6 +18,44 @@ dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]
 description = "All benchmarks for all queues"
 dependencies = ["benchmark-msq", "benchmark-lprq"]
 
+# Commands for Pairwise MSQ benchmarks (Rust and C)
+[tasks.benchmark-pairwise-msq-t]
+description = "Parameter scan over threads for pairwise MSQ"
+dependencies = ["pairwise-msq-c-t", "pairwise-msq-rust-t"]
+[tasks.benchmark-pairwise-msq-o]
+description = "Parameter scan over operations for pairwise MSQ"
+dependencies = ["pairwise-msq-c-o", "pairwise-msq-rust-o"]
+[tasks.benchmark-pairwise-msq]
+description = "Parameter scan for pairwise MSQ"
+dependencies = ["benchmark-pairwise-msq-t", "benchmark-pairwise-msq-o"]
+
+# TODO: Commands for MPMC MSQ benchmarks (Rust and C)
+[tasks.benchmark-mpmc-msq]
+
+# Command for Pairwise and MPMC MSQ benchmarks
+[tasks.benchmark-msq]
+description = "All benchmarks for MSQ"
+dependencies = ["benchmark-pairwise-msq", "benchmark-mpmc-msq"]
+
+# Commands for Pairwise LPRQ benchmarks (Rust and C)
+[tasks.benchmark-pairwise-lprq-t]
+description = "Parameter scan over threads for pairwise LPRQ"
+dependencies = ["pairwise-lprq-c-t", "pairwise-lprq-rust-t"]
+[tasks.benchmark-pairwise-lprq-o]
+description = "Parameter scan over operations for pairwise LPRQ"
+dependencies = ["pairwise-lprq-c-o", "pairwise-lprq-rust-o"]
+[tasks.benchmark-pairwise-lprq]
+description = "Parameter scan for pairwise LPRQ"
+dependencies = ["benchmark-pairwise-lprq-t", "benchmark-pairwise-lprq-o"]
+
+# TODO: Commands for MPMC LPRQ benchmarks (Rust and C)
+[tasks.benchmark-mpmc-lprq]
+
+# Command for Pairwise and MPMC LPRQ benchmarks
+[tasks.benchmark-lprq]
+description = "All benchmarks for LPRQ"
+dependencies = ["benchmark-pairwise-lprq", "benchmark-mpmc-lprq"]
+
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
