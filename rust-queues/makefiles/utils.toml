@@ -23,14 +23,18 @@ script = [
 private = true
 
 # Build both Rust MSQ and LPRQ
-[tasks.build-rust-queues]
+[tasks._build-rust-queues]
 extend = "build-generic"
 env = { TARGET = "Rust queues", CWD = "${RUST_DIR}", CMD = "cargo", ARGS = "build --release" }
+[tasks.build-rust-queues]
+dependencies = ["_build-rust-queues"]
 
 # Build C MSQ
-[tasks.build-c-msq]
+[tasks._build-c-msq]
 extend = "build-generic"
 env = { TARGET = "C MSQ", CWD = "${C_MSQ_DIR}", CMD = "make", ARGS = ""}
+[tasks.build-c-msq]
+dependencies = ["_build-c-msq"]
 
 # Build C LPRQ
 [tasks.build-c-lprq]
