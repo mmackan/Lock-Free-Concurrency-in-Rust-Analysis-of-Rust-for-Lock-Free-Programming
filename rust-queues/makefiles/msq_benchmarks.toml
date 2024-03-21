@@ -17,32 +17,3 @@ private = true
 extend = "parameter-scan-pairwise-ops"
 env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PW_JSON_O}" }
 private = true
-
-# MPMC benchmarks (Rust)
-[tasks.mpmc-msq-rust-1-1]
-extend = "parameter-scan-mpmc-1-1"
-env = { TARGET = "MPMC 1:1 MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON_11}"}
-private = true
-[tasks.mpmc-msq-rust-1-2]
-extend = "parameter-scan-mpmc-1-2"
-env = { TARGET = "MPMC 1:2 MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON_12}"}
-private = true
-[tasks.mpmc-msq-rust-2-1]
-extend = "parameter-scan-mpmc-2-1"
-env = { TARGET = "MPMC 2:1 MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_mpmc", JSON = "${RUST_MSQ_PC_JSON_21}"}
-private = true
-
-# MPMC benchmarks (C)
-[tasks.mpmc-msq-c-1-1]
-extend = "parameter-scan-mpmc-1-1"
-env = { TARGET = "MPMC 1:1 MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_11}"}
-private = true
-[tasks.mpmc-msq-c-1-2]
-extend = "parameter-scan-mpmc-1-2"
-env = { TARGET = "MPMC 1:2 MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_12}"}
-private = true
-[tasks.mpmc-msq-c-2-1]
-extend = "parameter-scan-mpmc-2-1"
-env = { TARGET = "MPMC 2:1 MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", JSON = "${C_MSQ_PC_JSON_21}"}
-private = true
-
