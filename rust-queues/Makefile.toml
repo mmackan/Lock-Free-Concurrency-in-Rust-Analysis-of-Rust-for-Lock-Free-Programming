@@ -13,11 +13,6 @@ dependencies = ["build-rust-queues", "build-c-msq", "build-c-lprq"]
 [tasks.clean]
 dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]
 
-# Run all benchmarks for all queues
-[tasks.benchmark]
-description = "All benchmarks for all queues"
-dependencies = ["benchmark-msq", "benchmark-lprq"]
-
 # Commands for MSQ Pairwise benchmarks
 [tasks.benchmark-pairwise-msq-t]
 description = "Parameter scan over threads for pairwise MSQ"
@@ -46,7 +41,6 @@ description = "Parameter scan for pairwise LPRQ"
 dependencies = ["benchmark-pairwise-lprq-t", "benchmark-pairwise-lprq-o"]
 
 # Commands for individual LPRQ MPMC ratios
-# TODO: Add to README
 [tasks.benchmark-mpmc-lprq-1-1]
 description = "LPRQ benchmark MPMC 1:1 ratio"
 dependencies = ["mpmc-lprq-c-1-1", "mpmc-lprq-rust-1-1"]
@@ -58,7 +52,6 @@ description = "LPRQ benchmark MPMC 2:1 ratio"
 dependencies = ["mpmc-lprq-c-2-1", "mpmc-lprq-rust-2-1"]
 
 # Command for all LPRQ MPMC ratios
-# TODO: Add to README
 [tasks.benchmark-mpmc-lprq]
 description = "MSQ benchmark MPM all ratios"
 dependencies = ["benchmark-mpmc-lprq-1-1", "benchmark-mpmc-lprq-1-2", "benchmark-mpmc-lprq-2-1"]
@@ -68,6 +61,11 @@ dependencies = ["benchmark-mpmc-lprq-1-1", "benchmark-mpmc-lprq-1-2", "benchmark
 description = "All benchmarks for LPRQ"
 dependencies = ["benchmark-pairwise-lprq", "benchmark-mpmc-lprq"]
 
+# Run all benchmarks for all queues
+[tasks.benchmark-all]
+description = "All benchmarks for all queues"
+dependencies = ["benchmark-msq", "benchmark-lprq"]
+
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
@@ -76,4 +74,4 @@ dependencies = ["graph-msq", "graph-lprq"]
 # Run all benchmarks and generate all graphs
 [tasks.run]
 description = "Run all benchmarks and generate all graphs"
-dependencies = ["benchmark", "graph-all"]
+dependencies = ["benchmark-all", "graph-all"]
