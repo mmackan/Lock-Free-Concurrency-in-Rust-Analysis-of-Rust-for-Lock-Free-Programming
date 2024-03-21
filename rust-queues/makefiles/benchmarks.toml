@@ -7,46 +7,44 @@ extend = [
 [tasks.parameter-scan-pairwise-threads]
 description = "Hyperfine parameter scan over threads"
 script = [
-    "export MAX_THREADS=$(($(nproc) / $FACTOR))",
+    "export MAX_THREADS=$(($(nproc) / FACTOR))",
     "echo '\n'===========================================",
-    "echo Parameter scan over threads'\n' Workload and Queue: $TARGET'\n' Interval: [1, $MAX_THREADS]'\n' Operations: 10^$LOGN",
-    "hyperfine --parameter-scan num_threads 1 $MAX_THREADS '$BINARY {num_threads} $LOGN' --export-json ${RESULT_DIR}/$JSON"
+    "echo Parameter scan over threads",
+    "echo ' ' Benchmark: $TARGET",
+    "echo ' ' Interval: [1, MAX_THREADS]",
+    "echo ' ' Operations: 10^${LOGN}",
+    "hyperfine --parameter-scan num_threads 1 MAX_THREADS '${BINARY} {num_threads} ${LOGN}' --export-json ${RESULT_DIR}/$JSON"
 ]
 private = true
 
-# Pairwise benchmarking, operations varies, fixed threads
+
+# Pairwise benchmarking, operations varies, fixed threads 
 [tasks.parameter-scan-pairwise-ops]
 description = "Hyperfine parameter scan over operations"
 script = [
     "echo '\n'===========================================",
-    "echo Parameter scan over log\\(N\\)'\n' Workload and Queue: $TARGET'\n' Interval: [${MIN_LOGN}, ${MAX_LOGN}] '\n' Threads: $THREADS",
-    "hyperfine --parameter-scan num_ops ${MIN_LOGN} ${MAX_LOGN} '$BINARY ${THREADS} {num_ops}' --export-json ${RESULT_DIR}/$JSON"
+    "echo Parameter scan over logn",
+    "echo ' ' Benchmark: $TARGET",
+    "echo ' ' Interval: [${MIN_LOGN}, ${MAX_LOGN}]",
+    "echo ' ' Threads: ${THREADS}",
+    "hyperfine --parameter-scan num_ops ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {num_ops}' --export-json ${RESULT_DIR}/$JSON"
 ]
 private = true
 
-# TODO: MPMC benchmarking 1:1 producer:consumer ratio
-[tasks.parameter-scan-mpmc-1-1]
-description = ""
+# MPMC benchmark, thread varies, fixed operations
+[tasks.parameter-scan-mpmc]
+description = "Base MPMC benchmark parameter scan"
+script_runner = "bash"
 script = [
+    "echo RATIO: ${RATIO}, DIVISOR: ${DIVISOR}, MIN_THREADS: ${MIN_THREADS}",
+    "export MAX_THREADS=$(($(nproc) / FACTOR))",
+    "export MAX_ITER=$((MAX_THREADS / $DIVISOR))",
     "echo '\n'===========================================",
-    "echo ",
-]
-private = true
+    "echo Parameter scan over threads",
+    "echo ' ' Benchmark: $TARGET",
+    "echo ' ' Interval: [${MIN_THREADS}, ${MAX_THREADS}]",
+    "echo ' ' Operations: 10^$LOGN'\n'",
+    "bash ./makefiles/ratio_benchmarks.sh ${RATIO} ${MAX_ITER}"
 
-# TODO: MPMC benchmarking 2:1 producer:consumer ratio
-[tasks.parameter-scan-mpmc-2-1]
-description = ""
-script = [
-    "echo '\n'===========================================",
-    "echo ",
-]
-private = true
-
-# TODO: MPMC benchmarking 1:2 producer:consumer ratio
-[tasks.parameter-scan-mpmc-1-2]
-description = ""
-script = [
-    "echo '\n'===========================================",
-    "echo ",
 ]
 private = true
