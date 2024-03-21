@@ -79,13 +79,19 @@ pub fn benchmark<Q>(
             let mut rng = rand::thread_rng();
             let _ = core_affinity::set_for_current(core_id);
 
+            let mut backoff = 1;
+
             loop {
-                // TODO: Seperate successful and failed dequeues (as paper)
                 match queue_handle.dequeue() {
-                    Some(_) => continue,
+                    Some(_) => {}
                     None => {
                         if stop_flag_handle.load(SeqCst) {
                             break;
+                        }
+                        // A little bit of backoff to help the oversubscription senario
+                        backoff = backoff * 2;
+                        for _ in 1..backoff {
+                            delay_exec(&mut rng);
                         }
                     }
                 }
