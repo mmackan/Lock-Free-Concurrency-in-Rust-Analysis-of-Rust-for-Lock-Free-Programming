@@ -7,9 +7,9 @@ NOTE: This command might take some time to finnish, the following sections will 
 ***
 
 ## Building & cleaning
-These commands allows you to build the whole project or just each individual queue. **Required before benchmarking**
+These commands allows you to build the whole project or just each individual queue. 
 
-**Build whole project**
+**Build whole project** **Required before benchmarking**
 - `cargo make build`
 
 **Individual builds**
@@ -60,7 +60,7 @@ Adding a `-t` will scan over threads, `-o` over operations
 
 ***
 
-## Plotting the graphs (final results)
+## Plotting the graphs (final results) NOT WORKING YET
 These commands will generate graphs that show the comparison between the two languages for respective benchmark workload.
 
 **Create graphs for all benchmarks**
@@ -75,8 +75,3 @@ These commands will generate graphs that show the comparison between the two lan
 - `cargo make graph-pairwise-lprq`
 - `cargo make graph-mpmc-msq`
 - `cargo make graph-mpmc-lprq`
-
-**Create graphs for each individual category**
-
-Adding a `-t` or `-o` will graph individual categories
-- e.g., `cargo make graph-pairwise-msq-t`
