@@ -11,7 +11,7 @@ fn main() {
         _ => panic!("Expected a 'Pairwise' benchmark type"),
     };
 
-    let queue: SharedLPRQ<'_, i32, 1028> = SharedLPRQ::new();
+    let queue: SharedLPRQ<'_, i32, 1024> = SharedLPRQ::new();
 
     pairwise_benchmark::benchmark(threads, logn, even_only, queue);
 

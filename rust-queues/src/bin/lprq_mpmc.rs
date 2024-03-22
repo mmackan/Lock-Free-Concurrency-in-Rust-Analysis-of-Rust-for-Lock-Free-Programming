@@ -11,7 +11,7 @@ fn main() {
         _ => panic!("Expected a 'Mpmc' benchmark type"),
     };
 
-    let queue: SharedLPRQ<'_, i32, 1028> = SharedLPRQ::new();
+    let queue: SharedLPRQ<'_, i32, 1024> = SharedLPRQ::new();
 
     mpmc_benchmark::benchmark(producers, consumers, logn, even_only, queue);
 
