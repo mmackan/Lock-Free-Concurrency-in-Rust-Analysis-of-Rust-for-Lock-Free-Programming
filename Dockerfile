@@ -49,7 +49,7 @@ RUN apt-get clean
 #RUN echo "export CXX='clang++-17'\n" >> /root/.bashrc
 
 # Copy the repo into the image
-COPY --link . /work
+COPY . /work
 WORKDIR /work/rust-queues
 
 ENTRYPOINT [ "/bin/bash"]
