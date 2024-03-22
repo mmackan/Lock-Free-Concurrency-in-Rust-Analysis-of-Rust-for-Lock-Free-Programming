@@ -2,29 +2,34 @@
 # Pairwise comparison graphs between Rust and C
 [tasks._graph-pairwise-lprq-t]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_T}", C_JSON = "${C_LPRQ_PW_JSON_T}", FILE = "${LPRQ_GRAPH_PW_T}"}
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_T}", C_JSON = "${C_LPRQ_PW_JSON_T}", FILE = "${LPRQ_GRAPH_PW_T}", FLAGS=""}
 [tasks.graph-pairwise-lprq-t]
 dependencies = ["_graph-pairwise-lprq-t"]
 [tasks._graph-pairwise-lprq-o]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_O}", C_JSON = "${C_LPRQ_PW_JSON_O}", FILE = "${LPRQ_GRAPH_PW_O}"}
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_O}", C_JSON = "${C_LPRQ_PW_JSON_O}", FILE = "${LPRQ_GRAPH_PW_O}", FLAGS="--log-time "}
 [tasks.graph-pairwise-lprq-o]
 dependencies = ["_graph-pairwise-lprq-o"]
+
+# Command to graph both categories
+[tasks.graph-pairwise-lprq]
+description = "Graphs for both categories"
+dependencies = ["graph-pairwise-lprq-t", "graph-pairwise-lprq-t"]
 
 # MPMC comparison graphs between Rust and C
 [tasks._graph-mpmc-lprq-1-1]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_11}", C_JSON = "${C_LPRQ_PC_JSON_11}", FILE = "${LPRQ_GRAPH_PC_11}"}
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_11}", C_JSON = "${C_LPRQ_PC_JSON_11}", FILE = "${LPRQ_GRAPH_PC_11}", FLAGS=""}
 [tasks.graph-mpmc-lprq-1-1]
 dependencies = ["_graph-mpmc-lprq-1-1"]
 [tasks._graph-mpmc-lprq-1-2]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_12}", C_JSON = "${C_LPRQ_PC_JSON_12}", FILE = "${LPRQ_GRAPH_PC_12}"}
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_12}", C_JSON = "${C_LPRQ_PC_JSON_12}", FILE = "${LPRQ_GRAPH_PC_12}", FLAGS=""}
 [tasks.graph-mpmc-lprq-1-2]
 dependencies = ["_graph-mpmc-lprq-1-2"]
 [tasks._graph-mpmc-lprq-2-1]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_21}", C_JSON = "${C_LPRQ_PC_JSON_21}", FILE = "${LPRQ_GRAPH_PC_21}"}
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_21}", C_JSON = "${C_LPRQ_PC_JSON_21}", FILE = "${LPRQ_GRAPH_PC_21}", FLAGS=""}
 [tasks.graph-mpmc-lprq-2-1]
 dependencies = ["_graph-mpmc-lprq-2-1"]
 
