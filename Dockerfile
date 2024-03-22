@@ -44,12 +44,8 @@ RUN cargo install hyperfine
 
 RUN apt-get clean
 
-# Hack to get the right clang version set in the interactive environment
-#RUN echo "export CC='clang-17'\n" >> /root/.bashrc
-#RUN echo "export CXX='clang++-17'\n" >> /root/.bashrc
-
 # Copy the repo into the image
-COPY --link . /work
+COPY . /work
 WORKDIR /work/rust-queues
 
 ENTRYPOINT [ "/bin/bash"]
