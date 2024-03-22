@@ -1,15 +1,19 @@
 # DATX05-Master-Thesis
-To benchmark and gather all comparison graphs, simply run:
+`cd` to the `rust-queues` folder to execute cargo make commands.
+
+
+To benchmark and gather all comparison graphs, simply build and run:
+- `cargo make build`
 - `cargo make run`
 
-NOTE: This command might take some time to finnish, the following sections will provide individual commands.
+**NOTE**: The last command might take some time to finnish, the following sections will provide individual commands.
 
 ***
 
 ## Building & cleaning
-These commands allows you to build the whole project or just each individual queue. 
+These commands allows you to build the whole project or just each individual queue. <span style="color: #da0000">Required before benchmarking</span>.
 
-**Build whole project** **Required before benchmarking**
+**Build whole project** 
 - `cargo make build`
 
 **Individual builds**
@@ -46,7 +50,7 @@ Available workloads for respective queue:
 
 **Individual categories for PW workload**
 
-Adding a `-t` will scan over threads, `-o` over operations
+Appending a `-t` will scan over threads, `-o` over operations
 
 - `cargo make benchmark-pairwise-msq-t`
 - `cargo make benchmark-pairwise-msq-o`
@@ -60,18 +64,23 @@ Adding a `-t` will scan over threads, `-o` over operations
 
 ***
 
-## Plotting the graphs (final results) NOT WORKING YET
-These commands will generate graphs that show the comparison between the two languages for respective benchmark workload.
+## Plotting the graphs (final results)
+After benchmarks have been successfully executed these commands will generate graphs that show the comparison between the two languages.
 
-**Create graphs for all benchmarks**
+**Graphs for all benchmarks**
 - `cargo make graph-all`
 
-**Create graphs for MSQ and LPRQ respectively**
+**Graphs for MSQ and LPRQ respectively**
 - `cargo make graph-msq`
 - `cargo make graph-lprq`
 
-**Create individual graphs**
+**Individual PW graphs**
 - `cargo make graph-pairwise-msq`
 - `cargo make graph-pairwise-lprq`
-- `cargo make graph-mpmc-msq`
+
+Same as the PW benchmarks, append `-t` for threads, `-o` for operations.
+
+**MPMC graphs**
+To obtain graphs for an individual ratio, append `-1-1`, `-1-2`, or `-2-1` respectively to:
 - `cargo make graph-mpmc-lprq`
+
