@@ -23,7 +23,7 @@ for ((i=1; i<=iterations; i++)); do
 
     echo "Running benchmark with $producer_threads producers and $consumer_threads consumers"
 
-    hyperfine "$BINARY $producer_threads $consumer_threads $LOGN" --export-json "$temp_dir/result$i.json"   
+    hyperfine "$BINARY $producer_threads $consumer_threads $LOGN $EVEN_CORES" --export-json "$temp_dir/result$i.json"   
 
     # Add the parameter field in the JSON
     python "$script_dir"/add_params.py "$temp_dir/result$i.json" $producer_threads $consumer_threads $LOGN
