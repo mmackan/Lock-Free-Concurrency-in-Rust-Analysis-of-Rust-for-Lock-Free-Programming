@@ -11,7 +11,7 @@ To benchmark and gather all comparison graphs, simply build and run:
 ***
 
 ## Building & cleaning
-These commands allows you to build the whole project or just each individual queue. <span style="color: #da0000">Required before benchmarking</span>.
+These commands allows you to build the whole project or just each individual queue. Required before benchmarking.
 
 **Build whole project** 
 - `cargo make build`
@@ -51,7 +51,6 @@ Available workloads for respective queue:
 **Individual categories for PW workload**
 
 Appending a `-t` will scan over threads, `-o` over operations
-
 - `cargo make benchmark-pairwise-msq-t`
 - `cargo make benchmark-pairwise-msq-o`
 - `cargo make benchmark-pairwise-lprq-t`
@@ -74,13 +73,20 @@ After benchmarks have been successfully executed these commands will generate gr
 - `cargo make graph-msq`
 - `cargo make graph-lprq`
 
-**Individual PW graphs**
-- `cargo make graph-pairwise-msq`
+**Individual workload graphs for LPRQ**
 - `cargo make graph-pairwise-lprq`
+- `cargo make graph-mpmc-lprq`
 
-Same as the PW benchmarks, append `-t` for threads, `-o` for operations.
+**Graphs for categories**
+
+Same as the PW benchmarks, `-t` for threads, `-o` for operations.
+- `cargo make graph-pairwise-msq-t`
+- `cargo make graph-pairwise-msq-o`
+- `cargo make graph-pairwise-lprq-t`
+- `cargo make graph-pairwise-lprq-o`
 
 **MPMC graphs**
+
 To obtain graphs for an individual ratio, append `-1-1`, `-1-2`, or `-2-1` respectively to:
 - `cargo make graph-mpmc-lprq`
 
