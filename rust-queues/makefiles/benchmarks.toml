@@ -11,9 +11,10 @@ script = [
     "echo '\n'===========================================",
     "echo Parameter scan over threads",
     "echo ' ' Benchmark: $TARGET",
-    "echo ' ' Interval: [1, MAX_THREADS]",
+    "echo ' ' Interval: [1, ${MAX_THREADS}]",
     "echo ' ' Operations: 10^${LOGN}",
-    "hyperfine --parameter-scan num_threads 1 MAX_THREADS '${BINARY} {num_threads} ${LOGN}' --export-json ${RESULT_DIR}/$JSON"
+    "echo ' ' Even cores only: ${EVEN_CORES}'\n'",
+    "hyperfine --parameter-scan num_threads 1 ${MAX_THREADS} '${BINARY} {num_threads} ${LOGN} ${EVEN_CORES}' --export-json ${RESULT_DIR}/$JSON"
 ]
 private = true
 
@@ -23,11 +24,13 @@ private = true
 description = "Hyperfine parameter scan over operations"
 script = [
     "echo '\n'===========================================",
+    "export THREADS=$(($(nproc) / (FACTOR*2)))",
     "echo Parameter scan over logn",
     "echo ' ' Benchmark: $TARGET",
     "echo ' ' Interval: [${MIN_LOGN}, ${MAX_LOGN}]",
     "echo ' ' Threads: ${THREADS}",
-    "hyperfine --parameter-scan num_ops ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {num_ops}' --export-json ${RESULT_DIR}/$JSON"
+    "echo ' ' Even cores only: ${EVEN_CORES}'\n'",
+    "hyperfine --parameter-scan num_ops ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {num_ops} ${EVEN_CORES}' --export-json ${RESULT_DIR}/$JSON"
 ]
 private = true
 
@@ -43,7 +46,8 @@ script = [
     "echo Parameter scan over threads",
     "echo ' ' Benchmark: $TARGET",
     "echo ' ' Interval: [${MIN_THREADS}, ${MAX_THREADS}]",
-    "echo ' ' Operations: 10^$LOGN'\n'",
+    "echo ' ' Operations: 10^$LOGN",
+    "echo ' ' Even cores only: ${EVEN_CORES}'\n'",
     "bash ./makefiles/ratio_benchmarks.sh ${RATIO} ${MAX_ITER}"
 
 ]
