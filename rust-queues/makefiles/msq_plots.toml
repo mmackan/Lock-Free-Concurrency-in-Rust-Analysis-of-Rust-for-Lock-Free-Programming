@@ -10,8 +10,3 @@ extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_MSQ_PW_JSON_O}", C_JSON = "${C_MSQ_PW_JSON_O}", FILE = "${MSQ_GRAPH_PW_O}"}
 [tasks.graph-pairwise-msq-o]
 dependencies = ["_graph-pairwise-msq-o"]
-
-# Pairwise and MPMC graphs
-[tasks.graph-msq]
-description = "All graphs for MSQ"
-dependencies = ["graph-pairwise-msq-t", "graph-pairwise-msq-o"]
