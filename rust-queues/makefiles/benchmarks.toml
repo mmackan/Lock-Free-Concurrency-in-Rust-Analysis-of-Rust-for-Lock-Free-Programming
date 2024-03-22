@@ -39,7 +39,6 @@ private = true
 description = "Base MPMC benchmark parameter scan"
 script_runner = "bash"
 script = [
-    "echo RATIO: ${RATIO}, DIVISOR: ${DIVISOR}, MIN_THREADS: ${MIN_THREADS}",
     "export MAX_THREADS=$(($(nproc) / FACTOR))",
     "export MAX_ITER=$((MAX_THREADS / $DIVISOR))",
     "echo '\n'===========================================",
