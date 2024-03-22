@@ -26,7 +26,7 @@ for ((i=1; i<=iterations; i++)); do
     hyperfine "$BINARY $producer_threads $consumer_threads $LOGN $EVEN_CORES" --export-json "$temp_dir/result$i.json"   
 
     # Add the parameter field in the JSON
-    python "$script_dir"/add_params.py "$temp_dir/result$i.json" $producer_threads $consumer_threads $LOGN
+    python3 "$script_dir"/add_params.py "$temp_dir/result$i.json" $producer_threads $consumer_threads $LOGN
 done
 
 # Merge all the results from the individual hyperfine commands
