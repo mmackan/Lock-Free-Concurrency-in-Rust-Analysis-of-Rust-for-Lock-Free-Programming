@@ -1,0 +1,18 @@
+**/build/
+**/target/
+# C specific ignores
+c-reference/ccqueue
+c-reference/delay
+c-reference/faa
+c-reference/lcrq
+c-reference/msqueue
+c-reference/wfqueue
+c-reference/wfqueue0
+*.o
+
+# Perf stuff
+perf.data*
+flamegraph.svg
+
+# Don't need the git history in the image
+.git/
