@@ -30,7 +30,7 @@ for ((i=1; i<=iterations; i++)); do
 done
 
 # Merge all the results from the individual hyperfine commands
-python "$script_dir"/merge_ratios.py "$temp_dir/*.json" "$temp_dir/$merged_file_name"
+python3 "$script_dir"/merge_ratios.py "$temp_dir/*.json" "$temp_dir/$merged_file_name"
 
 # Ensure result directory exist, and 
 mkdir -p "$result_dir" 
