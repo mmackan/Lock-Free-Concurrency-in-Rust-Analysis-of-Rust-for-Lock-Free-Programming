@@ -1,8 +1,25 @@
 #!/bin/bash
 
-# Temporary directory to store intermediate hyperfine results
-temp_dir=$(mktemp -d)
-trap 'rm -rf -- "$temp_dir"' EXIT
+# Directory of the script
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Temporary directory within $dir to store intermediate hyperfine results
+temp_dir=`mktemp -d -p "$dir"`
+
+# Check if temp dir was created
+if [[ ! "$temp_dir" || ! -d "$temp_dir" ]]; then
+  echo "Could not create temp dir"
+  exit 1
+fi
+
+# Deletes the temp directory
+function cleanup {      
+  rm -rf "$temp_dir"
+  echo "Deleted temp working directory $temp_dir"
+}
+
+# Register the cleanup function to be called on the EXIT signal
+trap cleanup EXIT
 
 # Ratio in the format of "producer:consumer"
 ratio="$1" 
@@ -23,7 +40,7 @@ for ((i=1; i<=iterations; i++)); do
 
     echo "Running benchmark with $producer_threads producers and $consumer_threads consumers"
 
-    hyperfine "$BINARY $producer_threads $consumer_threads $LOGN $EVEN_CORES" --export-json "$temp_dir/result$i.json"   
+    hyperfine "$BINARY $producer_threads $consumer_threads $LOGN $EVEN_CORES" --export-json "$temp_dir/result$i.json"
 
     # Add the parameter field in the JSON
     python3 "$script_dir"/add_params.py "$temp_dir/result$i.json" $producer_threads $consumer_threads $LOGN
