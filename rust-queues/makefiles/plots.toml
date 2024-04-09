@@ -9,7 +9,7 @@ description = "Outputs a .png of the graph"
 category = "Utility"
 script_runner = "bash"
 script = [
-    "python3 ${SCRIPT_DIR}/${SCRIPT} ${RESULT_DIR}/${RUST_JSON} ${RESULT_DIR}/${C_JSON} -o ${RESULT_DIR}/${FILE} ${FLAGS} --titles Rust,C"
+    "python3 ${SCRIPT_DIR}/${SCRIPT} ${RESULT_DIR}/${RUST_JSON} ${RESULT_DIR}/${C_JSON} -o ${RESULT_DIR}/${FILE} ${FLAGS} --titles ${LEGEND}"
 ]
 private = true
 
