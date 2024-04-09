@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <stdbool.h>
+#include <string.h>
 #include <sys/time.h>
 #include "bits.h"
 #include "cpumap.h"
@@ -32,7 +34,8 @@ static double means[MAX_ITERS];
 static double covs[MAX_ITERS];
 static volatile int target;
 
-
+// Ugly global to store even_only
+static bool even_only = false;
 
 static void * thread(void * bits)
 {
@@ -42,7 +45,12 @@ static void * thread(void * bits)
   cpu_set_t set;
   CPU_ZERO(&set);
 
-  int cpu = cpumap(id, nprocs);
+  int cpu;
+  if (even_only) {
+    int cpu = cpumap(id*2, nprocs);
+  } else {
+    int cpu = cpumap(id, nprocs);
+  }
   CPU_SET(cpu, &set);
   sched_setaffinity(0, sizeof(set), &set);
 
@@ -88,10 +96,20 @@ int main(int argc, const char *argv[])
     n = atoi(argv[2]);
   }
 
+  /**
+   * The third argument is if only even cores should be used
+  */
+  if (argc > 3) {
+    if (strcmp(argv[0], "true")) {
+      even_only = true;
+    }
+  }
+
   pthread_barrier_init(&barrier, NULL, nprocs);
   printf("===========================================\n");
   printf("  Benchmark: %s\n", argv[0]);
   printf("  Number of processors: %d\n", nprocs);
+  printf("  Even only: %s\n", even_only ? "true" : "false");
 
   init(nprocs, n);
 
