@@ -14,7 +14,7 @@ def main():
 
     # Add the parameter
     data['results'][0]['parameters'] = {
-        'threads': producer_threads + consumer_threads
+        'Threads': producer_threads + consumer_threads
     }
 
     # Write the modified JSON data back to the file

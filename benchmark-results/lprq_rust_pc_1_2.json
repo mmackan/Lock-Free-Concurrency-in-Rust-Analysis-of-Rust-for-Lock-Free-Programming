@@ -34,7 +34,7 @@
                 0
             ],
             "parameters": {
-                "threads": 3
+                "Threads": 3
             }
         },
         {
@@ -71,7 +71,7 @@
                 0
             ],
             "parameters": {
-                "threads": 6
+                "Threads": 6
             }
         },
         {
@@ -108,7 +108,7 @@
                 0
             ],
             "parameters": {
-                "threads": 9
+                "Threads": 9
             }
         },
         {
@@ -145,7 +145,7 @@
                 0
             ],
             "parameters": {
-                "threads": 12
+                "Threads": 12
             }
         },
         {
@@ -182,7 +182,7 @@
                 0
             ],
             "parameters": {
-                "threads": 15
+                "Threads": 15
             }
         },
         {
@@ -219,7 +219,7 @@
                 0
             ],
             "parameters": {
-                "threads": 18
+                "Threads": 18
             }
         },
         {
@@ -256,7 +256,7 @@
                 0
             ],
             "parameters": {
-                "threads": 21
+                "Threads": 21
             }
         },
         {
@@ -293,7 +293,7 @@
                 0
             ],
             "parameters": {
-                "threads": 24
+                "Threads": 24
             }
         },
         {
@@ -330,7 +330,7 @@
                 0
             ],
             "parameters": {
-                "threads": 27
+                "Threads": 27
             }
         },
         {
@@ -367,7 +367,7 @@
                 0
             ],
             "parameters": {
-                "threads": 30
+                "Threads": 30
             }
         },
         {
@@ -404,7 +404,7 @@
                 0
             ],
             "parameters": {
-                "threads": 33
+                "Threads": 33
             }
         },
         {
@@ -441,7 +441,7 @@
                 0
             ],
             "parameters": {
-                "threads": 36
+                "Threads": 36
             }
         }
     ]
