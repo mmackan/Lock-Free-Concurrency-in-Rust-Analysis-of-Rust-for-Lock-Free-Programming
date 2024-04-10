@@ -1198,7 +1198,7 @@
         0
       ],
       "parameters": {
-        "num_ops": "4"
+        "Operations": "4"
       }
     },
     {
@@ -1773,7 +1773,7 @@
         0
       ],
       "parameters": {
-        "num_ops": "5"
+        "Operations": "5"
       }
     },
     {
@@ -1868,7 +1868,7 @@
         0
       ],
       "parameters": {
-        "num_ops": "6"
+        "Operations": "6"
       }
     },
     {
@@ -1905,7 +1905,7 @@
         0
       ],
       "parameters": {
-        "num_ops": "7"
+        "Operations": "7"
       }
     },
     {
@@ -1942,7 +1942,7 @@
         0
       ],
       "parameters": {
-        "num_ops": "8"
+        "Operations": "8"
       }
     }
   ]

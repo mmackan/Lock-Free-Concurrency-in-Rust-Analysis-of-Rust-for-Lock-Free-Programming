@@ -14,7 +14,7 @@ script = [
     "echo ' ' Interval: [1, ${MAX_THREADS}]",
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Even cores only: ${EVEN_CORES}'\n'",
-    "hyperfine --parameter-scan num_threads 1 ${MAX_THREADS} '${BINARY} {num_threads} ${LOGN} ${EVEN_CORES}' --export-json ${RESULT_DIR}/$JSON"
+    "hyperfine --parameter-scan Threads 1 ${MAX_THREADS} '${BINARY} {Threads} ${LOGN} ${EVEN_CORES}' --export-json ${RESULT_DIR}/$JSON"
 ]
 private = true
 
@@ -30,7 +30,7 @@ script = [
     "echo ' ' Interval: [${MIN_LOGN}, ${MAX_LOGN}]",
     "echo ' ' Threads: ${THREADS}",
     "echo ' ' Even cores only: ${EVEN_CORES}'\n'",
-    "hyperfine --parameter-scan num_ops ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {num_ops} ${EVEN_CORES}' --export-json ${RESULT_DIR}/$JSON"
+    "hyperfine --parameter-scan Operations ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {Operations} ${EVEN_CORES}' --export-json ${RESULT_DIR}/$JSON"
 ]
 private = true
 
