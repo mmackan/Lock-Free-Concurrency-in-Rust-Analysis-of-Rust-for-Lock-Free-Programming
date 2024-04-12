@@ -24,7 +24,7 @@ private = true
 description = "Hyperfine parameter scan over operations"
 script = [
     "echo '\n'===========================================",
-    "export THREADS=$(($(nproc) / (FACTOR*2)))",
+    "export THREADS=$(($(nproc) / (FACTOR)))",
     "echo Parameter scan over logn",
     "echo ' ' Benchmark: $TARGET",
     "echo ' ' Interval: [${MIN_LOGN}, ${MAX_LOGN}]",
