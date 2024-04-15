@@ -13,12 +13,9 @@
 
 #include "LPRQueue.hpp"
 
-void delay_exec(std::mt19937& gen) {
-    auto distibution = std::uniform_int_distribution<int>(0, 100);
-    int n = distibution(gen);
-    int delay_end = 50 + n;
+void delay_exec() {
 
-    for (int i = 50; i < delay_end; i++) {
+    for (int i = 0; i < 100; i++) {
         asm volatile("nop");
     }
     
@@ -41,6 +38,8 @@ int main(int argc, char *argv[]){
 
     bool evenCores = false;
     app.add_option("evenCores", evenCores, "If true, use only even numbered cores");
+    float congestion_factor = 1.0;
+    app.add_option("congestion_factor", congestion_factor, "Congestion factor, 0.0-1.0, 1.0 meaning full congestion");
     CLI11_PARSE(app, argc, argv);
 
     int nops = pow(10, numOps);
@@ -71,7 +70,6 @@ int main(int argc, char *argv[]){
 
             for (int j = 0; j < tops; j++) {
                 queue->enqueue(&j, core);
-                delay_exec(engine);
             }
         });
         core++;
@@ -81,9 +79,10 @@ int main(int argc, char *argv[]){
     }
     std::atomic<bool> done = false;
     for (int i = 0; i < numConsumers; i++) {
-        consumer_handles[i] = std::thread([i, &queue, core, &done](){
+        consumer_handles[i] = std::thread([i, &queue, core, &done, &congestion_factor](){
             // Thread rng
             auto engine = std::mt19937(std::random_device{}());
+            auto distribution = std::uniform_real_distribution<float>(0.0,1.0);
 
             // Cpu affinity
             cpu_set_t cpuset;
@@ -101,7 +100,9 @@ int main(int argc, char *argv[]){
                         break;
                     }
                 }
-                delay_exec(engine);
+                if(distribution(engine) > congestion_factor){
+                    delay_exec();
+                }
             }
         });
         core++;

@@ -12,12 +12,8 @@
 
 #include "LPRQueue.hpp"
 
-void delay_exec(std::mt19937& gen) {
-    auto distibution = std::uniform_int_distribution<int>(0, 100);
-    int n = distibution(gen);
-    int delay_end = 50 + n;
-
-    for (int i = 50; i < delay_end; i++) {
+void delay_exec() {
+    for (int i = 0; i < 100; i++) {
         asm volatile("nop");
     }
     
@@ -36,6 +32,10 @@ int main(int argc, char *argv[]){
 
     bool evenCores = false;
     app.add_option("evenCores", evenCores, "If true, use only even numbered cores");
+
+    float congestion_factor = 1.0;
+    app.add_option("congestion_factor", congestion_factor, "Congestion factor, 0.0-1.0, 1.0 meaning full congestion");
+
     CLI11_PARSE(app, argc, argv);
 
     int nops = pow(10, numOps);
@@ -48,9 +48,10 @@ int main(int argc, char *argv[]){
 
     int core = 0;
     for (int i = 0; i < numThreads; i++) {
-        handles[i] = std::thread([&tops, &nops, i, &queue, core](){
+        handles[i] = std::thread([&tops, &nops, i, &queue, core, &congestion_factor](){
             // Thread rng
             auto engine = std::mt19937(std::random_device{}());
+            auto distribution = std::uniform_real_distribution<float>(0.0,1.0);
 
             // Cpu affinity
             cpu_set_t cpuset;
@@ -64,9 +65,13 @@ int main(int argc, char *argv[]){
 
             for (int j = 0; j < tops; j++) {
                 queue->enqueue(&j, i);
-                delay_exec(engine);
+                if(distribution(engine) > congestion_factor){
+                    delay_exec();
+                }
                 queue->dequeue(i);
-                delay_exec(engine);
+                if(distribution(engine) > congestion_factor){
+                    delay_exec();
+                }
             }
         });
         core++;
