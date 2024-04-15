@@ -17,6 +17,14 @@
       packages = with pkgs; [
         gcc
         gnumake
+        cmake
+	      python3
+	      pkg-config
+	      jemalloc
+	      linuxPackages_latest.perf
+	      hyperfine
+        glibc_memusage
+        valgrind
       ];
     };
   };
