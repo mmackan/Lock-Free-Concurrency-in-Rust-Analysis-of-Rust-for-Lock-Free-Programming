@@ -7,7 +7,9 @@ fn main() {
     let benchmark = benchmark_utils::parse_args("pairwise");
 
     let (threads, logn, even_only, congestion_factor) = match benchmark {
-        Pairwise(threads, logn, even_only, congestion_factor) => (threads, logn, even_only, congestion_factor),
+        Pairwise(threads, logn, even_only, congestion_factor) => {
+            (threads, logn, even_only, congestion_factor)
+        }
         _ => panic!("Expected a 'Pairwise' benchmark type"),
     };
 

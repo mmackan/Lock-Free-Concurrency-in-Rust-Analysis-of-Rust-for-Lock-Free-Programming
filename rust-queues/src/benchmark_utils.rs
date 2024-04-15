@@ -43,7 +43,7 @@ pub fn parse_args(benchmark: &str) -> BenchmarkType {
             } else {
                 false
             };
-            let congestion_factor: f32 = if args.len() >4 {
+            let congestion_factor: f32 = if args.len() > 4 {
                 args[4].parse().expect("A float between 0.0..1.0")
             } else {
                 1.0
@@ -95,7 +95,7 @@ pub fn parse_args(benchmark: &str) -> BenchmarkType {
             } else {
                 false
             };
-            let congestion_factor: f32 = if args.len() >4 {
+            let congestion_factor: f32 = if args.len() > 4 {
                 args[5].parse().expect("A float between 0.0..1.0")
             } else {
                 1.0

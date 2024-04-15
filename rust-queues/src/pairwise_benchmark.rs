@@ -9,8 +9,13 @@ use core_affinity;
 
 const BASE: usize = 10;
 
-pub fn benchmark<Q>(nprocs: usize, logn: usize, even_cores_only: bool, congestion_factor: f32, queue: Q)
-where
+pub fn benchmark<Q>(
+    nprocs: usize,
+    logn: usize,
+    even_cores_only: bool,
+    congestion_factor: f32,
+    queue: Q,
+) where
     Q: SharedQueue<i32> + Clone + Send + 'static,
 {
     // Calculate number of operations

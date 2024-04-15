@@ -1,4 +1,4 @@
-FROM ubuntu:mantic-20240216
+FROM docker.io/ubuntu:mantic-20240216
 
 RUN apt-get update
 
@@ -33,6 +33,16 @@ ENV CC="clang-17"
 ENV CXX="clang++-17"
 
 ## End c++ segment
+
+# Perf
+# And yes, building from source seems to be the best way lol
+RUN apt-get install -y build-essential flex bison git libelf-dev libtraceevent-dev
+RUN git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+WORKDIR /linux/tools/perf
+RUN make
+RUN cp perf /usr/bin
+WORKDIR /
+RUN rm -rf /linux
 
 ## Rustup 
 RUN curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
