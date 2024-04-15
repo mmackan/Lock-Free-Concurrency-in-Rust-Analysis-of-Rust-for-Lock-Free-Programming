@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 #include "delay.h"
 #include "queue.h"
 
@@ -37,20 +38,28 @@ void thread_init(int id, int nprocs) {
   queue_register(q, hds[id], id);
 }
 
-void * benchmark(int id, int nprocs) {
+void * benchmark(int id, int nprocs, float congestion_factor) {
   void * val = (void *) (intptr_t) (id + 1);
   handle_t * th = hds[id];
 
   delay_t state;
   delay_init(&state, id);
 
+  int congestion_percent = lrint(congestion_factor * 100);
+
   int i;
   for (i = 0; i < nops / nprocs; ++i) {
     enqueue(q, th, val);
-    delay_exec(&state);
+    long n;
+    lrand48_r(&state, &n);
+    if((n % 100) > congestion_percent) {
+        delay_exec();
+    }
 
     val = dequeue(q, th);
-    delay_exec(&state);
+    if((n % 100) > congestion_percent) {
+        delay_exec();
+    }
   }
 
   return val;

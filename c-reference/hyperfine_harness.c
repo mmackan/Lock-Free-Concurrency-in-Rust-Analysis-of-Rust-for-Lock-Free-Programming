@@ -36,6 +36,7 @@ static volatile int target;
 
 // Ugly global to store even_only
 static bool even_only = false;
+static float congestion_factor = 1.0;
 
 static void * thread(void * bits)
 {
@@ -59,7 +60,7 @@ static void * thread(void * bits)
 
   void * result = NULL;
 
-  result = benchmark(id, nprocs);
+  result = benchmark(id, nprocs, congestion_factor);
   pthread_barrier_wait(&barrier);
   thread_exit(id, nprocs);
   return result;
@@ -100,9 +101,16 @@ int main(int argc, const char *argv[])
    * The third argument is if only even cores should be used
   */
   if (argc > 3) {
-    if (strcmp(argv[0], "true")) {
+    if (strcmp(argv[3], "true")) {
       even_only = true;
     }
+  }
+
+  /*
+   * Fourth argument is the congestion factor, 0.0 means always delay, and 1.0 means never delay
+   */
+  if (argc > 4) {
+     congestion_factor = strtof(argv[4], NULL);
   }
 
   pthread_barrier_init(&barrier, NULL, nprocs);
@@ -110,6 +118,7 @@ int main(int argc, const char *argv[])
   printf("  Benchmark: %s\n", argv[0]);
   printf("  Number of processors: %d\n", nprocs);
   printf("  Even only: %s\n", even_only ? "true" : "false");
+  printf("  Congestion factor: %f\n", congestion_factor);
 
   init(nprocs, n);
 

@@ -11,13 +11,10 @@ static inline void delay_init(delay_t * state, int id)
   srand48_r(id, state);
 }
 
-static inline void delay_exec(delay_t * state)
+static inline void delay_exec()
 {
-  long n;
-  lrand48_r(state, &n);
-
   int j;
-  for (j = 50; j < 50 + n % 100; ++j) {
+  for (j = 0; j < 100; ++j) {
     __asm__ ("nop");
   }
 }
