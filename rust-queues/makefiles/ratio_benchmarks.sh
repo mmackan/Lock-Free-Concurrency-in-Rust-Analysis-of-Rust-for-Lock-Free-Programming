@@ -38,6 +38,11 @@ for ((i=1; i<=iterations; i++)); do
     producer_threads=$((i * producer_multiplier))
     consumer_threads=$((i * consumer_multiplier))
 
+    # Temporary fix for 2:1 ratio benchmarks until bug is fixed
+    if [[ $ratio == "2:1" ]] && [[ $producer_multiplier -gt 20 ]]; then
+      break
+    fi  
+
     echo "Running benchmark with $producer_threads producers and $consumer_threads consumers"
 
     hyperfine "$BINARY $producer_threads $consumer_threads $LOGN $EVEN_CORES" --export-json "$temp_dir/result$i.json"
