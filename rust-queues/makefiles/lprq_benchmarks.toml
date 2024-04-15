@@ -46,3 +46,19 @@ extend = "parameter-scan-mpmc"
 env = { TARGET = "MPMC 2:1 LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_21}", RATIO = "2:1", DIVISOR = "3", MIN_THREADS = "3"}
 private = true
 
+# Energy consumption benchmarks (Rust) 
+[tasks.energy-lprq-rust-1-1]
+extend = "energy-consumption-1-1"
+env = {TARGET = "LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", FILE = "${RUST_ENERGY_11}"}
+[tasks.energy-lprq-rust-2-1] # NOTE: Static parameters until fixed 2:1 benchmark
+extend = "energy-consumption-2-1"
+env = {TARGET = "LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", PARAMS = "20 10", FILE = "${RUST_ENERGY_21}"}
+
+# Energy consumption benchmarks (C++)
+[tasks.energy-lprq-c-1-1]
+extend = "energy-consumption-1-1"
+env = {TARGET = "LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", FILE = "${C_ENERGY_11}"}
+[tasks.energy-lprq-c-2-1] # NOTE: Static parameters until fixed 2:1 benchmark
+extend = "energy-consumption-2-1"
+env = {TARGET = "LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", PARAMS = "20 10", FILE = "${C_ENERGY_21}"}
+

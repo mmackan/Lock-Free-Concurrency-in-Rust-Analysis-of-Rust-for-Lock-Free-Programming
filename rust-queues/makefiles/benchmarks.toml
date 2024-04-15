@@ -51,3 +51,29 @@ script = [
 
 ]
 private = true
+
+# MPMC energy consumption benchmark
+[tasks.energy-consumption-1-1]
+description = "Measure the energy consumption of the LPRQ"
+script_runner = "bash"
+script = [
+    "export THREADS=$(($(nproc) / FACTOR))",
+    "export PROD=$((THREADS / 2))",
+    "export CONS=$((THREADS - PROD))",
+    "echo '\n'===========================================",
+    "echo ${TARGET} 1:1 energy consumption benchmark",
+    "sudo perf stat -r $RUNS -e power/energy-cores/,power/energy-ram/,power/energy-gpu/,power/energy-pkg/,power/energy-psys/ -o ${RESULT_DIR}/${FILE} ${BINARY} $PROD $CONS $LOGN $EVEN_CORES"
+]
+private = true
+
+# MPMC energy consumption benchmark
+[tasks.energy-consumption-2-1]
+description = "Measure the energy consumption of the LPRQ"
+script_runner = "bash"
+script = [
+    "export THREADS=$(($(nproc) / FACTOR))",
+    "echo '\n'===========================================",
+    "echo ${TARGET} 2:1 energy consumption benchmark",
+    "sudo perf stat -r $RUNS -e power/energy-cores/,power/energy-ram/,power/energy-gpu/,power/energy-pkg/,power/energy-psys/ -o ${RESULT_DIR}/${FILE} ${BINARY} $PARAMS $LOGN $EVEN_CORES"
+]
+private = true

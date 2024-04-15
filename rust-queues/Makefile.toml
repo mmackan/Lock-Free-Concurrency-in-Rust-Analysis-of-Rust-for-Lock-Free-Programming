@@ -76,6 +76,12 @@ dependencies = ["graph-pairwise-msq-t", "graph-pairwise-msq-o"]
 description = "All graphs for LPRQ"
 dependencies = ["graph-pairwise-lprq-t", "graph-pairwise-lprq-o", "graph-mpmc-lprq"]
 
+# Commands to benchmark energy consumption for mpmc ratios
+[tasks.benchmark-energy-1-1]
+dependencies = ["energy-lprq-rust-1-1", "energy-lprq-c-1-1"]
+[tasks.benchmark-energy-2-1]
+dependencies = ["energy-lprq-rust-2-1", "energy-lprq-c-2-1"]
+
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
