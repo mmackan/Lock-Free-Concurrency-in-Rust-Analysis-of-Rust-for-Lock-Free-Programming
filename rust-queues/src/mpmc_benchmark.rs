@@ -17,6 +17,7 @@ pub fn benchmark<Q>(
     nconsumer: usize,
     logn: usize,
     even_cores_only: bool,
+    congestion_factor: f32,
     queue: Q,
 ) where
     Q: SharedQueue<i32> + Clone + Send + 'static,
@@ -56,7 +57,9 @@ pub fn benchmark<Q>(
             - Benchmark runs for 1000ms, then stops */
             for j in 0..tops {
                 queue_handle.enqueue(j.try_into().unwrap());
-                delay_exec(&mut rng);
+                if rng.gen_range(0.0..1.0) > congestion_factor {
+                    delay_exec();
+                }
             }
         });
         producer_handles.push(handle);
@@ -79,8 +82,6 @@ pub fn benchmark<Q>(
             let mut rng = rand::thread_rng();
             let _ = core_affinity::set_for_current(core_id);
 
-            let mut backoff = 1;
-
             loop {
                 match queue_handle.dequeue() {
                     Some(_) => {}
@@ -88,14 +89,11 @@ pub fn benchmark<Q>(
                         if stop_flag_handle.load(SeqCst) {
                             break;
                         }
-                        // A little bit of backoff to help the oversubscription senario
-                        backoff = backoff * 2;
-                        for _ in 1..backoff {
-                            delay_exec(&mut rng);
-                        }
                     }
                 }
-                delay_exec(&mut rng);
+                if rng.gen_range(0.0..1.0) > congestion_factor {
+                    delay_exec();
+                }
             }
         });
         consumer_handles.push(handle);
@@ -113,11 +111,8 @@ pub fn benchmark<Q>(
     }
 }
 
-fn delay_exec(state: &mut ThreadRng) {
-    let n = state.gen_range(0..100);
-    let delay_end = 50 + n % 100;
-
-    for _ in 50..delay_end {
+fn delay_exec() {
+    for _ in 0..100 {
         #[cfg(not(miri))]
         unsafe {
             asm!("nop");

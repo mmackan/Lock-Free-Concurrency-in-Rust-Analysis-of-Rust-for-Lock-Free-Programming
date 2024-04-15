@@ -1,14 +1,14 @@
-use std::env;
+use std::env::{self, args};
 
 /// Default exponent for # operations
 const LOGN_OPS: usize = 7;
 
 pub enum BenchmarkType {
     /// (Threads, logn, even_only)
-    Pairwise(usize, usize, bool),
+    Pairwise(usize, usize, bool, f32),
 
     /// (Producers, consumers, logn, even_only)
-    Mpmc(usize, usize, usize, bool),
+    Mpmc(usize, usize, usize, bool, f32),
 }
 
 pub fn parse_args(benchmark: &str) -> BenchmarkType {
@@ -18,7 +18,7 @@ pub fn parse_args(benchmark: &str) -> BenchmarkType {
         "pairwise" => {
             if args.len() < 3 {
                 eprintln!(
-                    "Usage: {} <threads> [exponent_base_ten] [even_cores_only]",
+                    "Usage: {} <threads> [exponent_base_ten] [even_cores_only] [congestion_factor]",
                     args[0]
                 );
                 std::process::exit(1);
@@ -43,14 +43,20 @@ pub fn parse_args(benchmark: &str) -> BenchmarkType {
             } else {
                 false
             };
+            let congestion_factor: f32 = if args.len() >4 {
+                args[4].parse().expect("A float between 0.0..1.0")
+            } else {
+                1.0
+            };
 
             println!("===========================================");
             println!("  Benchmark: {}", args[0]);
             println!("  Threads: {}", threads);
             println!("  Operations: 10^{}", logn);
             println!("  Even cores only: {}", even_only);
+            println!("  Congestion factor: {}", congestion_factor);
 
-            BenchmarkType::Pairwise(threads, logn, even_only)
+            BenchmarkType::Pairwise(threads, logn, even_only, congestion_factor)
         }
 
         "mpmc" => {
@@ -89,6 +95,11 @@ pub fn parse_args(benchmark: &str) -> BenchmarkType {
             } else {
                 false
             };
+            let congestion_factor: f32 = if args.len() >4 {
+                args[5].parse().expect("A float between 0.0..1.0")
+            } else {
+                1.0
+            };
 
             println!("===========================================");
             println!("  Benchmark: {}", args[0]);
@@ -96,8 +107,9 @@ pub fn parse_args(benchmark: &str) -> BenchmarkType {
             println!("  Consumers: {}", consumers);
             println!("  Operations: 10^{}", logn);
             println!("  Even cores only: {}", even_only);
+            println!("  Congestion factor: {}", congestion_factor);
 
-            BenchmarkType::Mpmc(producers, consumers, logn, even_only)
+            BenchmarkType::Mpmc(producers, consumers, logn, even_only, congestion_factor)
         }
 
         _ => {

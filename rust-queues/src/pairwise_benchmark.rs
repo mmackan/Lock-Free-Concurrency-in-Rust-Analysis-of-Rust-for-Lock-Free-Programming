@@ -9,7 +9,7 @@ use core_affinity;
 
 const BASE: usize = 10;
 
-pub fn benchmark<Q>(nprocs: usize, logn: usize, even_cores_only: bool, queue: Q)
+pub fn benchmark<Q>(nprocs: usize, logn: usize, even_cores_only: bool, congestion_factor: f32, queue: Q)
 where
     Q: SharedQueue<i32> + Clone + Send + 'static,
 {
@@ -38,10 +38,14 @@ where
 
             for j in 0..tops {
                 queue_handle.enqueue(j.try_into().unwrap());
-                delay_exec(&mut rng);
+                if rng.gen_range(0.0..1.0) > congestion_factor {
+                    delay_exec();
+                }
 
                 queue_handle.dequeue();
-                delay_exec(&mut rng);
+                if rng.gen_range(0.0..1.0) > congestion_factor {
+                    delay_exec();
+                }
             }
         });
         handles.push(handle);
@@ -52,11 +56,8 @@ where
     }
 }
 
-fn delay_exec(state: &mut ThreadRng) {
-    let n = state.gen_range(0..100);
-    let delay_end = 50 + n % 100;
-
-    for _ in 50..delay_end {
+fn delay_exec() {
+    for _ in 0..100 {
         #[cfg(not(miri))]
         unsafe {
             asm!("nop");
