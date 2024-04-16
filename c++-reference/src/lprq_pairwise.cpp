@@ -33,7 +33,7 @@ int main(int argc, char *argv[]){
     bool evenCores = false;
     app.add_option("evenCores", evenCores, "If true, use only even numbered cores");
 
-    float congestion_factor = 1.0;
+    float congestion_factor = 0.0;
     app.add_option("congestion_factor", congestion_factor, "Congestion factor, 0.0-1.0, 1.0 meaning full congestion");
 
     CLI11_PARSE(app, argc, argv);

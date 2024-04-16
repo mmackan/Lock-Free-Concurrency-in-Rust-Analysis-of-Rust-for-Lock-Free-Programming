@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
 
     bool evenCores = false;
     app.add_option("evenCores", evenCores, "If true, use only even numbered cores");
-    float congestion_factor = 1.0;
+    float congestion_factor = 0.0;
     app.add_option("congestion_factor", congestion_factor, "Congestion factor, 0.0-1.0, 1.0 meaning full congestion");
     CLI11_PARSE(app, argc, argv);
 
@@ -87,6 +87,7 @@ int main(int argc, char *argv[]){
             // Thread rng
             auto engine = std::mt19937(std::random_device{}());
             auto distribution = std::uniform_real_distribution<float>(0.0,1.0);
+            int backoff = 0;
 
             // Cpu affinity
             cpu_set_t cpuset;
@@ -102,6 +103,10 @@ int main(int argc, char *argv[]){
                 if (val == nullptr) {
                     if (done.load() == true) {
                         break;
+                    }
+                    backoff++;
+                    for(int j = 0; j < backoff; j++) {
+                        delay_exec();
                     }
                 }
                 if(distribution(engine) > congestion_factor){

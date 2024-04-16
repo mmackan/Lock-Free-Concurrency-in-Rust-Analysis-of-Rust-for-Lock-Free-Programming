@@ -4,7 +4,7 @@ use std::arch::asm;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
-use std::thread;
+use std::{thread, time};
 
 use crate::shared_queue::SharedQueue;
 
@@ -81,6 +81,7 @@ pub fn benchmark<Q>(
         let handle = thread::spawn(move || {
             let mut rng = rand::thread_rng();
             let _ = core_affinity::set_for_current(core_id);
+            let mut backoff = 0;
 
             loop {
                 match queue_handle.dequeue() {
@@ -89,6 +90,11 @@ pub fn benchmark<Q>(
                         if stop_flag_handle.load(SeqCst) {
                             break;
                         }
+                        backoff = backoff + 1;
+                        for _ in 0..backoff {
+                            delay_exec();
+                        }
+
                     }
                 }
                 if rng.gen_range(0.0..1.0) > congestion_factor {

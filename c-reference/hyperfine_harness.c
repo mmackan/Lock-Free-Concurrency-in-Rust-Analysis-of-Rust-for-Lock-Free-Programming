@@ -34,9 +34,9 @@ static double means[MAX_ITERS];
 static double covs[MAX_ITERS];
 static volatile int target;
 
-// Ugly global to store even_only
+// Ugly global to store even_only and congestion_factor
 static bool even_only = false;
-static float congestion_factor = 1.0;
+static float congestion_factor = 0.0;
 
 static void * thread(void * bits)
 {
