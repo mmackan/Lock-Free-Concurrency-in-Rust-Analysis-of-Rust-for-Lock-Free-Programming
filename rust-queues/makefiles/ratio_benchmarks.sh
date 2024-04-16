@@ -20,8 +20,10 @@ for ((i=1; i<=iterations; i++)); do
   producers=$((i * producer_multiplier))
   consumers=$((i * consumer_multiplier))
 
+  echo $ratio
+
   # Temporary fix for 2:1 ratio benchmarks until bug is fixed
-  if [[ $ratio == "2:1" ]] && [[ $producers -gt 20 ]]; then
+  if [[ $producer_multiplier == "2" ]] && [[ $producers -gt 20 ]]; then
     break
   fi  
 
