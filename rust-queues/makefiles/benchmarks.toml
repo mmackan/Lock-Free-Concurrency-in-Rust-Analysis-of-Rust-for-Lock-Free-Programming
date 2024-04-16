@@ -103,6 +103,6 @@ script = [
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Even cores: ${EVEN_CORES}",
     "echo ' ' Congestion: ${CONGESTION}'\n'",
-    "sudo perf stat -r ${RUNS} -e ${EVENTS} -o ${OUTPUT} ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} >/dev/null"
+    "perf stat -r ${RUNS} -e ${EVENTS} -o ${OUTPUT} ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} >/dev/null"
 ]
 private = true
