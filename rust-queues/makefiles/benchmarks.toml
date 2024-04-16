@@ -7,30 +7,33 @@ extend = [
 [tasks.parameter-scan-pairwise-threads]
 description = "Hyperfine parameter scan over threads"
 script = [
-    "export MAX_THREADS=$(($(nproc) / FACTOR))",
+    "export OUTPUT=${RESULT_DIR}/${FILE}",
+    "export MAX_THREADS=$(($(nproc) / $FACTOR))",
     "echo '\n'===========================================",
     "echo Parameter scan over threads",
     "echo ' ' Benchmark: $TARGET",
     "echo ' ' Interval: [1, ${MAX_THREADS}]",
     "echo ' ' Operations: 10^${LOGN}",
-    "echo ' ' Even cores only: ${EVEN_CORES}'\n'",
-    "hyperfine --parameter-scan Threads 1 ${MAX_THREADS} '${BINARY} {Threads} ${LOGN} ${EVEN_CORES}' --export-json ${RESULT_DIR}/$JSON"
+    "echo ' ' Even cores: ${EVEN_CORES}",
+    "echo ' ' Congestion: ${CONGESTION}'\n'",
+    "hyperfine --parameter-scan Threads 1 ${MAX_THREADS} '${BINARY} {Threads} ${LOGN} ${EVEN_CORES} ${CONGESTION}' --export-json OUTPUT"
 ]
 private = true
-
 
 # Pairwise benchmarking, operations varies, fixed threads 
 [tasks.parameter-scan-pairwise-ops]
 description = "Hyperfine parameter scan over operations"
 script = [
+    "export OUTPUT=${RESULT_DIR}/${FILE}",
+    "export THREADS=$(($(nproc) / $FACTOR))",
     "echo '\n'===========================================",
-    "export THREADS=$(($(nproc) / (FACTOR)))",
     "echo Parameter scan over logn",
     "echo ' ' Benchmark: $TARGET",
     "echo ' ' Interval: [${MIN_LOGN}, ${MAX_LOGN}]",
     "echo ' ' Threads: ${THREADS}",
-    "echo ' ' Even cores only: ${EVEN_CORES}'\n'",
-    "hyperfine --parameter-scan Operations ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {Operations} ${EVEN_CORES}' --export-json ${RESULT_DIR}/$JSON"
+    "echo ' ' Even cores: ${EVEN_CORES}",
+    "echo ' ' Congestion: ${CONGESTION}'\n'",
+    "hyperfine --parameter-scan Operations ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {Operations} ${EVEN_CORES} ${CONGESTION}' --export-json OUTPUT"
 ]
 private = true
 
@@ -39,41 +42,67 @@ private = true
 description = "Base MPMC benchmark parameter scan"
 script_runner = "bash"
 script = [
-    "export MAX_THREADS=$(($(nproc) / FACTOR))",
-    "export MAX_ITER=$((MAX_THREADS / $DIVISOR))",
+    # Extract how many iterations hyperfine will execute run for each ratio, also min & max threads.
+    '''
+    max_threads=$(($(nproc) / $FACTOR))
+
+    # Extract the multipliers from the ratio
+    IFS=':' read producer_multiplier consumer_multiplier <<< "$RATIO"
+
+    min_threads=$((producer_multiplier + consumer_multiplier))
+    iterations=$(($max_threads / $min_threads))
+
+    export MAX_THREADS=$max_threads
+    export MIN_THREADS=$min_threads
+    export ITERATIONS=$iterations
+    export PROD_MULTI=$producer_multiplier
+    export CONS_MULTI=$consumer_multiplier
+    ''',
+
     "echo '\n'===========================================",
     "echo Parameter scan over threads",
     "echo ' ' Benchmark: $TARGET",
     "echo ' ' Interval: [${MIN_THREADS}, ${MAX_THREADS}]",
-    "echo ' ' Operations: 10^$LOGN",
-    "echo ' ' Even cores only: ${EVEN_CORES}'\n'",
-    "bash ./makefiles/ratio_benchmarks.sh ${RATIO} ${MAX_ITER}"
+    "echo ' ' Operations: 10^${LOGN}",
+    "echo ' ' Even cores: ${EVEN_CORES}",
+    "echo ' ' Congestion: ${CONGESTION}'\n'",
+    "bash ./makefiles/ratio_benchmarks.sh ${PROD_MULTI} ${CONS_MULTI} ${ITERATIONS} ${JSON} ${CONGESTION}"
 
 ]
 private = true
 
 # MPMC energy consumption benchmark
-[tasks.energy-consumption-1-1]
+[tasks.energy-consumption]
 description = "Measure the energy consumption of the LPRQ"
 script_runner = "bash"
 script = [
-    "export THREADS=$(($(nproc) / FACTOR))",
-    "export PROD=$((THREADS / 2))",
-    "export CONS=$((THREADS - PROD))",
-    "echo '\n'===========================================",
-    "echo ${TARGET} 1:1 energy consumption benchmark",
-    "sudo perf stat -r $RUNS -e power/energy-cores/,power/energy-ram/,power/energy-gpu/,power/energy-pkg/,power/energy-psys/ -o ${RESULT_DIR}/${FILE} ${BINARY} $PROD $CONS $LOGN $EVEN_CORES"
-]
-private = true
+    # Extract the maximum allowed producer and consumer based on ratio
+    ''' 
+    max_threads=$(($(nproc) / $FACTOR))
 
-# MPMC energy consumption benchmark
-[tasks.energy-consumption-2-1]
-description = "Measure the energy consumption of the LPRQ"
-script_runner = "bash"
-script = [
-    "export THREADS=$(($(nproc) / FACTOR))",
+    # Extract the multipliers from the ratio
+    IFS=':' read producer_multiplier consumer_multiplier <<< "$RATIO"
+
+    min_threads=$((producer_multiplier + consumer_multiplier))
+    base=$(($max_threads / $min_threads))
+    
+    producers=$(($base * producer_multiplier))
+    consumers=$(($base * consumer_multiplier))
+
+    export PROD=$producers
+    export CONS=$consumers
+    ''',
+
+    "export OUTPUT=${RESULT_DIR}/${FILE}",
     "echo '\n'===========================================",
-    "echo ${TARGET} 2:1 energy consumption benchmark",
-    "sudo perf stat -r $RUNS -e power/energy-cores/,power/energy-ram/,power/energy-gpu/,power/energy-pkg/,power/energy-psys/ -o ${RESULT_DIR}/${FILE} ${BINARY} $PARAMS $LOGN $EVEN_CORES"
+    "echo Energy consumption benchmark",
+    "echo ' ' Benchmark: $TARGET",
+    "echo ' ' Runs: ${RUNS}",
+    "echo ' ' Producers: ${PROD}",
+    "echo ' ' Consumers: ${CONS}",
+    "echo ' ' Operations: 10^${LOGN}",
+    "echo ' ' Even cores: ${EVEN_CORES}",
+    "echo ' ' Congestion: ${CONGESTION}'\n'",
+    "sudo perf stat -r ${RUNS} -e ${EVENTS} -o ${OUTPUT} ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} >/dev/null"
 ]
 private = true

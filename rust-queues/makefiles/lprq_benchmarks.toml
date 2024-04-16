@@ -1,64 +1,68 @@
 # Pairwise benchmarks (Rust)
 [tasks.pairwise-lprq-rust-t]
 extend = "parameter-scan-pairwise-threads"
-env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON_T}"}
+env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", CONGESTION = "0.0", JSON = "${RUST_LPRQ_PW_JSON_T}"}
 private = true
 [tasks.pairwise-lprq-rust-o]
 extend = "parameter-scan-pairwise-ops"
-env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", JSON = "${RUST_LPRQ_PW_JSON_O}"}
+env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", CONGESTION = "0.0", JSON = "${RUST_LPRQ_PW_JSON_O}"}
 private = true
 
 # Pairwise benchmarks (C)
 [tasks.pairwise-lprq-c-t]
 extend = "parameter-scan-pairwise-threads"
-env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", JSON = "${C_LPRQ_PW_JSON_T}"}
+env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", CONGESTION = "0.0", JSON = "${C_LPRQ_PW_JSON_T}"}
 private = true
 [tasks.pairwise-lprq-c-o]
 extend = "parameter-scan-pairwise-ops"
-env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", JSON = "${C_LPRQ_PW_JSON_O}"}
+env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", CONGESTION = "0.0", JSON = "${C_LPRQ_PW_JSON_O}"}
 private = true
 
 # MPMC benchmarks (Rust)
 [tasks.mpmc-lprq-rust-1-1]
 extend = "parameter-scan-mpmc"
-env = { TARGET = "MPMC 1:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON_11}",  RATIO = "1:1", DIVISOR = "2", MIN_THREADS = "2"}
+env = { TARGET = "MPMC 1:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", CONGESTION = "0.0", JSON = "${RUST_LPRQ_PC_JSON_11}",  RATIO = "1:1", DIVISOR = "2", MIN_THREADS = "2"}
 private = true
 [tasks.mpmc-lprq-rust-1-2]
 extend = "parameter-scan-mpmc"
-env = { TARGET = "MPMC 1:2 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON_12}", RATIO = "1:2", DIVISOR = "3", MIN_THREADS = "3"}
+env = { TARGET = "MPMC 1:2 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", CONGESTION = "0.0", JSON = "${RUST_LPRQ_PC_JSON_12}", RATIO = "1:2", DIVISOR = "3", MIN_THREADS = "3"}
 private = true
 [tasks.mpmc-lprq-rust-2-1]
 extend = "parameter-scan-mpmc"
-env = { TARGET = "MPMC 2:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", JSON = "${RUST_LPRQ_PC_JSON_21}", RATIO = "2:1", DIVISOR = "3", MIN_THREADS = "3"}
+env = { TARGET = "MPMC 2:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", CONGESTION = "0.0", JSON = "${RUST_LPRQ_PC_JSON_21}", RATIO = "2:1", DIVISOR = "3", MIN_THREADS = "3"}
 private = true
 
 # MPMC benchmarks (C)
 [tasks.mpmc-lprq-c-1-1]
 extend = "parameter-scan-mpmc"
-env = { TARGET = "MPMC 1:1 LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_11}",  RATIO = "1:1", DIVISOR = "2", MIN_THREADS = "2" }
+env = { TARGET = "MPMC 1:1 LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", CONGESTION = "0.0", JSON = "${C_LPRQ_PC_JSON_11}",  RATIO = "1:1", DIVISOR = "2", MIN_THREADS = "2" }
 private = true
 [tasks.mpmc-lprq-c-1-2]
 extend = "parameter-scan-mpmc"
-env = { TARGET = "MPMC 1:2 LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_12}", RATIO = "1:2", DIVISOR = "3", MIN_THREADS = "3"}
+env = { TARGET = "MPMC 1:2 LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", CONGESTION = "0.0", JSON = "${C_LPRQ_PC_JSON_12}", RATIO = "1:2", DIVISOR = "3", MIN_THREADS = "3"}
 private = true
 [tasks.mpmc-lprq-c-2-1]
 extend = "parameter-scan-mpmc"
-env = { TARGET = "MPMC 2:1 LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", JSON = "${C_LPRQ_PC_JSON_21}", RATIO = "2:1", DIVISOR = "3", MIN_THREADS = "3"}
+env = { TARGET = "MPMC 2:1 LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", CONGESTION = "0.0", JSON = "${C_LPRQ_PC_JSON_21}", RATIO = "2:1", DIVISOR = "3", MIN_THREADS = "3"}
 private = true
 
-# Energy consumption benchmarks (Rust) 
-[tasks.energy-lprq-rust-1-1]
-extend = "energy-consumption-1-1"
-env = {TARGET = "LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", FILE = "${RUST_ENERGY_11}"}
-[tasks.energy-lprq-rust-2-1] # NOTE: Static parameters until fixed 2:1 benchmark
-extend = "energy-consumption-2-1"
-env = {TARGET = "LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", PARAMS = "20 10", FILE = "${RUST_ENERGY_21}"}
+# MPMC energy consumption benchmarks (Rust) 
+[tasks.energy-rust-1-1]
+extend = "energy-consumption"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${RUST_ENERGY_11}"}
+private=true
+[tasks.energy-rust-2-1] 
+extend = "energy-consumption"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${RUST_ENERGY_21}"}
+private=true
 
-# Energy consumption benchmarks (C++)
-[tasks.energy-lprq-c-1-1]
-extend = "energy-consumption-1-1"
-env = {TARGET = "LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", FILE = "${C_ENERGY_11}"}
-[tasks.energy-lprq-c-2-1] # NOTE: Static parameters until fixed 2:1 benchmark
-extend = "energy-consumption-2-1"
-env = {TARGET = "LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", PARAMS = "20 10", FILE = "${C_ENERGY_21}"}
+# MPMC energy consumption benchmarks (C++)
+[tasks.energy-c-1-1]
+extend = "energy-consumption"
+env = {TARGET = "MPMC 1:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${C_ENERGY_11}"}
+private=true
+[tasks.energy-c-2-1] 
+extend = "energy-consumption"
+env = {TARGET = "MPMC 2:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${C_ENERGY_21}"}
+private=true
 

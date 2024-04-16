@@ -21,41 +21,38 @@ function cleanup {
 # Register the cleanup function to be called on the EXIT signal
 trap cleanup EXIT
 
-# Ratio in the format of "producer:consumer"
-ratio="$1" 
+# Multipliers
+producer_multiplier="$1" 
+consumer_multiplier="$2"
 
 # Number of iterations for the ratio
-iterations="$2" 
+iterations="$3"
 
-result_dir="${RESULT_DIR}"
-script_dir="${SCRIPT_DIR}"
-merged_file_name="${JSON}"
+# Resulting json file
+merged_file_name="$4"
 
-# Extract the multipliers from the ratio
-IFS=':' read producer_multiplier consumer_multiplier <<< "$ratio"
+# Amount of congestion
+congestion="$5"
 
 for ((i=1; i<=iterations; i++)); do
-    producer_threads=$((i * producer_multiplier))
-    consumer_threads=$((i * consumer_multiplier))
+    producers=$((i * producer_multiplier))
+    consumers=$((i * consumer_multiplier))
 
     # Temporary fix for 2:1 ratio benchmarks until bug is fixed
-    if [[ $ratio == "2:1" ]] && [[ $producer_multiplier -gt 20 ]]; then
+    if [[ $ratio == "2:1" ]] && [[ $producers -gt 20 ]]; then
       break
     fi  
 
-    echo "Running benchmark with $producer_threads producers and $consumer_threads consumers"
+    echo "Running benchmark with $producers producers and $consumers consumers"
 
-    hyperfine "$BINARY $producer_threads $consumer_threads $LOGN $EVEN_CORES" --export-json "$temp_dir/result$i.json"
+    hyperfine "$BINARY $producers $consumers $LOGN $EVEN_CORES $congestion" --export-json "$temp_dir/result$i.json"
 
-    # Add the parameter field in the JSON
-    python3 "$script_dir"/add_params.py "$temp_dir/result$i.json" $producer_threads $consumer_threads $LOGN
+    # Add the "parameter" field to the JSON
+    python3 "${SCRIPT_DIR}"/add_params.py "$temp_dir/result$i.json" $producers $consumers $LOGN
 done
 
-# Merge all the results from the individual hyperfine commands
-python3 "$script_dir"/merge_ratios.py "$temp_dir/*.json" "$temp_dir/$merged_file_name"
+# Merge the individual hyperfine commands into single JSON
+python3 "${SCRIPT_DIR}"/merge_ratios.py "$temp_dir/*.json" "$temp_dir/$merged_file_name"
 
-# Ensure result directory exist, and 
-mkdir -p "$result_dir" 
-
-# Moves the final results to the result directory
-mv "$temp_dir/$merged_file_name" "$result_dir/"
+# Moves the resulting JSON to the result directory
+mv "$temp_dir/$merged_file_name" "${RESULT_DIR}/"
