@@ -119,5 +119,5 @@ script = [
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Threads: ${THREADS}",
     "echo ' ' Even cores: ${EVEN_CORES}",
-    "bash ./makefiles/congestion_benchmarks.sh ${THREADS} ${WORKLOAD} ${FILE}"]
+    "bash ./makefiles/congestion_benchmarks.sh ${WORKLOAD} ${FILE}"]
 private = true
