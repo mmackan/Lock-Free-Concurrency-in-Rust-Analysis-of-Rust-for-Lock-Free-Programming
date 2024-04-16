@@ -10,8 +10,13 @@ def main():
     
     merged_results = {"results": []}
 
+    # Guarantee files will be merged in same order as their name
+    sorted_files = sorted(
+        glob.glob(json_results), 
+        key=lambda x: int(x.split('result')[-1].split('.')[0]))
+
     # Merge results from each ratio's benchmark
-    for json_file in glob.glob(json_results):
+    for json_file in sorted_files:
         with open(json_file, 'r') as file:
             data = json.load(file)
             merged_results["results"].extend(data["results"])
