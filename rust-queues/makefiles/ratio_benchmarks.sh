@@ -17,20 +17,21 @@ merged_file_name="$4"
 congestion="$5"
 
 for ((i=1; i<=iterations; i++)); do
-    producers=$((i * producer_multiplier))
-    consumers=$((i * consumer_multiplier))
+  producers=$((i * producer_multiplier))
+  consumers=$((i * consumer_multiplier))
 
-    # Temporary fix for 2:1 ratio benchmarks until bug is fixed
-    if [[ $ratio == "2:1" ]] && [[ $producers -gt 20 ]]; then
-      break
-    fi  
+  # Temporary fix for 2:1 ratio benchmarks until bug is fixed
+  if [[ $ratio == "2:1" ]] && [[ $producers -gt 20 ]]; then
+    break
+  fi  
 
-    echo "Running benchmark with $producers producers and $consumers consumers"
+  echo "Running benchmark with $producers producers and $consumers consumers"
 
-    hyperfine "$BINARY $producers $consumers $LOGN $EVEN_CORES $congestion" --export-json "$temp_dir/result$i.json"
+  hyperfine "$BINARY $producers $consumers $LOGN $EVEN_CORES $congestion" --export-json "$temp_dir/result$i.json"
 
-    # Add the "parameter" field to the JSON
-    python3 "${SCRIPT_DIR}"/add_params.py "$temp_dir/result$i.json" $producers $consumers $LOGN
+  threads=$((producers + consumers))
+  # Add the "parameter" field to the JSON
+  python3 "${SCRIPT_DIR}"/add_params.py "$temp_dir/result$i.json" $threads $LOGN
 done
 
 # Merge the individual hyperfine commands into single JSON

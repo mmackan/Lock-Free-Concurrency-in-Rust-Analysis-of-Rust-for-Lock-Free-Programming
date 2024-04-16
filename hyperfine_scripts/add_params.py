@@ -5,8 +5,7 @@ def main():
 
     # Read the arguments
     filename = sys.argv[1]
-    producer_threads = int(sys.argv[2])
-    consumer_threads = int(sys.argv[3])
+    threads = int(sys.argv[2])
 
     # Open JSON file to append parameter to
     with open(filename, 'r') as file:
@@ -14,7 +13,7 @@ def main():
 
     # Add the parameter
     data['results'][0]['parameters'] = {
-        'Threads': producer_threads + consumer_threads
+        'Threads': threads
     }
 
     # Write the modified JSON data back to the file
