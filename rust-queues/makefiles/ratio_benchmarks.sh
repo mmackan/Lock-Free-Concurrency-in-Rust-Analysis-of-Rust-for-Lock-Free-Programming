@@ -31,7 +31,7 @@ for ((i=1; i<=iterations; i++)); do
 
   threads=$((producers + consumers))
   # Add the "parameter" field to the JSON
-  python3 "${SCRIPT_DIR}"/add_params.py "$temp_dir/result$i.json" $threads $LOGN
+  python3 "${SCRIPT_DIR}"/add_params.py "$temp_dir/result$i.json" $threads "Threads"
 done
 
 # Merge the individual hyperfine commands into single JSON
