@@ -82,6 +82,14 @@ dependencies = ["energy-c-1-1", "energy-rust-1-1"]
 [tasks.benchmark-energy-2-1]
 dependencies = ["energy-c-2-1", "energy-rust-2-1"]
 
+# Commands for congestion benchmarks
+[tasks.benchmark-congestion-pairwise]
+dependencies = ["congestion-pairwise-c", "congestion-pairwise-rust"]
+[tasks.benchmark-congestion-mpmc-1-1]
+dependencies = ["congestion-mpmc-c-1-1", "congestion-mpmc-rust-1-1"]
+[tasks.benchmark-congestion-mpmc-2-1]
+dependencies = ["congestion-mpmc-c-2-1", "congestion-mpmc-rust-2-1"]
+
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
@@ -109,8 +117,19 @@ private = true
 [tasks.mpmc-lprq-2-1]
 dependencies = ["benchmark-mpmc-lprq-2-1", "graph-mpmc-lprq-2-1"]
 private = true
+[tasks.pw-congestion]
+dependencies = ["benchmark-congestion-pairwise", "graph-congestion-pw"]
+[tasks.mpmc-congestion-1-1]
+dependencies = ["benchmark-congestion-mpmc-1-1", "graph-congestion-mpmc-1-1"]
+[tasks.mpmc-congestion-2-1]
+dependencies = ["benchmark-congestion-mpmc-2-1", "graph-congestion-mpmc-2-1"]
+
+# No graphs on this one
+[tasks.energy]
+dependencies = ["benchmark-energy-1-1", "benchmark-energy-2-1"]
+private = true
 
 # Run all benchmarks and generate all graphs
 [tasks.run]
 description = "Run all benchmarks and generate all graphs"
-dependencies = ["pw-msq-t", "pw-msq-o", "pw-lprq-t", "pw-lprq-o", "mpmc-lprq-1-1", "mpmc-lprq-1-2", "mpmc-lprq-2-1"]
+dependencies = ["pw-msq-t", "pw-msq-o", "pw-lprq-t", "pw-lprq-o", "mpmc-lprq-1-1", "mpmc-lprq-2-1", "pw-congestion", "mpmc-congestion-1-1", "mpmc-congestion-2-1", "energy"]
