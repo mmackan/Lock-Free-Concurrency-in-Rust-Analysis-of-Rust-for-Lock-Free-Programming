@@ -16,7 +16,7 @@ script = [
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Even cores: ${EVEN_CORES}",
     "echo ' ' Congestion: ${CONGESTION}'\n'",
-    "hyperfine --parameter-scan Threads 1 ${MAX_THREADS} '${BINARY} {Threads} ${LOGN} ${EVEN_CORES} ${CONGESTION}' --export-json OUTPUT"
+    "hyperfine --parameter-scan Threads 1 ${MAX_THREADS} '${BINARY} {Threads} ${LOGN} ${EVEN_CORES} ${CONGESTION}' --export-json ${OUTPUT}"
 ]
 private = true
 
@@ -33,7 +33,7 @@ script = [
     "echo ' ' Threads: ${THREADS}",
     "echo ' ' Even cores: ${EVEN_CORES}",
     "echo ' ' Congestion: ${CONGESTION}'\n'",
-    "hyperfine --parameter-scan Operations ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {Operations} ${EVEN_CORES} ${CONGESTION}' --export-json OUTPUT"
+    "hyperfine --parameter-scan Operations ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {Operations} ${EVEN_CORES} ${CONGESTION}' --export-json ${OUTPUT}"
 ]
 private = true
 
@@ -107,9 +107,8 @@ script = [
 ]
 private = true
 
-
 # Congestion benchmark
-[tasks.paramter-scan-pairwise-congestion]
+[tasks.paramter-scan-congestion]
 description = "Hyperfine parameter scan over congestions"
 script = [
     "export THREADS=$(($(nproc) / $FACTOR))",
@@ -120,5 +119,5 @@ script = [
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Threads: ${THREADS}",
     "echo ' ' Even cores: ${EVEN_CORES}",
-    "bash ./makefiles/congestion_benchmarks.sh ${WORKLOAD} ${FILE}"]
+    "bash ./makefiles/congestion_benchmarks.sh ${THREADS} ${WORKLOAD} ${FILE}"]
 private = true
