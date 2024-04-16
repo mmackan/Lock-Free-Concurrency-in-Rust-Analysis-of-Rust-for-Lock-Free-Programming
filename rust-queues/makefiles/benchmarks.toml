@@ -106,3 +106,19 @@ script = [
     "perf stat -r ${RUNS} -e ${EVENTS} -o ${OUTPUT} ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} >/dev/null"
 ]
 private = true
+
+
+# Congestion benchmark
+[tasks.paramter-scan-pairwise-congestion]
+description = "Hyperfine parameter scan over congestions"
+script = [
+    "export THREADS=$(($(nproc) / $FACTOR))",
+    "echo '\n'===========================================",
+    "echo Parameter scan over congestions",
+    "echo ' ' Benchmark: $TARGET",
+    "echo ' ' Congestions: [0.0, 0.25, 1.0]",
+    "echo ' ' Operations: 10^${LOGN}",
+    "echo ' ' Threads: ${THREADS}",
+    "echo ' ' Even cores: ${EVEN_CORES}",
+    "bash ./makefiles/congestion_benchmarks.sh ${WORKLOAD} ${FILE}"]
+private = true
