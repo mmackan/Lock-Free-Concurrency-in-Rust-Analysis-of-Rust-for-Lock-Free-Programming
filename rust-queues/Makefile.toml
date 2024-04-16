@@ -98,22 +98,16 @@ dependencies = ["graph-msq", "graph-lprq"]
 # Tasks that generate the graph after a sucessful benchmark in both C and Rust.
 [tasks.pw-msq-t]
 dependencies = ["benchmark-pairwise-msq-t", "graph-pairwise-msq-t"]
-private = true
 [tasks.pw-msq-o]
 dependencies = ["benchmark-pairwise-msq-o", "graph-pairwise-msq-o"]
-private = true
 [tasks.pw-lprq-t]
 dependencies = ["benchmark-pairwise-lprq-t", "graph-pairwise-lprq-t"]
-private = true
 [tasks.pw-lprq-o]
 dependencies = ["benchmark-pairwise-lprq-o", "graph-pairwise-lprq-o"]
-private = true
 [tasks.mpmc-lprq-1-1]
 dependencies = ["benchmark-mpmc-lprq-1-1", "graph-mpmc-lprq-1-1"]
-private = true
 [tasks.mpmc-lprq-2-1]
 dependencies = ["benchmark-mpmc-lprq-2-1", "graph-mpmc-lprq-2-1"]
-private = true
 [tasks.pw-congestion]
 dependencies = ["benchmark-congestion-pairwise", "graph-congestion-pw"]
 [tasks.mpmc-congestion-1-1]
@@ -124,7 +118,6 @@ dependencies = ["benchmark-congestion-mpmc-2-1", "graph-congestion-mpmc-2-1"]
 # No graphs on this one
 [tasks.energy]
 dependencies = ["benchmark-energy-1-1", "benchmark-energy-2-1"]
-private = true
 
 # Run all benchmarks and generate all graphs
 [tasks.run]
