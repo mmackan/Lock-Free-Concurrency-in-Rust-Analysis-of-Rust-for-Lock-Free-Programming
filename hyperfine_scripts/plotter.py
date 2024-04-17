@@ -5,8 +5,8 @@ import argparse
 import sys
 import numpy as np
 
-# Fixed number of logn operations
-LOG_OPS = 7
+# Ugly parameter for fixed number of logn operations, should be argument
+LOG_OPS = 8
 
 MAX_THREADS = 36
 
@@ -18,11 +18,12 @@ def calculate_throughput(json_file, scan_category):
     stddevs = []
 
     # Fixed operations for thread scan
-    if scan_category == "Threads":
+    if scan_category in ["Threads", "Congestion"]:
         operations = (10**LOG_OPS)  
 
     for entry in benchmark['results']:
 
+        # This is old code, kept in case we need throughput for operations also
         # Operations vary for each entry in operation scan
         if scan_category == "Operations":
             log_ops = int(entry['parameters']['Operations'])
@@ -131,7 +132,8 @@ def main():
             )
         parameter_name = this_parameter_name
 
-        if parameter_name == "Threads":
+        if parameter_name in ["Threads", "Congestion"]:
+
             # Convert to throughput instead of runtime
             mean, stddev = calculate_throughput(filename, parameter_name)
         else:
@@ -165,13 +167,13 @@ def main():
         plt.yscale("log")
         plt.ylabel("Time [s]")
     else:
-        plt.ylim(0, None)
+        # Make y-scale same for all plots
+        plt.ylim(0, 10**(LOG_OPS))
 
         # Scaling options for the x-axis
         # x = np.arange(0, MAX_THREADS + 1)
         # plt.xticks(np.arange(min(x), max(x)+1, 2))
         # plt.xlim(0, MAX_THREADS + 1)
-
 
     if args.log_x:
         plt.xscale("log")
