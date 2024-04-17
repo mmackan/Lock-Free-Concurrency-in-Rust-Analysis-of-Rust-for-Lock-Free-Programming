@@ -22,11 +22,6 @@ extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_11}", C_JSON = "${C_LPRQ_PC_JSON_11}", FILE = "${LPRQ_GRAPH_PC_11}", FLAGS="", LEGEND="Rust,C++"}
 [tasks.graph-mpmc-lprq-1-1]
 dependencies = ["_graph-mpmc-lprq-1-1"]
-[tasks._graph-mpmc-lprq-1-2]
-extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_12}", C_JSON = "${C_LPRQ_PC_JSON_12}", FILE = "${LPRQ_GRAPH_PC_12}", FLAGS="", LEGEND="Rust,C++"}
-[tasks.graph-mpmc-lprq-1-2]
-dependencies = ["_graph-mpmc-lprq-1-2"]
 [tasks._graph-mpmc-lprq-2-1]
 extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_21}", C_JSON = "${C_LPRQ_PC_JSON_21}", FILE = "${LPRQ_GRAPH_PC_21}", FLAGS="", LEGEND="Rust,C++"}
@@ -36,7 +31,7 @@ dependencies = ["_graph-mpmc-lprq-2-1"]
 # All ratio comparison graphs
 [tasks.graph-mpmc-lprq]
 description = "Graphs for all ratios"
-dependencies = ["graph-mpmc-lprq-1-1", "graph-mpmc-lprq-1-2", "graph-mpmc-lprq-2-1"]
+dependencies = ["graph-mpmc-lprq-1-1", "graph-mpmc-lprq-2-1"]
 
 # MPMC congestion graphs
 [tasks._graph-congestion-pw]

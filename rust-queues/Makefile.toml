@@ -44,9 +44,6 @@ dependencies = ["benchmark-pairwise-lprq-t", "benchmark-pairwise-lprq-o"]
 [tasks.benchmark-mpmc-lprq-1-1]
 description = "LPRQ benchmark MPMC 1:1 ratio"
 dependencies = ["mpmc-lprq-c-1-1", "mpmc-lprq-rust-1-1"]
-[tasks.benchmark-mpmc-lprq-1-2]
-description = "LPRQ benchmark MPMC 1:2 ratio"
-dependencies = ["mpmc-lprq-c-1-2", "mpmc-lprq-rust-1-2"]
 [tasks.benchmark-mpmc-lprq-2-1]
 description = "LPRQ benchmark MPMC 2:1 ratio"
 dependencies = ["mpmc-lprq-c-2-1", "mpmc-lprq-rust-2-1"]
@@ -54,7 +51,7 @@ dependencies = ["mpmc-lprq-c-2-1", "mpmc-lprq-rust-2-1"]
 # Command for all LPRQ MPMC ratios
 [tasks.benchmark-mpmc-lprq]
 description = "MSQ benchmark MPM all ratios"
-dependencies = ["benchmark-mpmc-lprq-1-1", "benchmark-mpmc-lprq-1-2", "benchmark-mpmc-lprq-2-1"]
+dependencies = ["benchmark-mpmc-lprq-1-1", "benchmark-mpmc-lprq-2-1"]
 
 # Command for LPRQ Pairwise and MPMC benchmarks
 [tasks.benchmark-lprq]
