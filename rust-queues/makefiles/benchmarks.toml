@@ -66,7 +66,7 @@ script = [
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Even cores: ${EVEN_CORES}",
     "echo ' ' Congestion: ${CONGESTION}'\n'",
-    "bash ./makefiles/ratio_benchmarks.sh ${PROD_MULTI} ${CONS_MULTI} ${ITERATIONS} ${FILE} ${CONGESTION}"
+    "bash ${SCRIPT_DIR}/ratio_benchmarks.sh ${PROD_MULTI} ${CONS_MULTI} ${ITERATIONS} ${FILE} ${CONGESTION}"
 
 ]
 private = true
@@ -127,5 +127,5 @@ script = [
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Threads: ${THREADS}",
     "echo ' ' Even cores: ${EVEN_CORES}",
-    "bash ./makefiles/congestion_benchmarks.sh ${WORKLOAD} ${FILE}"]
+    "bash ${SCRIPT_DIR}/congestion_benchmarks.sh ${WORKLOAD} ${FILE}"]
 private = true
