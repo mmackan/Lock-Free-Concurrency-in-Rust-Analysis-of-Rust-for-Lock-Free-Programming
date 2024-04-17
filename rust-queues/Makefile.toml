@@ -90,10 +90,14 @@ dependencies = ["congestion-mpmc-c-1-1", "congestion-mpmc-rust-1-1"]
 [tasks.benchmark-congestion-mpmc-2-1]
 dependencies = ["congestion-mpmc-c-2-1", "congestion-mpmc-rust-2-1"]
 
+# Command to graph congestions
+[tasks.graph-congestions]
+dependencies = ["graph-congestion-pw", "graph-congestion-mpmc-1-1", "graph-congestion-mpmc-2-1"]
+
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
-dependencies = ["graph-msq", "graph-lprq"]
+dependencies = ["graph-msq", "graph-lprq", "graph-congestions"]
 
 # Tasks that generate the graph after a sucessful benchmark in both C and Rust.
 [tasks.pw-msq-t]
