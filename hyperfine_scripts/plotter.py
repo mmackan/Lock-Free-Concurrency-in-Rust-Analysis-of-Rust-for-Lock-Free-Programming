@@ -8,7 +8,11 @@ import numpy as np
 # Ugly parameter for fixed number of logn operations, should be argument
 LOG_OPS = 8
 
-MAX_THREADS = 36
+# Values are not greater than this, used for correct y-scale
+Y_MAX = 0.2*(10**LOG_OPS)
+
+# Used for scaling x-axis, perhpas for future use
+# MAX_THREADS = 36
 
 def calculate_throughput(json_file, scan_category):
     with open(json_file, 'r') as file:
@@ -168,7 +172,7 @@ def main():
         plt.ylabel("Time [s]")
     else:
         # Make y-scale same for all plots
-        plt.ylim(0, 10**(LOG_OPS))
+        plt.ylim(0, Y_MAX)
 
         # Scaling options for the x-axis
         # x = np.arange(0, MAX_THREADS + 1)
