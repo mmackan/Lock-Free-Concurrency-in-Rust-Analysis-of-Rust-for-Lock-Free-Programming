@@ -126,6 +126,8 @@ dependencies = ["graph-msq", "graph-lprq", "graph-congestions"]
 # Tasks that generate the graph after sucessful benchmark
 [tasks.msq-pw]
 dependencies = ["benchmark-msq-pw", "graph-msq-pw"]
+[tasks.msq-congestion-pw]
+dependencies = ["benchmark-msq-congestion", "graph-msq-congestion-pw"]
 [tasks.lprq-pw]
 dependencies = ["benchmark-lprq-pw", "graph-lprq-pw"]
 [tasks.lprq-1-1]
