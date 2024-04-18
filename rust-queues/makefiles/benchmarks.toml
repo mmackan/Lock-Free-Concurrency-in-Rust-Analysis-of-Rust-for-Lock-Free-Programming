@@ -4,7 +4,7 @@ extend = [
 ]
 
 # Pairwise benchmarking, threads varies, fixed operations
-[tasks.parameter-scan-pairwise-threads]
+[tasks.parameter-scan-pairwise]
 description = "Hyperfine parameter scan over threads"
 script = [
     "export OUTPUT=${RESULT_DIR}/${FILE}",
