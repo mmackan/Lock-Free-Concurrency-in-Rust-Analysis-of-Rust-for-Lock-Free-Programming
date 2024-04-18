@@ -59,25 +59,7 @@ private = true
 description = "Measure the energy consumption of the LPRQ"
 script_runner = "bash"
 script = [
-    # Extract the maximum allowed producer and consumer based on ratio
-    ''' 
-    max_threads=$(($(nproc) / $FACTOR))
-
-    # Extract the multipliers from the ratio
-    IFS=':' read producer_multiplier consumer_multiplier <<< "$RATIO"
-
-    # Calculate maximum amount of producers & consumers for the ratio
-    min_threads=$((producer_multiplier + consumer_multiplier))
-    base=$(($max_threads / $min_threads))
-
-    producers=$(($base * producer_multiplier))
-    consumers=$(($base * consumer_multiplier))
-
-
-    export PROD=$producers
-    export CONS=$consumers
-    ''',
-
+    "source ${SCRIPT_DIR}/setup_ratio.sh $FACTOR $RATIO",
     "export OUTPUT=${RESULT_DIR}/${FILE}",
     "echo '\n'===========================================",
     "echo Energy consumption benchmark",
@@ -105,4 +87,24 @@ script = [
     "echo ' ' Threads: ${THREADS}",
     "echo ' ' Even cores: ${EVEN_CORES}",
     "bash ${SCRIPT_DIR}/congestion_benchmarks.sh ${WORKLOAD} ${FILE}"]
+private = true
+
+# Memory usage benchmark
+[tasks.memory-usage]
+description = "Measure the memory usage of the LPRQ"
+script_runner = "bash"
+script = [
+    "source ${SCRIPT_DIR}/setup_ratio.sh $FACTOR $RATIO",
+    "export OUTPUT=${RESULT_DIR}/${FILE}",
+    "echo '\n'===========================================",
+    "echo Memory usage benchmark",
+    "echo ' ' Benchmark: $TARGET",
+    "echo ' ' Runs: ${RUNS}",
+    "echo ' ' Producers: ${PROD}",
+    "echo ' ' Consumers: ${CONS}",
+    "echo ' ' Operations: 10^${LOGN}",
+    "echo ' ' Even cores: ${EVEN_CORES}",
+    "echo ' ' Congestion: ${CONGESTION}'\n'",
+    "perf stat -r ${RUNS} -B -e ${EVENTS_MEM} -o ${OUTPUT} ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} >/dev/null"
+]
 private = true
