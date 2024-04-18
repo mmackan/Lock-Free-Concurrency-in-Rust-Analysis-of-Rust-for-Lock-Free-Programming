@@ -70,7 +70,9 @@ int main(int argc, char *argv[]){
             }
 
             for (int j = 0; j < tops; j++) {
-                queue->enqueue(&j, core);
+                int* val = new int;
+                *val = j;
+                queue->enqueue(val, core);
                 if(distribution(engine) > congestion_factor){
                     delay_exec();
                 }
@@ -108,6 +110,8 @@ int main(int argc, char *argv[]){
                     for(int j = 0; j < backoff; j++) {
                         delay_exec();
                     }
+                } else {
+                    delete(val);
                 }
                 if(distribution(engine) > congestion_factor){
                     delay_exec();
