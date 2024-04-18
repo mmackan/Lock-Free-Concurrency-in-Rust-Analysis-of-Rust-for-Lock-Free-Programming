@@ -26,24 +26,13 @@ handle_mpmc() {
     local i="$2"
     local ratio="$3"
 
-    # Temporary fix for 2:1 ratio benchmarks until bug is fixed
-    if [[ $ratio == "2:1" ]]; then
-        producers="20"
-        consumers="10"
-
     # Calculate maximum amount of producers & consumers for the ratio
-    else
-        max_threads=$(($(nproc) / $FACTOR))
-
-        # Extract the multipliers from the ratio
-        IFS=':' read producer_multiplier consumer_multiplier <<< "$ratio"
-
-        min_threads=$((producer_multiplier + consumer_multiplier))
-        base=$(($max_threads / $min_threads))
-
-        producers=$(($base * producer_multiplier))
-        consumers=$(($base * consumer_multiplier))
-    fi 
+    max_threads=$(($(nproc) / $FACTOR))
+    IFS=':' read producer_multiplier consumer_multiplier <<< "$ratio"
+    min_threads=$((producer_multiplier + consumer_multiplier))
+    base=$(($max_threads / $min_threads))
+    producers=$(($base * producer_multiplier))
+    consumers=$(($base * consumer_multiplier))
 
     echo "Running mpmc $ratio benchmark with congestion level: $c"
 

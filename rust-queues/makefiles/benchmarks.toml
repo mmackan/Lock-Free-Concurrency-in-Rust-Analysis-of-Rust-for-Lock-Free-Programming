@@ -66,19 +66,13 @@ script = [
     # Extract the multipliers from the ratio
     IFS=':' read producer_multiplier consumer_multiplier <<< "$RATIO"
 
-    # Temporary fix for 2:1 ratio benchmarks until bug is fixed
-    if [[ $RATIO == "2:1" ]]; then
-        producers="20"
-        consumers="10"
-
     # Calculate maximum amount of producers & consumers for the ratio
-    else
-        min_threads=$((producer_multiplier + consumer_multiplier))
-        base=$(($max_threads / $min_threads))
+    min_threads=$((producer_multiplier + consumer_multiplier))
+    base=$(($max_threads / $min_threads))
 
-        producers=$(($base * producer_multiplier))
-        consumers=$(($base * consumer_multiplier))
-    fi
+    producers=$(($base * producer_multiplier))
+    consumers=$(($base * consumer_multiplier))
+
 
     export PROD=$producers
     export CONS=$consumers

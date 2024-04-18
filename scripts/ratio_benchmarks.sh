@@ -20,11 +20,6 @@ for ((i=1; i<=iterations; i++)); do
   producers=$((i * producer_multiplier))
   consumers=$((i * consumer_multiplier))
 
-  # Temporary fix for 2:1 ratio benchmarks until bug is fixed
-  if [[ $producer_multiplier == "2" ]] && [[ $producers -gt 20 ]]; then
-    break
-  fi  
-
   echo "Running benchmark with $producers producers and $consumers consumers"
 
   hyperfine "$BINARY $producers $consumers $LOGN $EVEN_CORES $congestion" --export-json "$temp_dir/result$i.json"
