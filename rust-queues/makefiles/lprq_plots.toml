@@ -3,42 +3,28 @@
 [tasks._graph-pairwise-lprq]
 extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON}", C_JSON = "${C_LPRQ_PW_JSON}", FILE = "${LPRQ_GRAPH_PW}", FLAGS="", LEGEND="Rust,C++"}
-[tasks.graph-pairwise-lprq]
-dependencies = ["_graph-pairwise-lprq"]
-
+private = true
 
 # MPMC comparison graphs between Rust and C
 [tasks._graph-mpmc-lprq-1-1]
 extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_11}", C_JSON = "${C_LPRQ_PC_JSON_11}", FILE = "${LPRQ_GRAPH_PC_11}", FLAGS="", LEGEND="Rust,C++"}
-[tasks.graph-mpmc-lprq-1-1]
-dependencies = ["_graph-mpmc-lprq-1-1"]
+private = true
 [tasks._graph-mpmc-lprq-2-1]
 extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PC_JSON_21}", C_JSON = "${C_LPRQ_PC_JSON_21}", FILE = "${LPRQ_GRAPH_PC_21}", FLAGS="", LEGEND="Rust,C++"}
-[tasks.graph-mpmc-lprq-2-1]
-dependencies = ["_graph-mpmc-lprq-2-1"]
-
-# All ratio comparison graphs
-[tasks.graph-mpmc-lprq]
-description = "Graphs for all ratios"
-dependencies = ["graph-mpmc-lprq-1-1", "graph-mpmc-lprq-2-1"]
+private = true
 
 # MPMC congestion graphs
-[tasks._graph-congestion-pw]
+[tasks._graph-congestion-pairwise-lprq]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_PW_CONGESTION_JSON}", C_JSON = "${C_PW_CONGESTION_JSON}", FILE = "${GRAPH_CONGESTION_PW}", FLAGS="", LEGEND="Rust,C++"}
-[tasks.graph-congestion-pw]
-dependencies = ["_graph-congestion-pw"]
-
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_CONGESTION_JSON}", C_JSON = "${C_LPRQ_PW_CONGESTION_JSON}", FILE = "${GRAPH_CONGESTION_PW}", FLAGS="", LEGEND="Rust,C++"}
+private = true
 [tasks._graph-congestion-mpmc-1-1]
 extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_PC_CONGESTION_JSON_11}", C_JSON = "${C_PC_CONGESTION_JSON_11}", FILE = "${GRAPH_CONGESTION_PC_11}", FLAGS="", LEGEND="Rust,C++"}
-[tasks.graph-congestion-mpmc-1-1]
-dependencies = ["_graph-congestion-mpmc-1-1"]
-
+private = true
 [tasks._graph-congestion-mpmc-2-1]
 extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_PC_CONGESTION_JSON_21}", C_JSON = "${C_PC_CONGESTION_JSON_21}", FILE = "${GRAPH_CONGESTION_PC_21}", FLAGS="", LEGEND="Rust,C++"}
-[tasks.graph-congestion-mpmc-2-1]
-dependencies = ["_graph-congestion-mpmc-2-1"]
+private = true

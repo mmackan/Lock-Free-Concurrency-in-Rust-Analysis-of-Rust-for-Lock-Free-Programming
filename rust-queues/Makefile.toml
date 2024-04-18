@@ -5,6 +5,8 @@ extend = [
     {path = "./makefiles/plots.toml"},
 ]
 
+# ---------------------------- General commands ----------------------------------
+
 # Build whole project
 [tasks.build]
 dependencies = ["build-rust-queues", "build-c-msq", "build-c-lprq"]
@@ -13,98 +15,133 @@ dependencies = ["build-rust-queues", "build-c-msq", "build-c-lprq"]
 [tasks.clean]
 dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]
 
-# Commands for MSQ Pairwise benchmarks
-[tasks.benchmark-pairwise-msq]
+# ---------------------------- MSQ benchmark commands ----------------------------
+
+# Commands for MSQ pairwise benchmarks
+[tasks.benchmark-msq-pw]
 description = "Parameter scan over threads for pairwise MSQ"
 dependencies = ["pairwise-msq-c", "pairwise-msq-rust"]
 
-# Command for MSQ Pairwise benchmarks
+# Command for MSQ pairwise congestion benchmark
+[tasks.benchmark-msq-congestion]
+dependencies = ["congestion-pairwise-msq-c", "congestion-pairwise-msq-rust"]
+
+# Command for all MSQ benchmarks
 [tasks.benchmark-msq]
 description = "All benchmarks for MSQ"
-dependencies = ["benchmark-pairwise-msq"]
+dependencies = ["benchmark-msq-pw", "benchmark-msq-congestion"]
 
-# Commands for LPRQ Pairwise benchmarks
-[tasks.benchmark-pairwise-lprq]
+# ---------------------------- LPRQ benchmark commands ---------------------------
+
+# Commands for LPRQ pairwise benchmarks
+[tasks.benchmark-lprq-pw]
 description = "Parameter scan over threads for pairwise LPRQ"
 dependencies = ["pairwise-lprq-c", "pairwise-lprq-rust"]
 
-# Commands for individual LPRQ MPMC ratios
-[tasks.benchmark-mpmc-lprq-1-1]
+# Command for LPRQ pairwise congestion benchmark
+[tasks.benchmark-lprq-congestion-pw]
+dependencies = ["congestion-pairwise-lprq-c", "congestion-pairwise-lprq-rust"]
+
+# Commands for LPRQ MPMC congestion benchmarks
+[tasks.benchmark-lprq-congestion-1-1]
+dependencies = ["congestion-mpmc-c-1-1", "congestion-mpmc-rust-1-1"]
+[tasks.benchmark-lprq-congestion-2-1]
+dependencies = ["congestion-mpmc-c-2-1", "congestion-mpmc-rust-2-1"]
+
+# Command for all LPRQ congestion benchmark
+[tasks.benchmark-lprq-congestion]
+dependencies = ["benchmark-lprq-congestion-pw", "benchmark-lprq-congestion-1-1", "benchmark-lprq-congestion-2-1"]
+
+# Commands for LPRQ MPMC benchmarks
+[tasks.benchmark-lprq-1-1]
 description = "LPRQ benchmark MPMC 1:1 ratio"
 dependencies = ["mpmc-lprq-c-1-1", "mpmc-lprq-rust-1-1"]
-[tasks.benchmark-mpmc-lprq-2-1]
+[tasks.benchmark-lprq-2-1]
 description = "LPRQ benchmark MPMC 2:1 ratio"
 dependencies = ["mpmc-lprq-c-2-1", "mpmc-lprq-rust-2-1"]
 
-# Command for all LPRQ MPMC ratios
-[tasks.benchmark-mpmc-lprq]
-description = "MSQ benchmark MPM all ratios"
-dependencies = ["benchmark-mpmc-lprq-1-1", "benchmark-mpmc-lprq-2-1"]
-
-# Command for LPRQ Pairwise and MPMC benchmarks
-[tasks.benchmark-lprq]
-description = "All benchmarks for LPRQ"
-dependencies = ["benchmark-pairwise-lprq", "benchmark-mpmc-lprq"]
-
-# Run all benchmarks for all queues
-[tasks.benchmark-all]
-description = "All benchmarks for all queues"
-dependencies = ["benchmark-msq", "benchmark-lprq"]
-
-# Command for MSQ Pairwise and MPMC graphs
-[tasks.graph-msq]
-description = "All graphs for MSQ"
-dependencies = ["graph-pairwise-msq"]
-
-# Command for LPRQ Pairwise and MPMC graphs
-[tasks.graph-lprq]
-description = "All graphs for LPRQ"
-dependencies = ["graph-pairwise-lprq", "graph-mpmc-lprq"]
-
 # Commands to benchmark energy consumption for mpmc ratios
-[tasks.benchmark-energy-1-1]
+[tasks.benchmark-energy-lprq-1-1]
 dependencies = ["energy-c-1-1", "energy-rust-1-1"]
-[tasks.benchmark-energy-2-1]
+[tasks.benchmark-energy-lprq-2-1]
 dependencies = ["energy-c-2-1", "energy-rust-2-1"]
 
-# Commands for congestion benchmarks
-[tasks.benchmark-congestion-pairwise]
-dependencies = ["congestion-pairwise-c", "congestion-pairwise-rust"]
-[tasks.benchmark-congestion-mpmc-1-1]
-dependencies = ["congestion-mpmc-c-1-1", "congestion-mpmc-rust-1-1"]
-[tasks.benchmark-congestion-mpmc-2-1]
-dependencies = ["congestion-mpmc-c-2-1", "congestion-mpmc-rust-2-1"]
+# Command for both energy benchmarks
+[tasks.benchmark-energy-lprq]
+dependencies = ["benchmark-energy-lprq-1-1", "benchmark-energy-lprq-2-1"]
 
-# Command to graph congestions
+# Command for all LPRQ benchmarks
+[tasks.benchmark-lprq]
+description = "All benchmarks for LPRQ"
+dependencies = ["benchmark-lprq-pw", "benchmark-lprq-congestion", "benchmark-energy-lprq"]
+
+# ---------------------------- Graphs commands ---------------------------
+
+# Commands for MSQ graphs
+[tasks.graph-msq-pw]
+dependencies = ["_graph-pairwise-msq"]
+[tasks.graph-msq-congestion-pw]
+dependencies = ["_graph-congestion-pairwise-msq"]
+
+# Command for all MSQ graphs
+[tasks.graph-msq]
+dependencies = ["graph-msq-pw", "graph-msq-congestion-pw"]
+
+# Command for LPRQ pairwise graph
+[tasks.graph-lprq-pw]
+dependencies = ["_graph-pairwise-lprq"]
+
+# Commands for LPRQ MPMC graphs
+[tasks.graph-lprq-1-1]
+dependencies = ["_graph-mpmc-lprq-1-1"]
+[tasks.graph-lprq-2-1]
+dependencies = ["_graph-mpmc-lprq-2-1"]
+
+# Commands for LPRQ congestion graphs
+[tasks.graph-lprq-congestion-pw]
+dependencies = ["_graph-congestion-pairwise-lprq"]
+[tasks.graph-lprq-congestion-1-1]
+dependencies = ["_graph-congestion-mpmc-1-1"]
+[tasks.graph-lprq-congestion-2-1]
+dependencies = ["_graph-congestion-mpmc-2-1"]
+[tasks.graph-lprq-congestions]
+dependencies = ["graph-lprq-congestion-pw", "graph-lprq-congestion-1-1", "graph-lprq-congestion-2-1"]
+
+# Command for all LPRQ graphs
+[tasks.graph-lprq]
+description = "All graphs for LPRQ"
+dependencies = ["graph-lprq-pw", "graph-lprq-1-1", "graph-lprq-2-1", "graph-lprq-congestions"]
+
+# Command for MSQ and LPRQ congestion graphs
 [tasks.graph-congestions]
-dependencies = ["graph-congestion-pw", "graph-congestion-mpmc-1-1", "graph-congestion-mpmc-2-1"]
+dependencies = ["graph-msq-congestion-pw", "graph-lprq-congestion-pw", "graph-lprq-congestion-1-1", "graph-lprq-congestion-2-1"]
 
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
 dependencies = ["graph-msq", "graph-lprq", "graph-congestions"]
 
-# Tasks that generate the graph after a sucessful benchmark in both C and Rust.
-[tasks.pw-msq]
-dependencies = ["benchmark-pairwise-msq", "graph-pairwise-msq"]
-[tasks.pw-lprq]
-dependencies = ["benchmark-pairwise-lprq", "graph-pairwise-lprq"]
-[tasks.mpmc-lprq-1-1]
-dependencies = ["benchmark-mpmc-lprq-1-1", "graph-mpmc-lprq-1-1"]
-[tasks.mpmc-lprq-2-1]
-dependencies = ["benchmark-mpmc-lprq-2-1", "graph-mpmc-lprq-2-1"]
-[tasks.pw-congestion]
-dependencies = ["benchmark-congestion-pairwise", "graph-congestion-pw"]
-[tasks.mpmc-congestion-1-1]
-dependencies = ["benchmark-congestion-mpmc-1-1", "graph-congestion-mpmc-1-1"]
-[tasks.mpmc-congestion-2-1]
-dependencies = ["benchmark-congestion-mpmc-2-1", "graph-congestion-mpmc-2-1"]
+# ---------------------------- Final commands ---------------------------
 
-# No graphs on this one
-[tasks.energy]
-dependencies = ["benchmark-energy-1-1", "benchmark-energy-2-1"]
+# Tasks that generate the graph after sucessful benchmark
+[tasks.msq-pw]
+dependencies = ["benchmark-msq-pw", "graph-msq-pw"]
+[tasks.lprq-pw]
+dependencies = ["benchmark-lprq-pw", "graph-lprq-pw"]
+[tasks.lprq-1-1]
+dependencies = ["benchmark-lprq-1-1", "graph-lprq-1-1"]
+[tasks.lprq-2-1]
+dependencies = ["benchmark-lprq-2-1", "graph-lprq-2-1"]
+[tasks.lprq-congestion-pw]
+dependencies = ["benchmark-lprq-congestion-pw", "graph-lprq-congestion-pw"]
+[tasks.lprq-congestion-1-1]
+dependencies = ["benchmark-lprq-congestion-1-1", "graph-lprq-congestion-1-1"]
+[tasks.lprq-congestion-2-1]
+dependencies = ["benchmark-lprq-congestion-2-1", "graph-lprq-congestion-2-1"]
+[tasks.energy-lprq]
+dependencies = ["benchmark-energy-lprq"]
 
 # Run all benchmarks and generate all graphs
 [tasks.run]
 description = "Run all benchmarks and generate all graphs"
-dependencies = ["pw-msq", "pw-lprq", "mpmc-lprq-1-1", "mpmc-lprq-2-1", "pw-congestion", "mpmc-congestion-1-1", "mpmc-congestion-2-1", "energy"]
+dependencies = ["msq-pw", "lprq-pw", "lprq-1-1", "lprq-2-1", "lprq-congestion-pw", "lprq-congestion-1-1", "lprq-congestion-2-1", "energy-lprq"]
