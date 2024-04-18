@@ -1,5 +1,5 @@
 #!/bin/bash
-echo HEEEEEEEEEY
+
 FACTOR=$1
 RATIO=$2
 

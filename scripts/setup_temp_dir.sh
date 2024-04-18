@@ -14,7 +14,7 @@ fi
 # Deletes the temp directory
 function cleanup {      
   rm -rf "$temp_dir"
-  echo "Deleted temp working directory $temp_dir"
+  # echo "Deleted temp working directory $temp_dir"
 }
 
 # Register the cleanup function to be called on the EXIT signal
