@@ -15,7 +15,8 @@
       };
     in pkgs.mkShell {
       packages = with pkgs; [
-        gcc
+        #gcc
+        clang
         gnumake
         cmake
 	      python3
