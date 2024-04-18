@@ -20,23 +20,6 @@ script = [
 ]
 private = true
 
-# Pairwise benchmarking, operations varies, fixed threads 
-[tasks.parameter-scan-pairwise-ops]
-description = "Hyperfine parameter scan over operations"
-script = [
-    "export OUTPUT=${RESULT_DIR}/${FILE}",
-    "export THREADS=$(($(nproc) / $FACTOR))",
-    "echo '\n'===========================================",
-    "echo Parameter scan over logn",
-    "echo ' ' Benchmark: $TARGET",
-    "echo ' ' Interval: [${MIN_LOGN}, ${MAX_LOGN}]",
-    "echo ' ' Threads: ${THREADS}",
-    "echo ' ' Even cores: ${EVEN_CORES}",
-    "echo ' ' Congestion: ${CONGESTION}'\n'",
-    "hyperfine --parameter-scan Operations ${MIN_LOGN} ${MAX_LOGN} '${BINARY} ${THREADS} {Operations} ${EVEN_CORES} ${CONGESTION}' --export-json ${OUTPUT}"
-]
-private = true
-
 # MPMC benchmark, thread varies, fixed operations
 [tasks.parameter-scan-mpmc]
 description = "Base MPMC benchmark parameter scan"

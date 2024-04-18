@@ -5,11 +5,6 @@ extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_T}", C_JSON = "${C_LPRQ_PW_JSON_T}", FILE = "${LPRQ_GRAPH_PW_T}", FLAGS="", LEGEND="Rust,C++"}
 [tasks.graph-pairwise-lprq-t]
 dependencies = ["_graph-pairwise-lprq-t"]
-[tasks._graph-pairwise-lprq-o]
-extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_O}", C_JSON = "${C_LPRQ_PW_JSON_O}", FILE = "${LPRQ_GRAPH_PW_O}", FLAGS="--log-time ", LEGEND="Rust,C++"}
-[tasks.graph-pairwise-lprq-o]
-dependencies = ["_graph-pairwise-lprq-o"]
 
 # Command to graph both categories
 [tasks.graph-pairwise-lprq]

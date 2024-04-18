@@ -3,17 +3,9 @@
 extend = "parameter-scan-pairwise-threads"
 env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", CONGESTION = "0.0", FILE = "${RUST_MSQ_PW_JSON_T}" }
 private = true
-[tasks.pairwise-msq-rust-o]
-extend = "parameter-scan-pairwise-ops"
-env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", CONGESTION = "0.0", FILE = "${RUST_MSQ_PW_JSON_O}" }
-private = true
 
 # Pairwise benchmarks (C)
 [tasks.pairwise-msq-c-t]
 extend = "parameter-scan-pairwise-threads"
 env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", CONGESTION = "0.0", FILE = "${C_MSQ_PW_JSON_T}" }
-private = true
-[tasks.pairwise-msq-c-o]
-extend = "parameter-scan-pairwise-ops"
-env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", CONGESTION = "0.0",FILE = "${C_MSQ_PW_JSON_O}" }
 private = true
