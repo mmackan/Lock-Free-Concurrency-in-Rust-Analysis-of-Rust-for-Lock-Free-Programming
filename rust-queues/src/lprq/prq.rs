@@ -10,7 +10,7 @@ use std::{
 use haphazard;
 
 // Make sure cells are on different cache lines
-#[repr(align(64))]
+#[repr(align(128))]
 struct Cell<T> {
     safe_and_epoch: AtomicUsize,
     // NOTE: This is a std::sync AtomicPtr and not the haphazard one
