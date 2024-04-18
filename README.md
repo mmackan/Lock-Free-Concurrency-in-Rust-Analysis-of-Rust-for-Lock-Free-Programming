@@ -1,12 +1,11 @@
 # DATX05-Master-Thesis
-`cd` to the `rust-queues` folder to execute cargo make commands.
+`cd` to the `rust-queues` folder to execute `cargo make` commands.
 
 
 To benchmark and gather all comparison graphs, simply build and run:
 - `cargo make build`
 - `cargo make run`
-
-**NOTE**: The last command might take some time to finnish, the following sections will provide individual commands.
+	- **NOTE:** estimated time is 10-12 hours
 
 ***
 
@@ -27,50 +26,69 @@ These commands allows you to build the whole project or just each individual que
 ***
 
 ## Benchmarking
-The benchmark workloads are Pairwise (PW) or Multi-Producer Multi-Consumer (MPMC). The producer-consumer ratio for MPMC is 1:1, 1:2, and 2:1.
+The benchmark workloads are Pairwise (PW) or Multi-Producer Multi-Consumer (MPMC). The producer-consumer ratio for MPMC is 1:1 and 2:1.
 
-PW include two categories:
-1. Scan over number of threads with fixed number of operations.
-2. Scan over number of operations with fixed number of threads.
-
-Available workloads for respective queue:
-- LPRQ supports both PW and MPMC.
 - MSQ supports only PW.
+- LPRQ supports both PW and MPMC.
 
-**All benchmarks**
-- `cargo make benchmark-all`
-
-**Individual queues**
+### All benchmarks
 - `cargo make benchmark-msq`
 - `cargo make benchmark-lprq`
 
-**Individual workloads for LPRQ**
-- `cargo make benchmark-pairwise-lprq`
-- `cargo make benchmark-mpmc-lprq`
+### Congestion benchmarks
+- `cargo make benchmark-msq-congestion`
+- `cargo make benchmark-lprq-congestion`
 
-**Individual ratios for LPRQ's MPMC workload**
-- `cargo make benchmark-mpmc-lprq-1-1`
-- `cargo make benchmark-mpmc-lprq-1-2`
-- `cargo make benchmark-mpmc-lprq-2-1`
+### Energy benchmarks
+Benchmark energy consumption using RAPL. Only for LPRQ
+- `cargo make benchmark-energy-lprq`
+- `cargo make benchmark-energy-lprq-1-1`
+- `cargo make benchmark-energy-lprq-2-1`
+
+### Individual benchmarks
+Individual commands that benchmarks both Rust and reference implementations.
+
+#### PW workload
+- `cargo make benchmark-msq-pw`
+- `cargo make benchmark-lprq-pw`
+
+#### MPMC workload
+- `cargo make benchmark-lprq-1-1`
+- `cargo make benchmark-lprq-2-1`
+
+#### Workloads with congestion
+- `cargo make benchmark-msq-congestion`
+- `cargo make benchmark-lprq-congestion-pw`
+- `cargo make benchmark-lprq-congestion-1-1`
+- `cargo make benchmark-lprq-congestion-2-1`
 
 ***
 
-## Plotting the graphs (final results)
+## Plotting graphs (final results)
 After benchmarks have been successfully executed these commands will generate graphs that show the comparison between the two languages.
 
-**Graphs for all benchmarks**
+### All graphs
 - `cargo make graph-all`
-
-**Graphs for MSQ and LPRQ respectively**
 - `cargo make graph-msq`
 - `cargo make graph-lprq`
+- `cargo make graph-congestions`
 
-**Individual workload graphs for LPRQ**
-- `cargo make graph-pairwise-lprq`
-- `cargo make graph-mpmc-lprq`
+### Individual graphs
+Individual graphs comparing Rust against the reference language.
 
-**MPMC graphs**
+#### PW workload
+- `cargo make graph-lprq-pw`
+- `cargo make graph-msq-pw`
 
-To obtain graphs for an individual ratio, append `-1-1`, `-1-2`, or `-2-1` respectively to:
-- `cargo make graph-mpmc-lprq`
+#### Workloads with congestion
+- `cargo make graph-msq-congestion-pw`
+- `cargo make graph-lprq-congestion-pw`
+- `cargo make graph-lprq-congestion-1-1`
+- `cargo make graph-lprq-congestion-2-1`
+
+#### MPMC workload
+- `cargo make graph-lprq-1-1`
+- `cargo make graph-lprq-2-1`
+
+
 
