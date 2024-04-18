@@ -1,15 +1,11 @@
 
 # Pairwise comparison graphs between Rust and C
-[tasks._graph-pairwise-lprq-t]
+[tasks._graph-pairwise-lprq]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON_T}", C_JSON = "${C_LPRQ_PW_JSON_T}", FILE = "${LPRQ_GRAPH_PW_T}", FLAGS="", LEGEND="Rust,C++"}
-[tasks.graph-pairwise-lprq-t]
-dependencies = ["_graph-pairwise-lprq-t"]
-
-# Command to graph both categories
+env = {SCRIPT = "${PARAM_PLOT}", RUST_JSON = "${RUST_LPRQ_PW_JSON}", C_JSON = "${C_LPRQ_PW_JSON}", FILE = "${LPRQ_GRAPH_PW}", FLAGS="", LEGEND="Rust,C++"}
 [tasks.graph-pairwise-lprq]
-description = "Graphs for both categories"
-dependencies = ["graph-pairwise-lprq-t", "graph-pairwise-lprq-t"]
+dependencies = ["_graph-pairwise-lprq"]
+
 
 # MPMC comparison graphs between Rust and C
 [tasks._graph-mpmc-lprq-1-1]

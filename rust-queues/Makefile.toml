@@ -14,15 +14,9 @@ dependencies = ["build-rust-queues", "build-c-msq", "build-c-lprq"]
 dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]
 
 # Commands for MSQ Pairwise benchmarks
-[tasks.benchmark-pairwise-msq-t]
-description = "Parameter scan over threads for pairwise MSQ"
-dependencies = ["pairwise-msq-c-t", "pairwise-msq-rust-t"]
-[tasks.benchmark-pairwise-msq-o]
-description = "Parameter scan over operations for pairwise MSQ"
-dependencies = ["pairwise-msq-c-o", "pairwise-msq-rust-o"]
 [tasks.benchmark-pairwise-msq]
-description = "Parameter scan for pairwise MSQ"
-dependencies = ["benchmark-pairwise-msq-t", "benchmark-pairwise-msq-o"]
+description = "Parameter scan over threads for pairwise MSQ"
+dependencies = ["pairwise-msq-c", "pairwise-msq-rust"]
 
 # Command for MSQ Pairwise benchmarks
 [tasks.benchmark-msq]
@@ -30,15 +24,9 @@ description = "All benchmarks for MSQ"
 dependencies = ["benchmark-pairwise-msq"]
 
 # Commands for LPRQ Pairwise benchmarks
-[tasks.benchmark-pairwise-lprq-t]
-description = "Parameter scan over threads for pairwise LPRQ"
-dependencies = ["pairwise-lprq-c-t", "pairwise-lprq-rust-t"]
-[tasks.benchmark-pairwise-lprq-o]
-description = "Parameter scan over operations for pairwise LPRQ"
-dependencies = ["pairwise-lprq-c-o", "pairwise-lprq-rust-o"]
 [tasks.benchmark-pairwise-lprq]
-description = "Parameter scan for pairwise LPRQ"
-dependencies = ["benchmark-pairwise-lprq-t", "benchmark-pairwise-lprq-o"]
+description = "Parameter scan over threads for pairwise LPRQ"
+dependencies = ["pairwise-lprq-c", "pairwise-lprq-rust"]
 
 # Commands for individual LPRQ MPMC ratios
 [tasks.benchmark-mpmc-lprq-1-1]
@@ -66,12 +54,12 @@ dependencies = ["benchmark-msq", "benchmark-lprq"]
 # Command for MSQ Pairwise and MPMC graphs
 [tasks.graph-msq]
 description = "All graphs for MSQ"
-dependencies = ["graph-pairwise-msq-t", "graph-pairwise-msq-o"]
+dependencies = ["graph-pairwise-msq"]
 
 # Command for LPRQ Pairwise and MPMC graphs
 [tasks.graph-lprq]
 description = "All graphs for LPRQ"
-dependencies = ["graph-pairwise-lprq-t", "graph-pairwise-lprq-o", "graph-mpmc-lprq"]
+dependencies = ["graph-pairwise-lprq", "graph-mpmc-lprq"]
 
 # Commands to benchmark energy consumption for mpmc ratios
 [tasks.benchmark-energy-1-1]
@@ -97,14 +85,10 @@ description = "Graphs for all benchmarks"
 dependencies = ["graph-msq", "graph-lprq", "graph-congestions"]
 
 # Tasks that generate the graph after a sucessful benchmark in both C and Rust.
-[tasks.pw-msq-t]
-dependencies = ["benchmark-pairwise-msq-t", "graph-pairwise-msq-t"]
-[tasks.pw-msq-o]
-dependencies = ["benchmark-pairwise-msq-o", "graph-pairwise-msq-o"]
-[tasks.pw-lprq-t]
-dependencies = ["benchmark-pairwise-lprq-t", "graph-pairwise-lprq-t"]
-[tasks.pw-lprq-o]
-dependencies = ["benchmark-pairwise-lprq-o", "graph-pairwise-lprq-o"]
+[tasks.pw-msq]
+dependencies = ["benchmark-pairwise-msq", "graph-pairwise-msq"]
+[tasks.pw-lprq]
+dependencies = ["benchmark-pairwise-lprq", "graph-pairwise-lprq"]
 [tasks.mpmc-lprq-1-1]
 dependencies = ["benchmark-mpmc-lprq-1-1", "graph-mpmc-lprq-1-1"]
 [tasks.mpmc-lprq-2-1]
@@ -123,4 +107,4 @@ dependencies = ["benchmark-energy-1-1", "benchmark-energy-2-1"]
 # Run all benchmarks and generate all graphs
 [tasks.run]
 description = "Run all benchmarks and generate all graphs"
-dependencies = ["pw-msq-t", "pw-msq-o", "pw-lprq-t", "pw-lprq-o", "mpmc-lprq-1-1", "mpmc-lprq-2-1", "pw-congestion", "mpmc-congestion-1-1", "mpmc-congestion-2-1", "energy"]
+dependencies = ["pw-msq", "pw-lprq", "mpmc-lprq-1-1", "mpmc-lprq-2-1", "pw-congestion", "mpmc-congestion-1-1", "mpmc-congestion-2-1", "energy"]

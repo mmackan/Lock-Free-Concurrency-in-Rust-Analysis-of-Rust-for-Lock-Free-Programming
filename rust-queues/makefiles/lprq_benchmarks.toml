@@ -1,13 +1,13 @@
 # Pairwise benchmarks (Rust)
-[tasks.pairwise-lprq-rust-t]
-extend = "parameter-scan-pairwise-threads"
-env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", CONGESTION = "0.0", FILE = "${RUST_LPRQ_PW_JSON_T}"}
+[tasks.pairwise-lprq-rust]
+extend = "parameter-scan-pairwise"
+env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", CONGESTION = "0.0", FILE = "${RUST_LPRQ_PW_JSON}"}
 private = true
 
 # Pairwise benchmarks (C)
-[tasks.pairwise-lprq-c-t]
-extend = "parameter-scan-pairwise-threads"
-env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", CONGESTION = "0.0", FILE = "${C_LPRQ_PW_JSON_T}"}
+[tasks.pairwise-lprq-c]
+extend = "parameter-scan-pairwise"
+env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", CONGESTION = "0.0", FILE = "${C_LPRQ_PW_JSON}"}
 private = true
 
 # MPMC benchmarks (Rust)

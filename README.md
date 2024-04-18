@@ -48,14 +48,6 @@ Available workloads for respective queue:
 - `cargo make benchmark-pairwise-lprq`
 - `cargo make benchmark-mpmc-lprq`
 
-**Individual categories for PW workload**
-
-Appending a `-t` will scan over threads, `-o` over operations
-- `cargo make benchmark-pairwise-msq-t`
-- `cargo make benchmark-pairwise-msq-o`
-- `cargo make benchmark-pairwise-lprq-t`
-- `cargo make benchmark-pairwise-lprq-o`
-
 **Individual ratios for LPRQ's MPMC workload**
 - `cargo make benchmark-mpmc-lprq-1-1`
 - `cargo make benchmark-mpmc-lprq-1-2`
@@ -76,14 +68,6 @@ After benchmarks have been successfully executed these commands will generate gr
 **Individual workload graphs for LPRQ**
 - `cargo make graph-pairwise-lprq`
 - `cargo make graph-mpmc-lprq`
-
-**Graphs for categories**
-
-Same as the PW benchmarks, `-t` for threads, `-o` for operations.
-- `cargo make graph-pairwise-msq-t`
-- `cargo make graph-pairwise-msq-o`
-- `cargo make graph-pairwise-lprq-t`
-- `cargo make graph-pairwise-lprq-o`
 
 **MPMC graphs**
 
