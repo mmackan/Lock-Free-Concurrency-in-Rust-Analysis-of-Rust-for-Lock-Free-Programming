@@ -8,9 +8,6 @@ option(CAUTIOUS_DEQUEUE "Enable preliminary emptiness check in dequeue in array-
 option(DISABLE_HP "Disable Hazard Pointers; this causes intentional memory leaks" OFF)
 option(USE_LIBCPP "Use libc++ instead of libstdc++" OFF)
 
-add_compile_options(-fsanitize=address)
-add_link_options(-fsanitize=address)
-
 if (USE_LIBCPP)
     add_compile_options(-stdlib=libc++)
     add_link_options(-stdlib=libc++ -lc++abi)
