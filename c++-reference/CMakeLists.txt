@@ -8,6 +8,9 @@ option(CAUTIOUS_DEQUEUE "Enable preliminary emptiness check in dequeue in array-
 option(DISABLE_HP "Disable Hazard Pointers; this causes intentional memory leaks" OFF)
 option(USE_LIBCPP "Use libc++ instead of libstdc++" OFF)
 
+add_compile_options(-fsanitize=address)
+add_link_options(-fsanitize=address)
+
 if (USE_LIBCPP)
     add_compile_options(-stdlib=libc++)
     add_link_options(-stdlib=libc++ -lc++abi)
@@ -49,8 +52,8 @@ function(make_bench name sources)
     endif()
 endfunction()
 
-make_bench(enq-deq "src/pairs-benchmark.cpp;src/AdditionalWork.cpp;src/Forked.cpp")
-make_bench(prod-cons "src/pc-benchmark.cpp;src/AdditionalWork.cpp;src/Forked.cpp")
+#make_bench(enq-deq "src/pairs-benchmark.cpp;src/AdditionalWork.cpp;src/Forked.cpp")
+#make_bench(prod-cons "src/pc-benchmark.cpp;src/AdditionalWork.cpp;src/Forked.cpp")
 make_bench(lprq-pairwise "src/lprq_pairwise.cpp")
 make_bench(lprq-mpmc "src/lprq_mpmc.cpp")
 

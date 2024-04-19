@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
     std::vector<std::thread> handles(numThreads);
 
     // Initialize the queue
-    auto queue = new LPRQueue<int, false, 1024, true>(numThreads);
+    auto queue = new LPRQueue<int, false, 1024, true>();
 
     int core = 0;
     for (int i = 0; i < numThreads; i++) {

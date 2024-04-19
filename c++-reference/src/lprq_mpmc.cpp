@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
     std::vector<std::thread> consumer_handles(numConsumers);
 
     // Initialize the queue
-    auto queue = new LPRQueue<int, false, 1024, true>(numProducers + numConsumers); 
+    auto queue = new LPRQueue<int, false, 1024, true>(); 
 
     int core = 0;
 

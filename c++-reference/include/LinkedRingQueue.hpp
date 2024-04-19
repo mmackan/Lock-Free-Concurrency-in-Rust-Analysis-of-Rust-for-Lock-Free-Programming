@@ -7,20 +7,17 @@
 
 
 template<class T, class Segment>
-class LinkedRingQueue : public MetricsAwareBase {
+class LinkedRingQueue {
 private:
     static constexpr int MAX_THREADS = 128;
     static constexpr int kHpTail = 0;
     static constexpr int kHpHead = 1;
-    const int maxThreads;
+    //const int maxThreads;
 
     alignas(128) std::atomic<Segment*> head;
     alignas(128) std::atomic<Segment*> tail;
 
-    HazardPointers<Segment> hp {2, maxThreads};
-
-    MetricsCollector::Accessor mAppendNode = accessor("appendNode");
-    MetricsCollector::Accessor mWasteNode = accessor("wasteNode");
+    HazardPointers<Segment> hp {2, MAX_THREADS};
 
     inline T* dequeueAfterNextLinked(Segment* lhead, int tid) {
         // This is a hack for LSCQ.
@@ -37,13 +34,11 @@ private:
 public:
     static constexpr size_t RING_SIZE = Segment::RING_SIZE;
 
-    explicit LinkedRingQueue(int maxThreads=MAX_THREADS)
-            : MetricsAwareBase(maxThreads), maxThreads{maxThreads} {
+    explicit LinkedRingQueue() {
         // Shared object init
         Segment* sentinel = new Segment(0);
         head.store(sentinel, std::memory_order_relaxed);
         tail.store(sentinel, std::memory_order_relaxed);
-        mAppendNode.inc(1, 0);
     }
 
     ~LinkedRingQueue() {
@@ -88,11 +83,9 @@ public:
             if (ltail->next.compare_exchange_strong(nullNode, newTail)) {
                 tail.compare_exchange_strong(ltail, newTail);
                 hp.clearOne(kHpTail, tid);
-                mAppendNode.inc(1, tid);
                 break;
             } else {
                 delete newTail;
-                mWasteNode.inc(1, tid);
             }
 
             ltail = hp.protectPtr(kHpTail, nullNode, tid);
