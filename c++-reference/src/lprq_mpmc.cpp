@@ -134,6 +134,8 @@ int main(int argc, char *argv[]){
         handle.join();
     }
 
+    delete queue;
+
 
     return 0;
 }

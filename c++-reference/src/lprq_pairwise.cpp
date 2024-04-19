@@ -48,7 +48,7 @@ int main(int argc, char *argv[]){
 
     int core = 0;
     for (int i = 0; i < numThreads; i++) {
-        handles[i] = std::thread([&tops, &nops, i, &queue, core, &congestion_factor](){
+        handles[i] = std::thread([&tops, i, &queue, core, &congestion_factor](){
             // Thread rng
             auto engine = std::mt19937(std::random_device{}());
             auto distribution = std::uniform_real_distribution<float>(0.0,1.0);
@@ -85,6 +85,8 @@ int main(int argc, char *argv[]){
     for (auto& handle : handles) {
         handle.join();
     }
+
+    delete queue;
 
 
     return 0;
