@@ -80,10 +80,12 @@ impl<T: 'static, const N: usize> LPRQ<T, N> {
                             return;
                         }
                         Err(next) => {
-                            let _ = self.tail.compare_exchange::<Arc<_>, Snapshot<_>, Snapshot<_>>(
-                                Some(&queue),
-                                next.as_ref(),
-                            );
+                            let _ = self
+                                .tail
+                                .compare_exchange::<Arc<_>, Snapshot<_>, Snapshot<_>>(
+                                    Some(&queue),
+                                    next.as_ref(),
+                                );
                             continue;
                         }
                     }
