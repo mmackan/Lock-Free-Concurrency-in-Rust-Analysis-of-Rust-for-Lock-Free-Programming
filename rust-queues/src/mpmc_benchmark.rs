@@ -81,7 +81,7 @@ pub fn benchmark<Q>(
         let handle = thread::spawn(move || {
             let mut rng = rand::thread_rng();
             let _ = core_affinity::set_for_current(core_id);
-            let mut backoff = 1;
+            let mut backoff = 0;
 
             loop {
                 match queue_handle.dequeue() {
@@ -90,7 +90,7 @@ pub fn benchmark<Q>(
                         if stop_flag_handle.load(SeqCst) {
                             break;
                         }
-                        backoff = backoff * 2;
+                        backoff = backoff + 1;
                         for _ in 0..backoff {
                             delay_exec();
                         }

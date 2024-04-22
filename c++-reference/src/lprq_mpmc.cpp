@@ -89,7 +89,7 @@ int main(int argc, char *argv[]){
             // Thread rng
             auto engine = std::mt19937(std::random_device{}());
             auto distribution = std::uniform_real_distribution<float>(0.0,1.0);
-            int backoff = 1;
+            int backoff = 0;
 
             // Cpu affinity
             cpu_set_t cpuset;
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]){
                     if (done.load() == true) {
                         break;
                     }
-                    backoff = backoff * 2;
+                    backoff++;
                     for(int j = 0; j < backoff; j++) {
                         delay_exec();
                     }
