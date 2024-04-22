@@ -156,6 +156,10 @@ dependencies = ["benchmark-energy-lprq"]
 [tasks.memory-lprq]
 dependencies = ["benchmark-memory-lprq"]
 
+# Task that will run Arc benchmakrs
+[tasks.benchmark-arc]
+dependencies = ["pairwise-lprq-arc", "mpmc-lprq-arc-1-1", "mpmc-lprq-arc-2-1", "energy-arc-1-1", "energy-arc-2-1", "memory-arc-1-1", "memory-arc-2-1", "congestion-pairwise-lprq-arc", "congestion-mpmc-arc-1-1", "congestion-mpmc-arc-2-1"]
+
 # Run all benchmarks and generate all graphs
 [tasks.run]
 description = "Run all benchmarks and generate all graphs"
