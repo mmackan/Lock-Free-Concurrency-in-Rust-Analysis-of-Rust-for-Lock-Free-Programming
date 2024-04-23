@@ -1,46 +1,46 @@
 # Pairwise benchmarks
 [tasks.pairwise-lprq-arc]
 extend = "parameter-scan-pairwise"
-env = { TARGET = "Pairwise LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_pairwise", CONGESTION = "0.0", FILE = "${RUST_ARC_PW_JSON}"}
+env = { TARGET = "Pairwise LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_pairwise", CONGESTION = "0.0", FILE = "${ARC_PW_JSON}"}
 private = true
 
 # MPMC benchmarks
 [tasks.mpmc-lprq-arc-1-1]
 extend = "parameter-scan-mpmc"
-env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", CONGESTION = "0.0", FILE = "${RUST_ARC_PC_JSON_11}",  RATIO = "1:1"}
+env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", CONGESTION = "0.0", FILE = "${ARC_PC_JSON_11}",  RATIO = "1:1"}
 private = true
 [tasks.mpmc-lprq-arc-2-1]
 extend = "parameter-scan-mpmc"
-env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", CONGESTION = "0.0", FILE = "${RUST_ARC_PC_JSON_21}", RATIO = "2:1"}
+env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", CONGESTION = "0.0", FILE = "${ARC_PC_JSON_21}", RATIO = "2:1"}
 private = true
 
 # MPMC energy consumption benchmarks
 [tasks.energy-arc-1-1]
 extend = "energy-consumption"
-env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${RUST_ARC_ENERGY_11}"}
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${ARC_ENERGY_11}"}
 private=true
 [tasks.energy-arc-2-1] 
 extend = "energy-consumption"
-env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${RUST_ARC_ENERGY_21}"}
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${ARC_ENERGY_21}"}
 private=true
 
 # MPMC memory usage benchmarks
 [tasks.memory-arc-1-1]
 extend = "memory-usage"
-env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${RUST_ARC_MEM_11}"}
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${ARC_MEM_11}"}
 private=true
 [tasks.memory-arc-2-1] 
 extend = "memory-usage"
-env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${RUST_ARC_MEM_21}"}
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${ARC_MEM_21}"}
 private=true
 
 # Congestion benchmarks
 [tasks.congestion-pairwise-lprq-arc]
 extend = "paramter-scan-congestion"
-env = { TARGET = "Pairwise LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_pairwise", WORKLOAD = "pairwise", FILE = "${RUST_ARC_PW_CONGESTION_JSON}"}
+env = { TARGET = "Pairwise LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_pairwise", WORKLOAD = "pairwise", FILE = "${ARC_PW_CONGESTION_JSON}"}
 [tasks.congestion-mpmc-arc-1-1]
 extend = "paramter-scan-congestion"
-env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${RUST_ARC_PC_CONGESTION_JSON_11}"}
+env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${ARC_PC_CONGESTION_JSON_11}"}
 [tasks.congestion-mpmc-arc-2-1]
 extend = "paramter-scan-congestion"
-env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", WORKLOAD = "mpmc-2:1", FILE = "${RUST_ARC_PC_CONGESTION_JSON_21}"}
+env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", WORKLOAD = "mpmc-2:1", FILE = "${ARC_PC_CONGESTION_JSON_21}"}
