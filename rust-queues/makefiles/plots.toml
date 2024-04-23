@@ -1,6 +1,7 @@
 extend = [
     {path = "./msq_plots.toml"},
     {path = "./lprq_plots.toml"},
+    {path = "./arc_plots.toml"}
 ]
 
 # Generic task for creating graphs

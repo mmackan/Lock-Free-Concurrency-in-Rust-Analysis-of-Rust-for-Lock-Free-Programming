@@ -1,0 +1,30 @@
+
+# Pairwise comparison graphs between Rust and C
+[tasks._graph-pw-arc]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PW_JSON},${ARC_PW_JSON},${C_LPRQ_PW_JSON}", FILE = "${ARC_PW}", FLAGS="", LEGEND="Rust,Arc,C++"}
+private = true
+
+# MPMC comparison graphs between Rust and C
+[tasks._graph-arc-1-1]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PC_JSON_11},${ARC_PC_JSON_11},${C_LPRQ_PC_JSON_11}", FILE = "${ARC_PC_11}", FLAGS="", LEGEND="Rust,Arc,C++"}
+private = true
+[tasks._graph-arc-2-1]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PC_JSON_21},${ARC_PC_JSON_21},${C_LPRQ_PC_JSON_21}", FILE = "${ARC_PC_21}", FLAGS="", LEGEND="Rust,Arc,C++"}
+private = true
+
+# MPMC congestion graphs
+[tasks._graph-congestion-pw-arc]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PW_CONGESTION_JSON},${ARC_PW_CONGESTION_JSON},${C_LPRQ_PW_CONGESTION_JSON}", FILE = "${ARC_CONGESTION_PW}", FLAGS="", LEGEND="Rust,Arc,C++"}
+private = true
+[tasks._graph-congestion-arc-1-1]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_PC_CONGESTION_JSON_11},${ARC_PC_CONGESTION_JSON_11},${C_PC_CONGESTION_JSON_11}", FILE = "${ARC_CONGESTION_PC_11}", FLAGS="", LEGEND="Rust,Arc,C++"}
+private = true
+[tasks._graph-congestion-arc-2-1]
+extend = "create-graph"
+env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_PC_CONGESTION_JSON_21},${ARC_PC_CONGESTION_JSON_21},${C_PC_CONGESTION_JSON_21}", FILE = "${ARC_CONGESTION_PC_21}", FLAGS="", LEGEND="Rust,Arc,C++"}
+private = true
