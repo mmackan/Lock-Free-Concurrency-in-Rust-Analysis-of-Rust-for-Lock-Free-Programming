@@ -1,6 +1,6 @@
 extend = [
     {path = "./msq_plots.toml"},
-    {path = "./lprq_plots.toml"}
+    {path = "./lprq_plots.toml"},
 ]
 
 # Generic task for creating graphs
@@ -9,7 +9,17 @@ description = "Outputs a .png of the graph"
 category = "Utility"
 script_runner = "bash"
 script = [
-    "python3 ${SCRIPT_DIR}/${SCRIPT} ${RESULT_DIR}/${RUST_JSON} ${RESULT_DIR}/${C_JSON} -o ${RESULT_DIR}/${FILE} ${FLAGS} --titles ${LEGEND}"
+    '''
+    IFS=',' read -r -a input_files <<< "$INPUT"
+    for input_file in "${input_files[@]}"
+    do
+        input+="${RESULT_DIR}/${input_file} "
+        echo $input
+    done
+
+    python3 ${SCRIPT_DIR}/${SCRIPT} $input -o ${RESULT_DIR}/${FILE} ${FLAGS} --titles ${LEGEND}
+    '''
+
 ]
 private = true
 
