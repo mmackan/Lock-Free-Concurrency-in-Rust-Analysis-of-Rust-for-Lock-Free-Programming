@@ -127,10 +127,14 @@ dependencies = ["graph-lprq-pw", "graph-lprq-1-1", "graph-lprq-2-1", "graph-lprq
 [tasks.graph-congestions]
 dependencies = ["graph-msq-congestion-pw", "graph-lprq-congestion-pw", "graph-lprq-congestion-1-1", "graph-lprq-congestion-2-1"]
 
+# Command to include Arc-version with the Rust and C++
+[tasks.graph-arc]
+dependencies = ["_graph-pw-arc", "_graph-arc-1-1", "_graph-arc-2-1", "_graph-congestion-pw-arc", "_graph-congestion-arc-1-1", "_graph-congestion-arc-2-1"]
+
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
-dependencies = ["graph-msq", "graph-lprq", "graph-congestions"]
+dependencies = ["graph-msq", "graph-lprq", "graph-congestions", "graph-arc"]
 
 # ---------------------------- Final commands ---------------------------
 

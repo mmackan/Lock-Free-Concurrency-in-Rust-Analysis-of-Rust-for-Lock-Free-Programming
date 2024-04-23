@@ -111,10 +111,6 @@ def main():
     parser.add_argument(
         "-o", "--output", help="Save image to the given filename."
     )
-    # parser.add_argument(
-    #     "--threads", help="Specify if operation scan, otherwise operation scan"
-    # )
-
     args = parser.parse_args()
     if args.parameter_name is not None:
         sys.stderr.write(
@@ -148,6 +144,9 @@ def main():
         if "rust" in filename:
             color = 'orange'
             fmt = '-o'
+        elif "arc" in filename:
+            color = 'darkorange'
+            fmt = '-.s'
         else:
             color = 'blue'
             fmt = '-v'

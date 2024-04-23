@@ -34,6 +34,7 @@ The benchmark workloads are Pairwise (PW) or Multi-Producer Multi-Consumer (MPMC
 ### All benchmarks
 - `cargo make benchmark-msq`
 - `cargo make benchmark-lprq`
+- `cargo make benchmark-arc`
 
 ### Congestion benchmarks
 - `cargo make benchmark-msq-congestion`
@@ -72,6 +73,9 @@ After benchmarks have been successfully executed these commands will generate gr
 - `cargo make graph-msq`
 - `cargo make graph-lprq`
 - `cargo make graph-congestions`
+
+**Include the Arc-version to LPRQ comparison plots**
+- `cargo make graph-arc`
 
 ### Individual graphs
 Individual graphs comparing Rust against the reference language.
