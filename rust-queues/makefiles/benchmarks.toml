@@ -98,7 +98,7 @@ script = [
     "source ${SCRIPT_DIR}/setup_ratio.sh $FACTOR $RATIO",
     "export OUTPUT=${RESULT_DIR}/${FILE}",
     "echo '\n'===========================================",
-    "echo Memory usage benchmark",
+    "echo Memory usage benchmark using perf",
     "echo ' ' Benchmark: $TARGET",
     "echo ' ' Runs: ${RUNS}",
     "echo ' ' Producers: ${PROD}",
@@ -110,22 +110,21 @@ script = [
 ]
 private = true
 
-# Memory usage (memusage) benchmark
-[tasks.memusage]
+# Memory usage (valgrind) benchmark
+[tasks.valgrind-massif]
 description = "Measure the memory usage of the LPRQ"
 script_runner = "bash"
 script = [
     "source ${SCRIPT_DIR}/setup_ratio.sh $FACTOR $RATIO",
     "export OUTPUT=${RESULT_DIR}/${FILE}",
     "echo '\n'===========================================",
-    "echo Memory usage benchmark",
+    "echo Memory usage benchmark using valgrind",
     "echo ' ' Benchmark: $TARGET",
-    "echo ' ' Runs: ${RUNS}",
     "echo ' ' Producers: ${PROD}",
     "echo ' ' Consumers: ${CONS}",
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Even cores: ${EVEN_CORES}",
     "echo ' ' Congestion: ${CONGESTION}'\n'",
-    "memusage ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} > ${OUTPUT} 2>&1"
+    "valgrind --tool=massif --stacks=yes --massif-out-file=${OUTPUT} ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} >/dev/null"
 ]
 private = true

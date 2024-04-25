@@ -70,24 +70,24 @@ extend = "memory-usage"
 env = {TARGET = "MPMC 2:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${C_MEM_21}"}
 private=true
 
-# MPMC memory usage benchmarks using memusage (Rust) 
-[tasks.memusage-rust-1-1]
-extend = "memusage"
-env = {TARGET = "MPMC 1:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${RUST_MEMUSAGE_11}"}
+# MPMC memory usage benchmarks using valgrind (Rust) 
+[tasks.valgrind-rust-1-1]
+extend = "valgrind-massif"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${RUST_VALG_11}"}
 private=true
-[tasks.memusage-rust-2-1] 
-extend = "memusage"
-env = {TARGET = "MPMC 2:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${RUST_MEMUSAGE_21}"}
+[tasks.valgrind-rust-2-1] 
+extend = "valgrind-massif"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${RUST_VALG_21}"}
 private=true
 
-# MPMC memory usage benchmarks using memusage (C++)
-[tasks.memusage-c-1-1]
-extend = "memusage"
-env = {TARGET = "MPMC 1:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${C_MEMUSAGE_11}"}
+# MPMC memory usage benchmarks using valgrind (C++)
+[tasks.valgrind-c-1-1]
+extend = "valgrind-massif"
+env = {TARGET = "MPMC 1:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${C_VALG_11}"}
 private=true
-[tasks.memusage-c-2-1] 
-extend = "memusage"
-env = {TARGET = "MPMC 2:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${C_MEMUSAGE_21}"}
+[tasks.valgrind-c-2-1] 
+extend = "valgrind-massif"
+env = {TARGET = "MPMC 2:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${C_VALG_21}"}
 private=true
 
 
