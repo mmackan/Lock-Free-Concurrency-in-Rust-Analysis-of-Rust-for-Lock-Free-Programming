@@ -14,10 +14,11 @@ script = [
     for input_file in "${input_files[@]}"
     do
         input+="${RESULT_DIR}/${input_file} "
-        echo $input
     done
 
-    python3 ${SCRIPT_DIR}/${SCRIPT} $input -o ${RESULT_DIR}/${FILE} ${FLAGS} --titles ${LEGEND}
+    mkdir -p $GRAPH_DIR
+
+    python3 ${SCRIPT_DIR}/${SCRIPT} $input -o ${GRAPH_DIR}/${FILE} ${FLAGS} --titles ${LEGEND}
     '''
 
 ]
