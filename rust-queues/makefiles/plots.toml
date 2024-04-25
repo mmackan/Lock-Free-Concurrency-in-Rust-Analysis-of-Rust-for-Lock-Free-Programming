@@ -7,7 +7,6 @@ extend = [
 # Generic task for creating graphs
 [tasks.create-graph]
 description = "Outputs a .png of the graph"
-category = "Utility"
 script_runner = "bash"
 script = [
     '''
@@ -23,4 +22,11 @@ script = [
 
 ]
 private = true
+
+[tasks.create-table]
+description = "Create table from memory and energy benchmakrs"
+script_runner = "bash"
+script = [
+    "python3 ${SCRIPT_DIR}/create_table.py ${RESULT_DIR}"
+]
 
