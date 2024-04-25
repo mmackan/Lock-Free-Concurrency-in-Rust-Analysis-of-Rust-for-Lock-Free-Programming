@@ -71,11 +71,11 @@ def process_files(dir):
         file_name = os.path.basename(file_path)
         file_type = 'TXT' if '.txt' in file_name else 'JSON'
         language = 'Rust-Arc' if 'arc' in file_name else 'Rust' if 'rust' in file_name else 'Cpp'
-        benchmark = 'mem' if 'mem' in file_name else 'energy'
+        benchmark = 'perf_mem' if 'perf_mem' in file_name else 'energy'
         ratio = '1_1' if '1_1' in file_name else '2_1'
 
         if file_type == 'TXT':
-            if benchmark == 'mem':
+            if benchmark == 'perf_mem':
                 mem_data = process_memory_file(file_path)
                 data[ratio][language].update(mem_data)
             elif benchmark == 'energy':
@@ -174,6 +174,8 @@ def main():
     args = parser.parse_args()
 
     data = process_files(args.directory)
+
+    print_data(data)
 
     # Tables for the Appendix
     create_csv(data, 'value', args.directory)
