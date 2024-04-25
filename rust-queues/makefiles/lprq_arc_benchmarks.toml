@@ -24,7 +24,7 @@ extend = "energy-consumption"
 env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${ARC_ENERGY_21}"}
 private=true
 
-# MPMC memory usage benchmarks
+# MPMC memory usage benchmarks using perf
 [tasks.memory-arc-1-1]
 extend = "memory-usage"
 env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${ARC_MEM_11}"}
@@ -32,6 +32,16 @@ private=true
 [tasks.memory-arc-2-1] 
 extend = "memory-usage"
 env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${ARC_MEM_21}"}
+private=true
+
+# MPMC memory usage benchmarks using memusage
+[tasks.memusage-arc-1-1]
+extend = "memusage"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${ARC_MEMUSAGE_11}"}
+private=true
+[tasks.memusage-arc-2-1] 
+extend = "memusage"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${ARC_MEMUSAGE_21}"}
 private=true
 
 # Congestion benchmarks
@@ -44,3 +54,4 @@ env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/releas
 [tasks.congestion-mpmc-arc-2-1]
 extend = "paramter-scan-congestion"
 env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", WORKLOAD = "mpmc-2:1", FILE = "${ARC_PC_CONGESTION_JSON_21}"}
+

@@ -80,7 +80,6 @@ dependencies = ["memory-c-2-1", "memory-rust-2-1"]
 [tasks.benchmark-memory-lprq]
 dependencies = ["benchmark-memory-lprq-1-1", "benchmark-memory-lprq-2-1"]
 
-
 # Command for all LPRQ benchmarks
 [tasks.benchmark-lprq]
 description = "All benchmarks for LPRQ"
@@ -163,6 +162,10 @@ dependencies = ["benchmark-memory-lprq"]
 # Task that will run Arc benchmakrs
 [tasks.benchmark-arc]
 dependencies = ["pairwise-lprq-arc", "mpmc-lprq-arc-1-1", "mpmc-lprq-arc-2-1", "energy-arc-1-1", "energy-arc-2-1", "memory-arc-1-1", "memory-arc-2-1", "congestion-pairwise-lprq-arc", "congestion-mpmc-arc-1-1", "congestion-mpmc-arc-2-1"]
+
+# Command for memusage benchmarks
+[tasks.benchmark-memusage]
+dependencies = ["memusage-c-1-1", "memusage-c-2-1", "memusage-arc-1-1", "memusage-arc-2-1", "memusage-rust-1-1", "memusage-rust-2-1"]
 
 # Run all benchmarks and generate all graphs
 [tasks.run]

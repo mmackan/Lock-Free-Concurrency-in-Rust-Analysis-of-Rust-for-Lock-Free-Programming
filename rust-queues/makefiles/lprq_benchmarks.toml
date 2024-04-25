@@ -30,7 +30,7 @@ extend = "parameter-scan-mpmc"
 env = { TARGET = "MPMC 2:1 LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", CONGESTION = "0.0", FILE = "${C_LPRQ_PC_JSON_21}", RATIO = "2:1"}
 private = true
 
-# MPMC energy consumption benchmarks (Rust) 
+# MPMC energy consumption benchmarks using perf (Rust) 
 [tasks.energy-rust-1-1]
 extend = "energy-consumption"
 env = {TARGET = "MPMC 1:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${RUST_ENERGY_11}"}
@@ -40,7 +40,7 @@ extend = "energy-consumption"
 env = {TARGET = "MPMC 2:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${RUST_ENERGY_21}"}
 private=true
 
-# MPMC energy consumption benchmarks (C++)
+# MPMC energy consumption benchmarks using perf (C++)
 [tasks.energy-c-1-1]
 extend = "energy-consumption"
 env = {TARGET = "MPMC 1:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${C_ENERGY_11}"}
@@ -50,7 +50,7 @@ extend = "energy-consumption"
 env = {TARGET = "MPMC 2:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${C_ENERGY_21}"}
 private=true
 
-# MPMC memory usage benchmarks (Rust) 
+# MPMC memory usage benchmarks using perf (Rust) 
 [tasks.memory-rust-1-1]
 extend = "memory-usage"
 env = {TARGET = "MPMC 1:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${RUST_MEM_11}"}
@@ -60,7 +60,7 @@ extend = "memory-usage"
 env = {TARGET = "MPMC 2:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${RUST_MEM_21}"}
 private=true
 
-# MPMC memory usage benchmarks (C++)
+# MPMC memory usage benchmarks using perf (C++)
 [tasks.memory-c-1-1]
 extend = "memory-usage"
 env = {TARGET = "MPMC 1:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${C_MEM_11}"}
@@ -69,6 +69,27 @@ private=true
 extend = "memory-usage"
 env = {TARGET = "MPMC 2:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${C_MEM_21}"}
 private=true
+
+# MPMC memory usage benchmarks using memusage (Rust) 
+[tasks.memusage-rust-1-1]
+extend = "memusage"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${RUST_MEMUSAGE_11}"}
+private=true
+[tasks.memusage-rust-2-1] 
+extend = "memusage"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${RUST_MEMUSAGE_21}"}
+private=true
+
+# MPMC memory usage benchmarks using memusage (C++)
+[tasks.memusage-c-1-1]
+extend = "memusage"
+env = {TARGET = "MPMC 1:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${C_MEMUSAGE_11}"}
+private=true
+[tasks.memusage-c-2-1] 
+extend = "memusage"
+env = {TARGET = "MPMC 2:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${C_MEMUSAGE_21}"}
+private=true
+
 
 # Congestion benchmarks (Rust)
 [tasks.congestion-pairwise-lprq-rust]

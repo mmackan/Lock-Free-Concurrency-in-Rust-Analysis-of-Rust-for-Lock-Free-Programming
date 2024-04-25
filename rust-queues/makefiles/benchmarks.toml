@@ -90,7 +90,7 @@ script = [
     "bash ${SCRIPT_DIR}/congestion_benchmarks.sh ${WORKLOAD} ${FILE}"]
 private = true
 
-# Memory usage benchmark
+# Memory usage (perf) benchmark
 [tasks.memory-usage]
 description = "Measure the memory usage of the LPRQ"
 script_runner = "bash"
@@ -107,5 +107,25 @@ script = [
     "echo ' ' Even cores: ${EVEN_CORES}",
     "echo ' ' Congestion: ${CONGESTION}'\n'",
     "perf stat -r ${RUNS} -B -e ${EVENTS_MEM} -o ${OUTPUT} ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} >/dev/null"
+]
+private = true
+
+# Memory usage (memusage) benchmark
+[tasks.memusage]
+description = "Measure the memory usage of the LPRQ"
+script_runner = "bash"
+script = [
+    "source ${SCRIPT_DIR}/setup_ratio.sh $FACTOR $RATIO",
+    "export OUTPUT=${RESULT_DIR}/${FILE}",
+    "echo '\n'===========================================",
+    "echo Memory usage benchmark",
+    "echo ' ' Benchmark: $TARGET",
+    "echo ' ' Runs: ${RUNS}",
+    "echo ' ' Producers: ${PROD}",
+    "echo ' ' Consumers: ${CONS}",
+    "echo ' ' Operations: 10^${LOGN}",
+    "echo ' ' Even cores: ${EVEN_CORES}",
+    "echo ' ' Congestion: ${CONGESTION}'\n'",
+    "memusage ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} > ${OUTPUT} 2>&1"
 ]
 private = true
