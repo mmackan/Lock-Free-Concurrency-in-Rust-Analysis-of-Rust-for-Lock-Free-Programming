@@ -1,0 +1,689 @@
+desc: --stacks=yes --massif-out-file=.//../benchmark-results/valgrind_rust_2_1.txt
+cmd: .//target/release/lprq_mpmc 24 12 7 true 0.0
+time_unit: i
+#-----------
+snapshot=0
+#-----------
+time=0
+mem_heap_B=0
+mem_heap_extra_B=0
+mem_stacks_B=0
+heap_tree=empty
+#-----------
+snapshot=1
+#-----------
+time=1628009950
+mem_heap_B=5856
+mem_heap_extra_B=248
+mem_stacks_B=1857616
+heap_tree=peak
+n1: 5856 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n0: 5856 in 9 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=2
+#-----------
+time=13297152487
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=287288
+heap_tree=empty
+#-----------
+snapshot=3
+#-----------
+time=21389461787
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=287288
+heap_tree=detailed
+n2: 11168 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 10368 0x4014169: calloc (rtld-malloc.h:44)
+  n1: 10368 0x4014169: allocate_dtv (dl-tls.c:369)
+   n1: 10368 0x4014169: _dl_allocate_tls (dl-tls.c:628)
+    n1: 10368 0x490E657: allocate_stack (allocatestack.c:429)
+     n1: 10368 0x490E657: pthread_create@@GLIBC_2.34 (pthread_create.c:652)
+      n2: 10368 0x16F1D2: std::sys::pal::unix::thread::Thread::new (thread.rs:87)
+       n1: 6912 0x129F1A: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 6912 0x129F1A: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 6912 0x129F1A: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:49)
+            n1: 6912 0x129F1A: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 6912 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 6912 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 6912 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 6912 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 6912 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 6912 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 6912 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 6912 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 6912 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 6912 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 6912 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 6912 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 6912 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+       n1: 3456 0x12A469: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 3456 0x12A469: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 3456 0x12A469: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:81)
+            n1: 3456 0x12A469: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 3456 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 3456 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 3456 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 3456 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 3456 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 3456 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 3456 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 3456 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 3456 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 3456 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 3456 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 3456 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 3456 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+ n0: 800 in 8 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=4
+#-----------
+time=29222719068
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=287288
+heap_tree=empty
+#-----------
+snapshot=5
+#-----------
+time=41247221789
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=287288
+heap_tree=empty
+#-----------
+snapshot=6
+#-----------
+time=49918068731
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=287288
+heap_tree=detailed
+n2: 11168 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 10368 0x4014169: calloc (rtld-malloc.h:44)
+  n1: 10368 0x4014169: allocate_dtv (dl-tls.c:369)
+   n1: 10368 0x4014169: _dl_allocate_tls (dl-tls.c:628)
+    n1: 10368 0x490E657: allocate_stack (allocatestack.c:429)
+     n1: 10368 0x490E657: pthread_create@@GLIBC_2.34 (pthread_create.c:652)
+      n2: 10368 0x16F1D2: std::sys::pal::unix::thread::Thread::new (thread.rs:87)
+       n1: 6912 0x129F1A: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 6912 0x129F1A: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 6912 0x129F1A: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:49)
+            n1: 6912 0x129F1A: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 6912 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 6912 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 6912 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 6912 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 6912 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 6912 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 6912 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 6912 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 6912 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 6912 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 6912 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 6912 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 6912 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+       n1: 3456 0x12A469: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 3456 0x12A469: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 3456 0x12A469: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:81)
+            n1: 3456 0x12A469: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 3456 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 3456 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 3456 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 3456 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 3456 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 3456 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 3456 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 3456 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 3456 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 3456 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 3456 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 3456 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 3456 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+ n0: 800 in 8 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=7
+#-----------
+time=56965187373
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=287288
+heap_tree=empty
+#-----------
+snapshot=8
+#-----------
+time=68047546916
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=9
+#-----------
+time=79897234665
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=10
+#-----------
+time=91009352287
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=11
+#-----------
+time=97678641510
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=12
+#-----------
+time=105387900741
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=13
+#-----------
+time=110822421963
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=14
+#-----------
+time=120608105398
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=15
+#-----------
+time=126044841211
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=detailed
+n2: 11168 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 10368 0x4014169: calloc (rtld-malloc.h:44)
+  n1: 10368 0x4014169: allocate_dtv (dl-tls.c:369)
+   n1: 10368 0x4014169: _dl_allocate_tls (dl-tls.c:628)
+    n1: 10368 0x490E657: allocate_stack (allocatestack.c:429)
+     n1: 10368 0x490E657: pthread_create@@GLIBC_2.34 (pthread_create.c:652)
+      n2: 10368 0x16F1D2: std::sys::pal::unix::thread::Thread::new (thread.rs:87)
+       n1: 6912 0x129F1A: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 6912 0x129F1A: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 6912 0x129F1A: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:49)
+            n1: 6912 0x129F1A: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 6912 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 6912 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 6912 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 6912 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 6912 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 6912 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 6912 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 6912 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 6912 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 6912 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 6912 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 6912 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 6912 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+       n1: 3456 0x12A469: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 3456 0x12A469: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 3456 0x12A469: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:81)
+            n1: 3456 0x12A469: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 3456 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 3456 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 3456 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 3456 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 3456 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 3456 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 3456 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 3456 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 3456 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 3456 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 3456 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 3456 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 3456 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+ n0: 800 in 8 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=16
+#-----------
+time=133663646676
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=17
+#-----------
+time=142370410589
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=18
+#-----------
+time=152164860783
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=19
+#-----------
+time=162900699330
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=20
+#-----------
+time=169289143235
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=21
+#-----------
+time=179925709738
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=22
+#-----------
+time=190576260565
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=23
+#-----------
+time=199090644448
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=24
+#-----------
+time=209737535745
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=25
+#-----------
+time=218255779353
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=26
+#-----------
+time=224646034952
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=detailed
+n2: 11168 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 10368 0x4014169: calloc (rtld-malloc.h:44)
+  n1: 10368 0x4014169: allocate_dtv (dl-tls.c:369)
+   n1: 10368 0x4014169: _dl_allocate_tls (dl-tls.c:628)
+    n1: 10368 0x490E657: allocate_stack (allocatestack.c:429)
+     n1: 10368 0x490E657: pthread_create@@GLIBC_2.34 (pthread_create.c:652)
+      n2: 10368 0x16F1D2: std::sys::pal::unix::thread::Thread::new (thread.rs:87)
+       n1: 6912 0x129F1A: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 6912 0x129F1A: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 6912 0x129F1A: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:49)
+            n1: 6912 0x129F1A: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 6912 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 6912 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 6912 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 6912 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 6912 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 6912 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 6912 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 6912 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 6912 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 6912 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 6912 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 6912 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 6912 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+       n1: 3456 0x12A469: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 3456 0x12A469: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 3456 0x12A469: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:81)
+            n1: 3456 0x12A469: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 3456 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 3456 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 3456 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 3456 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 3456 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 3456 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 3456 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 3456 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 3456 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 3456 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 3456 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 3456 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 3456 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+ n0: 800 in 8 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=27
+#-----------
+time=233162069846
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=28
+#-----------
+time=239548818478
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=29
+#-----------
+time=250187359012
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=30
+#-----------
+time=262972906923
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=31
+#-----------
+time=269484273428
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=detailed
+n2: 11168 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 10368 0x4014169: calloc (rtld-malloc.h:44)
+  n1: 10368 0x4014169: allocate_dtv (dl-tls.c:369)
+   n1: 10368 0x4014169: _dl_allocate_tls (dl-tls.c:628)
+    n1: 10368 0x490E657: allocate_stack (allocatestack.c:429)
+     n1: 10368 0x490E657: pthread_create@@GLIBC_2.34 (pthread_create.c:652)
+      n2: 10368 0x16F1D2: std::sys::pal::unix::thread::Thread::new (thread.rs:87)
+       n1: 6912 0x129F1A: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 6912 0x129F1A: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 6912 0x129F1A: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:49)
+            n1: 6912 0x129F1A: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 6912 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 6912 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 6912 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 6912 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 6912 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 6912 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 6912 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 6912 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 6912 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 6912 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 6912 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 6912 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 6912 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+       n1: 3456 0x12A469: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 3456 0x12A469: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 3456 0x12A469: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:81)
+            n1: 3456 0x12A469: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 3456 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 3456 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 3456 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 3456 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 3456 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 3456 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 3456 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 3456 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 3456 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 3456 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 3456 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 3456 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 3456 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+ n0: 800 in 8 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=32
+#-----------
+time=275991023828
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=33
+#-----------
+time=282501862453
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=34
+#-----------
+time=292268439732
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=35
+#-----------
+time=295526199448
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=36
+#-----------
+time=305285607322
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=37
+#-----------
+time=318301868913
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=38
+#-----------
+time=331317184157
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=39
+#-----------
+time=341077891470
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=40
+#-----------
+time=354093307294
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=41
+#-----------
+time=367108792266
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=detailed
+n2: 11168 (heap allocation functions) malloc/new/new[], --alloc-fns, etc.
+ n1: 10368 0x4014169: calloc (rtld-malloc.h:44)
+  n1: 10368 0x4014169: allocate_dtv (dl-tls.c:369)
+   n1: 10368 0x4014169: _dl_allocate_tls (dl-tls.c:628)
+    n1: 10368 0x490E657: allocate_stack (allocatestack.c:429)
+     n1: 10368 0x490E657: pthread_create@@GLIBC_2.34 (pthread_create.c:652)
+      n2: 10368 0x16F1D2: std::sys::pal::unix::thread::Thread::new (thread.rs:87)
+       n1: 6912 0x129F1A: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 6912 0x129F1A: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 6912 0x129F1A: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#0}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 6912 0x129F1A: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:49)
+            n1: 6912 0x129F1A: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 6912 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 6912 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 6912 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 6912 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 6912 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 6912 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 6912 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 6912 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 6912 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 6912 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 6912 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 6912 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 6912 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+       n1: 3456 0x12A469: spawn_unchecked_<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:567)
+        n1: 3456 0x12A469: spawn_unchecked<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:457)
+         n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:389)
+          n1: 3456 0x12A469: spawn<rust_queues::mpmc_benchmark::benchmark::{closure_env#1}<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>>, ()> (mod.rs:684)
+           n1: 3456 0x12A469: benchmark<rust_queues::lprq::lprq::SharedLPRQ<i32, 1024>> (mpmc_benchmark.rs:81)
+            n1: 3456 0x12A469: lprq_mpmc::main (lprq_mpmc.rs:18)
+             n1: 3456 0x1255B2: call_once<fn(), ()> (function.rs:250)
+              n1: 3456 0x1255B2: std::sys_common::backtrace::__rust_begin_short_backtrace (backtrace.rs:155)
+               n1: 3456 0x125658: std::rt::lang_start::{{closure}} (rt.rs:166)
+                n1: 3456 0x1432A3: call_once<(), (dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (function.rs:284)
+                 n1: 3456 0x1432A3: do_call<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panicking.rs:554)
+                  n1: 3456 0x1432A3: try<i32, &(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe)> (panicking.rs:518)
+                   n1: 3456 0x1432A3: catch_unwind<&(dyn core::ops::function::Fn<(), Output=i32> + core::marker::Sync + core::panic::unwind_safe::RefUnwindSafe), i32> (panic.rs:142)
+                    n1: 3456 0x1432A3: {closure#2} (rt.rs:148)
+                     n1: 3456 0x1432A3: do_call<std::rt::lang_start_internal::{closure_env#2}, isize> (panicking.rs:554)
+                      n1: 3456 0x1432A3: try<isize, std::rt::lang_start_internal::{closure_env#2}> (panicking.rs:518)
+                       n1: 3456 0x1432A3: catch_unwind<std::rt::lang_start_internal::{closure_env#2}, isize> (panic.rs:142)
+                        n1: 3456 0x1432A3: std::rt::lang_start_internal (rt.rs:148)
+                         n0: 3456 0x12B75A: main (in /work/rust-queues/target/release/lprq_mpmc)
+ n0: 800 in 8 places, all below massif's threshold (1.00%)
+#-----------
+snapshot=42
+#-----------
+time=373618088100
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=43
+#-----------
+time=380129517270
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=44
+#-----------
+time=386637190162
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=45
+#-----------
+time=396398193841
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=46
+#-----------
+time=402906268239
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=47
+#-----------
+time=412669035191
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=48
+#-----------
+time=419178523696
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=49
+#-----------
+time=425691796718
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty
+#-----------
+snapshot=50
+#-----------
+time=428951002374
+mem_heap_B=11168
+mem_heap_extra_B=488
+mem_stacks_B=284744
+heap_tree=empty

@@ -1,0 +1,15 @@
+# started on Mon Apr 22 23:31:29 2024
+
+
+ Performance counter stats for './/target/release/lprq_arc_mpmc 18 18 8 true 0.0' (10 runs):
+
+        5990284674      cache-references                                                        ( +-  3.18% )
+           2397566      cache-misses                     #    0.04% of all cache refs           ( +-  2.38% )
+     2374378968447      cycles                                                                  ( +-  2.48% )
+      172403241396      instructions                     #    0.07  insn per cycle              ( +-  1.85% )
+       14492052841      branches                                                                ( +-  1.07% )
+             13127      faults                                                                  ( +-  2.55% )
+                45      migrations                                                              ( +-  1.79% )
+
+            26.419 +- 0.712 seconds time elapsed  ( +-  2.70% )
+
