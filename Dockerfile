@@ -35,6 +35,9 @@ ENV CXX="clang++-17"
 
 ## End c++ segment
 
+# Install valgrind
+RUN apt-get install -y valgrind
+
 # Perf
 # And yes, building from source seems to be the best way lol
 RUN apt-get install -y build-essential flex bison git libelf-dev libtraceevent-dev
