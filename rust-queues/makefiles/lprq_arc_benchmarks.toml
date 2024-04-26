@@ -13,6 +13,10 @@ private = true
 extend = "parameter-scan-mpmc"
 env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", CONGESTION = "0.0", FILE = "${ARC_PC_JSON_21}", RATIO = "2:1"}
 private = true
+[tasks.mpmc-lprq-arc-1-2]
+extend = "parameter-scan-mpmc"
+env = { TARGET = "MPMC 1:2 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", CONGESTION = "0.0", FILE = "${ARC_PC_JSON_12}",  RATIO = "1:2" }
+private = true
 
 # MPMC energy consumption benchmarks
 [tasks.energy-arc-1-1]

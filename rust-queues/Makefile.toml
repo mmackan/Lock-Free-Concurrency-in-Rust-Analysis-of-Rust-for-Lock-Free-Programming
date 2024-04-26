@@ -59,6 +59,10 @@ dependencies = ["mpmc-lprq-c-1-1", "mpmc-lprq-rust-1-1"]
 [tasks.benchmark-lprq-2-1]
 description = "LPRQ benchmark MPMC 2:1 ratio"
 dependencies = ["mpmc-lprq-c-2-1", "mpmc-lprq-rust-2-1"]
+[tasks.benchmark-lprq-1-2]
+description = "LPRQ benchmark MPMC 1:2 ratio"
+dependencies = ["mpmc-lprq-c-1-2", "mpmc-lprq-rust-1-2", "mpmc-lprq-arc-1-2"]
+
 
 # Commands to benchmark energy consumption for mpmc ratios
 [tasks.benchmark-energy-lprq-1-1]
@@ -158,6 +162,9 @@ dependencies = ["benchmark-lprq-congestion-2-1", "graph-lprq-congestion-2-1"]
 dependencies = ["benchmark-energy-lprq"]
 [tasks.memory-lprq]
 dependencies = ["benchmark-memory-lprq"]
+
+[tasks.lprq-1-2]
+dependencies = ["benchmark-lprq-1-2", "_graph-arc-1-2"]
 
 # Task that will run Arc benchmakrs
 [tasks.benchmark-arc]
