@@ -11,6 +11,7 @@ RUN apt-get install -y curl git
 RUN apt-get install -y clang-17
 RUN apt-get install -y libc++abi1-17 libc++abi-17-dev libc++-17-dev
 RUN apt-get install -y cmake pkg-config autoconf
+RUN apt-get install -y time
 
 # jemalloc
 RUN curl -L -o jemalloc.tar.gz https://github.com/jemalloc/jemalloc/archive/refs/tags/5.3.0.tar.gz
@@ -57,5 +58,8 @@ RUN apt-get clean
 # Copy the repo into the image
 COPY . /work
 WORKDIR /work/rust-queues
+
+# Build everything
+RUN cargo make build
 
 ENTRYPOINT [ "/bin/bash"]
