@@ -48,6 +48,16 @@ extend = "valgrind-massif"
 env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${ARC_VALG_21}"}
 private=true
 
+# MPMC memory usage benchmarks using memusage
+[tasks.memusage-arc-1-1]
+extend = "memusage"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${ARC_MEMUSAGE_11}"}
+private=true
+[tasks.memusage-arc-2-1] 
+extend = "memusage"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${ARC_MEMUSAGE_21}"}
+private=true
+
 # Congestion benchmarks
 [tasks.congestion-pairwise-lprq-arc]
 extend = "paramter-scan-congestion"

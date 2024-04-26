@@ -17,7 +17,7 @@ script = [
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Even cores: ${EVEN_CORES}",
     "echo ' ' Congestion: ${CONGESTION}'\n'",
-    "hyperfine --runs 2 --parameter-scan Threads 1 ${MAX_THREADS} '${BINARY} {Threads} ${LOGN} ${EVEN_CORES} ${CONGESTION}' --export-json ${OUTPUT}"
+    "hyperfine --parameter-scan Threads 1 ${MAX_THREADS} '${BINARY} {Threads} ${LOGN} ${EVEN_CORES} ${CONGESTION}' --export-json ${OUTPUT}"
 ]
 private = true
 
@@ -126,5 +126,24 @@ script = [
     "echo ' ' Even cores: ${EVEN_CORES}",
     "echo ' ' Congestion: ${CONGESTION}'\n'",
     "valgrind --tool=massif --stacks=yes --massif-out-file=${OUTPUT} ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} >/dev/null"
+]
+private = true
+
+# Memory usage (memusage) benchmark
+[tasks.memusage]
+description = "Measure the memory usage of the LPRQ"
+script_runner = "bash"
+script = [
+    "source ${SCRIPT_DIR}/setup_ratio.sh $FACTOR $RATIO",
+    "export OUTPUT=${RESULT_DIR}/${FILE}",
+    "echo '\n'===========================================",
+    "echo Memory usage benchmark using memusage",
+    "echo ' ' Benchmark: $TARGET",
+    "echo ' ' Producers: ${PROD}",
+    "echo ' ' Consumers: ${CONS}",
+    "echo ' ' Operations: 10^${LOGN}",
+    "echo ' ' Even cores: ${EVEN_CORES}",
+    "echo ' ' Congestion: ${CONGESTION}'\n'",
+    "memusage ${BINARY} ${PROD} ${CONS} ${LOGN} ${EVEN_CORES} ${CONGESTION} > ${OUTPUT} 2>&1"
 ]
 private = true
