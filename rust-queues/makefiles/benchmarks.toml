@@ -17,7 +17,7 @@ script = [
     "echo ' ' Operations: 10^${LOGN}",
     "echo ' ' Even cores: ${EVEN_CORES}",
     "echo ' ' Congestion: ${CONGESTION}'\n'",
-    "hyperfine --parameter-scan Threads 1 ${MAX_THREADS} '${BINARY} {Threads} ${LOGN} ${EVEN_CORES} ${CONGESTION}' --export-json ${OUTPUT}"
+    "hyperfine --runs 2 --parameter-scan Threads 1 ${MAX_THREADS} '${BINARY} {Threads} ${LOGN} ${EVEN_CORES} ${CONGESTION}' --export-json ${OUTPUT}"
 ]
 private = true
 
