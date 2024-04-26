@@ -42,7 +42,7 @@ pub fn benchmark<Q>(
             let mut rng = rand::thread_rng();
 
             for j in 0..tops {
-                queue_handle.enqueue(j.try_into().unwrap());
+                queue_handle.enqueue((&(j as i32)) as *const _);
                 if rng.gen_range(0.0..1.0) > congestion_factor {
                     delay_exec();
                 }

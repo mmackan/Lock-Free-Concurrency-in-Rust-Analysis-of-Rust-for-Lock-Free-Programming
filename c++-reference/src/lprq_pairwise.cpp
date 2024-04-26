@@ -64,13 +64,11 @@ int main(int argc, char *argv[]){
             }
 
             for (int j = 0; j < tops; j++) {
-                int* val = new int;
-                *val = j;
-                queue->enqueue(val, i);
+                queue->enqueue(&j, i);
                 if(distribution(engine) > congestion_factor){
                     delay_exec();
                 }
-                delete (queue->dequeue(i));
+                queue->dequeue(i);
                 if(distribution(engine) > congestion_factor){
                     delay_exec();
                 }

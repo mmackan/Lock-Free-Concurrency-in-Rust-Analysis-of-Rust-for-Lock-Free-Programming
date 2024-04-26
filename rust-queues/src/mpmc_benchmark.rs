@@ -56,7 +56,7 @@ pub fn benchmark<Q>(
             - load balances when first segment PRQ reaches 70%
             - Benchmark runs for 1000ms, then stops */
             for j in 0..tops {
-                queue_handle.enqueue(j.try_into().unwrap());
+                queue_handle.enqueue((&(j as i32)) as *const _);
                 if rng.gen_range(0.0..1.0) > congestion_factor {
                     delay_exec();
                 }
@@ -94,7 +94,6 @@ pub fn benchmark<Q>(
                         for _ in 0..backoff {
                             delay_exec();
                         }
-
                     }
                 }
                 if rng.gen_range(0.0..1.0) > congestion_factor {
