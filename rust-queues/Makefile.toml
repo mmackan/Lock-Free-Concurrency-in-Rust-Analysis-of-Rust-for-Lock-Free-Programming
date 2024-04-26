@@ -178,4 +178,4 @@ dependencies = ["memusage-c-1-1", "memusage-c-2-1", "memusage-rust-1-1", "memusa
 # Run all benchmarks and generate all graphs
 [tasks.run]
 description = "Run all benchmarks and generate all graphs"
-dependencies = ["msq-pw", "msq-congestion-pw", "lprq-pw", "lprq-1-1", "lprq-2-1", "lprq-1-2", "lprq-congestion-pw", "lprq-congestion-1-1", "lprq-congestion-2-1", "energy-lprq", "memory-lprq"]
+dependencies = ["msq-pw", "msq-congestion-pw", "lprq-pw", "lprq-1-1", "lprq-2-1", "lprq-1-2", "lprq-congestion-pw", "lprq-congestion-1-1", "lprq-congestion-2-1", "energy-lprq", "memory-lprq", "benchmark-memusage"]
