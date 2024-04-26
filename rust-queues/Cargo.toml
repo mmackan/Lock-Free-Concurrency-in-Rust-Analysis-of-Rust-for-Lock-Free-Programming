@@ -8,7 +8,7 @@ core_affinity = "0.8.1"
 crossbeam-utils = "0.8.19"
 haphazard = "0.1.8"
 rand = "0.8"
-tikv-jemallocator = "0.5"
+#tikv-jemallocator = "0.5"
 aarc = "0.2.1"
 
 [[bin]]

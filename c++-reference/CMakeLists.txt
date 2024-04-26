@@ -18,8 +18,8 @@ include(Gtest.cmake)
 include(CLI11.cmake)
 
 # -- jemalloc
-find_package(PkgConfig REQUIRED)
-pkg_search_module(JEMALLOC REQUIRED jemalloc)
+#find_package(PkgConfig REQUIRED)
+#pkg_search_module(JEMALLOC REQUIRED jemalloc)
 # jemalloc --
 
 enable_testing()
@@ -38,8 +38,10 @@ endif()
 
 function(make_bench name sources)
     add_executable("bench-${name}" ${sources})
-    target_link_libraries("bench-${name}" PRIVATE ccqueue scqueue Threads::Threads CLI11::CLI11 ${JEMALLOC_LIBRARIES})
-    target_include_directories("bench-${name}" PRIVATE include/ ${JEMALLOC_INCLUDE_DIRS})
+    #target_link_libraries("bench-${name}" PRIVATE ccqueue scqueue Threads::Threads CLI11::CLI11 ${JEMALLOC_LIBRARIES})
+    target_link_libraries("bench-${name}" PRIVATE ccqueue scqueue Threads::Threads CLI11::CLI11)
+    #target_include_directories("bench-${name}" PRIVATE include/ ${JEMALLOC_INCLUDE_DIRS})
+    target_include_directories("bench-${name}" PRIVATE include/)
     target_compile_options("bench-${name}" PRIVATE -Wall -Wextra)
     if (CAUTIOUS_DEQUEUE)
         target_compile_definitions("bench-${name}" PRIVATE CAUTIOUS_DEQUEUE)
