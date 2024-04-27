@@ -1,15 +1,15 @@
-# started on Sat Apr 20 03:23:36 2024
+# started on Sat Apr 27 14:04:15 2024
 
 
  Performance counter stats for './/../c++-reference/build/bench-lprq-mpmc 18 18 8 true 0.0' (10 runs):
 
-        4190639985      cache-references                                                        ( +-  0.73% )
-            627174      cache-misses                     #    0.01% of all cache refs           ( +-  0.76% )
-      753293709123      cycles                                                                  ( +-  1.27% )
-      148876196271      instructions                     #    0.20  insn per cycle              ( +-  3.71% )
-       14736675319      branches                                                                ( +-  1.17% )
-              1265      faults                                                                  ( +-  1.89% )
-                37      migrations                                                              ( +-  0.83% )
+        3833693336      cache-references                                                        ( +-  2.35% )
+            239887      cache-misses                     #    0.01% of all cache refs           ( +-  1.82% )
+      797529490873      cycles                                                                  ( +-  0.94% )
+      173720716799      instructions                     #    0.22  insn per cycle              ( +-  1.81% )
+       53230171668      branches                                                                ( +-  1.92% )
+              1321      faults                                                                  ( +-  2.21% )
+                36      migrations                                                            
 
-            8.1365 +- 0.0990 seconds time elapsed  ( +-  1.22% )
+            8.5915 +- 0.0761 seconds time elapsed  ( +-  0.89% )
 
