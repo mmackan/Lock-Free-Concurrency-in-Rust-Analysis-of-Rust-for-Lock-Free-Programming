@@ -17,7 +17,7 @@ def get_files(dir, pattern):
     return files
 
 # Process text file from memory usage results
-def process_memory_file(file_path):
+def process_perf_memory(file_path):
     results = {}
     keywords = [
         'cache-references', 'cache-misses', 'cycles', 'instructions',
@@ -32,13 +32,28 @@ def process_memory_file(file_path):
     return results
 
 # Process text file from energy consumption results
-def process_energy_file(file_path):
+def process_energy(file_path):
     with open(file_path, 'r') as file:
         for line in file:
             if 'Joules' in line:
                 # Extract the Joules
                 joules = float(re.findall(r'\d+\.\d+', line)[0])
                 return {'energy (J)': {'value': joules}}
+    return {}
+
+def process_memusage(file_path):
+    pattern = re.compile(r'heap total: (\d+), heap peak: (\d+), stack peak: (\d+)')
+
+    with open(file_path, 'r') as file:
+        for line in file:
+            match = re.search(pattern, line)
+            if match:
+                ht, hp, sp = match.groups()
+                return {
+                    'heap total': {'value': int(ht)},
+                    'heap peak': {'value': int(hp)},
+                    'stack peak': {'value': int(sp)}
+                }
     return {}
 
 # Process JSON file from throughput benchmark results
@@ -71,16 +86,19 @@ def process_files(dir):
         file_name = os.path.basename(file_path)
         file_type = 'TXT' if '.txt' in file_name else 'JSON'
         language = 'Rust-Arc' if 'arc' in file_name else 'Rust' if 'rust' in file_name else 'Cpp'
-        benchmark = 'perf_mem' if 'perf_mem' in file_name else 'energy'
+        benchmark = 'perf_mem' if 'perf_mem' in file_name else 'memusage' if 'memusage' in file_name else 'energy'
         ratio = '1_1' if '1_1' in file_name else '2_1'
 
         if file_type == 'TXT':
             if benchmark == 'perf_mem':
-                mem_data = process_memory_file(file_path)
+                mem_data = process_perf_memory(file_path)
                 data[ratio][language].update(mem_data)
             elif benchmark == 'energy':
-                energy_data = process_energy_file(file_path)
+                energy_data = process_energy(file_path)
                 data[ratio][language].update(energy_data)
+            elif benchmark == 'memusage':
+                mem_data = process_memusage(file_path)
+                data[ratio][language].update(mem_data)
         elif file_type == 'JSON':
             time_data = process_time_file(file_path)
             data[ratio][language].update(time_data)
@@ -141,7 +159,7 @@ def create_csv(data, value, dir):
 
 def split_and_sort_csv(ratio, file_path, output_dir):
     # The relevant metrics for report
-    metrics = ['cache-misses', 'cache-references', 'faults', 'energy (J)', 'time (s)']
+    metrics = ['cache-misses', 'cache-references', 'faults', 'energy (J)', 'time (s)', 'heap peak', 'stack peak']
 
     with open(file_path, mode='r', newline='') as file:
         reader = csv.DictReader(file)
