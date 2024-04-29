@@ -1,4 +1,4 @@
-Language,cache-references,cache-misses,cycles,instructions,branches,faults,migrations,energy (J),time (s)
-Cpp,1.49,29.52,1.0,1.66,3.08,9.15,1.0,1.03,1.01
-Rust,1.0,1.0,1.05,1.0,1.0,1.0,1.0,1.0,1.0
-Rust-Arc,8.85,38.25,2.57,1.95,2.82,60.81,1.0,2.7,2.59
+Language,heap total,heap peak,stack peak,cache-references,cache-misses,cycles,instructions,branches,faults,migrations,energy (J),time (s)
+Cpp,1.14,1.42,1.0,1.49,29.52,1.0,1.66,3.08,9.15,1.0,1.03,1.01
+Rust,1.0,1.0,25.69,1.0,1.0,1.05,1.0,1.0,1.0,1.0,1.0,1.0
+Rust-Arc,101.14,1.69,26.45,8.85,38.25,2.57,1.95,2.82,60.81,1.0,2.7,2.59
