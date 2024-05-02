@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 core_affinity = "0.8.1"
 crossbeam-utils = "0.8.19"
+crossbeam-epoch = "0.9.18"
 #haphazard = "0.1.8"
 haphazard = {path = "haphazard/"}
 rand = "0.8"
