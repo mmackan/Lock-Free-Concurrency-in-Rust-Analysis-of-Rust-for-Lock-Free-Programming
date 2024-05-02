@@ -1,4 +1,4 @@
-use std::env::{self, args};
+use std::env::{self};
 
 /// Default exponent for # operations
 const LOGN_OPS: usize = 7;

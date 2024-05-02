@@ -1,10 +1,9 @@
-use rand::rngs::ThreadRng;
 use rand::Rng;
 use std::arch::asm;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
-use std::{thread, time};
+use std::thread;
 
 use crate::shared_queue::SharedQueue;
 

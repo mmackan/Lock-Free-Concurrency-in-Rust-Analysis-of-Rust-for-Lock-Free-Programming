@@ -7,8 +7,6 @@ use std::{
     thread,
 };
 
-use haphazard;
-
 // Make sure cells are on different cache lines
 #[repr(align(128))]
 struct Cell<T> {
@@ -93,7 +91,7 @@ pub struct PRQ<T, const N: usize> {
     tail: CachePadded<AtomicUsize>, // Top bit here is set if the queue is closed
     //closed: CachePadded<AtomicBool>,
     array: [Cell<T>; N],
-    pub next: haphazard::AtomicPtr<PRQ<T, N>>,
+    pub next: AtomicPtr<PRQ<T, N>>,
 }
 
 impl<T, const N: usize> PRQ<T, N> {
@@ -102,7 +100,7 @@ impl<T, const N: usize> PRQ<T, N> {
             head: AtomicUsize::new(N).into(),
             array: array::from_fn(|_| Default::default()),
             tail: AtomicUsize::new(N).into(),
-            next: unsafe { haphazard::AtomicPtr::new(null_mut()) },
+            next: AtomicPtr::new(null_mut()),
         }
     }
 
@@ -111,7 +109,7 @@ impl<T, const N: usize> PRQ<T, N> {
             head: AtomicUsize::new(N).into(),
             tail: AtomicUsize::new(N).into(),
             array: array::from_fn(|_| Default::default()),
-            next: unsafe { haphazard::AtomicPtr::new(null_mut()) },
+            next: AtomicPtr::new(null_mut()),
         };
         let _ = prq
             .enqueue(value_ptr)

@@ -3,10 +3,7 @@ use std::{
     array,
     fmt::Debug,
     ptr::{self},
-    sync::{
-        atomic::{AtomicPtr, AtomicUsize, Ordering},
-        Arc,
-    },
+    sync::atomic::{AtomicPtr, AtomicUsize, Ordering},
     thread,
 };
 

@@ -1,4 +1,3 @@
-use rand::rngs::ThreadRng;
 use rand::Rng;
 use std::arch::asm;
 use std::thread;
