@@ -1,0 +1,71 @@
+# Pairwise benchmarks
+[tasks.pairwise-lprq-leak]
+extend = "parameter-scan-pairwise"
+env = { TARGET = "Pairwise LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_pairwise", CONGESTION = "0.0", FILE = "${LEAK_PW_JSON}"}
+private = true
+
+# MPMC benchmarks
+[tasks.mpmc-lprq-leak-1-1]
+extend = "parameter-scan-mpmc"
+env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", CONGESTION = "0.0", FILE = "${LEAK_PC_JSON_11}",  RATIO = "1:1"}
+private = true
+[tasks.mpmc-lprq-leak-2-1]
+extend = "parameter-scan-mpmc"
+env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", CONGESTION = "0.0", FILE = "${LEAK_PC_JSON_21}", RATIO = "2:1"}
+private = true
+[tasks.mpmc-lprq-leak-1-2]
+extend = "parameter-scan-mpmc"
+env = { TARGET = "MPMC 1:2 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", CONGESTION = "0.0", FILE = "${LEAK_PC_JSON_12}",  RATIO = "1:2" }
+private = true
+
+# MPMC energy consumption benchmarks
+[tasks.energy-leak-1-1]
+extend = "energy-consumption"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${LEAK_ENERGY_11}"}
+private=true
+[tasks.energy-leak-2-1] 
+extend = "energy-consumption"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${LEAK_ENERGY_21}"}
+private=true
+
+# MPMC memory usage benchmarks using perf
+[tasks.memory-leak-1-1]
+extend = "memory-usage"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${LEAK_MEM_11}"}
+private=true
+[tasks.memory-leak-2-1] 
+extend = "memory-usage"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${LEAK_MEM_21}"}
+private=true
+
+# MPMC memory usage benchmarks using valgrind
+[tasks.valgrind-leak-1-1]
+extend = "valgrind-massif"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${LEAK_VALG_11}"}
+private=true
+[tasks.valgrind-leak-2-1] 
+extend = "valgrind-massif"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${LEAK_VALG_21}"}
+private=true
+
+# MPMC memory usage benchmarks using memusage
+[tasks.memusage-leak-1-1]
+extend = "memusage"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${LEAK_MEMUSAGE_11}"}
+private=true
+[tasks.memusage-leak-2-1] 
+extend = "memusage"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${LEAK_MEMUSAGE_21}"}
+private=true
+
+# Congestion benchmarks
+[tasks.congestion-pairwise-lprq-leak]
+extend = "paramter-scan-congestion"
+env = { TARGET = "Pairwise LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_pairwise", WORKLOAD = "pairwise", FILE = "${LEAK_PW_CONGESTION_JSON}"}
+[tasks.congestion-mpmc-leak-1-1]
+extend = "paramter-scan-congestion"
+env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${LEAK_PC_CONGESTION_JSON_11}"}
+[tasks.congestion-mpmc-leak-2-1]
+extend = "paramter-scan-congestion"
+env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", WORKLOAD = "mpmc-2:1", FILE = "${LEAK_PC_CONGESTION_JSON_21}"}
+

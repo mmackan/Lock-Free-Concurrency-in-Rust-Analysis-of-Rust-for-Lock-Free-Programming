@@ -1,7 +1,9 @@
 extend = [
     {path = "msq_benchmarks.toml"},
     {path = "lprq_benchmarks.toml"},
-    {path = "lprq_arc_benchmarks.toml"}
+    {path = "lprq_arc_benchmarks.toml"},
+    {path = "lprq_epoch_benchmarks.toml"},
+    {path = "lprq_leak_benchmarks.toml"}
 ]
 
 # Pairwise benchmarking, threads varies, fixed operations

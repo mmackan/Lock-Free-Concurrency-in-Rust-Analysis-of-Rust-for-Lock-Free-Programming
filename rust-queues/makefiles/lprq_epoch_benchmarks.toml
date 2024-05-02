@@ -1,0 +1,71 @@
+# Pairwise benchmarks
+[tasks.pairwise-lprq-epoch]
+extend = "parameter-scan-pairwise"
+env = { TARGET = "Pairwise LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_pairwise", CONGESTION = "0.0", FILE = "${EPOCH_PW_JSON}"}
+private = true
+
+# MPMC benchmarks
+[tasks.mpmc-lprq-epoch-1-1]
+extend = "parameter-scan-mpmc"
+env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", CONGESTION = "0.0", FILE = "${EPOCH_PC_JSON_11}",  RATIO = "1:1"}
+private = true
+[tasks.mpmc-lprq-epoch-2-1]
+extend = "parameter-scan-mpmc"
+env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", CONGESTION = "0.0", FILE = "${EPOCH_PC_JSON_21}", RATIO = "2:1"}
+private = true
+[tasks.mpmc-lprq-epoch-1-2]
+extend = "parameter-scan-mpmc"
+env = { TARGET = "MPMC 1:2 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", CONGESTION = "0.0", FILE = "${EPOCH_PC_JSON_12}",  RATIO = "1:2" }
+private = true
+
+# MPMC energy consumption benchmarks
+[tasks.energy-epoch-1-1]
+extend = "energy-consumption"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${EPOCH_ENERGY_11}"}
+private=true
+[tasks.energy-epoch-2-1] 
+extend = "energy-consumption"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${EPOCH_ENERGY_21}"}
+private=true
+
+# MPMC memory usage benchmarks using perf
+[tasks.memory-epoch-1-1]
+extend = "memory-usage"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${EPOCH_MEM_11}"}
+private=true
+[tasks.memory-epoch-2-1] 
+extend = "memory-usage"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${EPOCH_MEM_21}"}
+private=true
+
+# MPMC memory usage benchmarks using valgrind
+[tasks.valgrind-epoch-1-1]
+extend = "valgrind-massif"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${EPOCH_VALG_11}"}
+private=true
+[tasks.valgrind-epoch-2-1] 
+extend = "valgrind-massif"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${EPOCH_VALG_21}"}
+private=true
+
+# MPMC memory usage benchmarks using memusage
+[tasks.memusage-epoch-1-1]
+extend = "memusage"
+env = {TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", RATIO = "1:1", CONGESTION = "0.0", FILE = "${EPOCH_MEMUSAGE_11}"}
+private=true
+[tasks.memusage-epoch-2-1] 
+extend = "memusage"
+env = {TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${EPOCH_MEMUSAGE_21}"}
+private=true
+
+# Congestion benchmarks
+[tasks.congestion-pairwise-lprq-epoch]
+extend = "paramter-scan-congestion"
+env = { TARGET = "Pairwise LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_pairwise", WORKLOAD = "pairwise", FILE = "${EPOCH_PW_CONGESTION_JSON}"}
+[tasks.congestion-mpmc-epoch-1-1]
+extend = "paramter-scan-congestion"
+env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${EPOCH_PC_CONGESTION_JSON_11}"}
+[tasks.congestion-mpmc-epoch-2-1]
+extend = "paramter-scan-congestion"
+env = { TARGET = "MPMC 2:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", WORKLOAD = "mpmc-2:1", FILE = "${EPOCH_PC_CONGESTION_JSON_21}"}
+

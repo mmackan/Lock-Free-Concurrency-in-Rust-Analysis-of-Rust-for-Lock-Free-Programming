@@ -147,6 +147,12 @@ def main():
         elif "arc" in filename:
             color = 'darkorange'
             fmt = '-.s'
+        elif "epoch" in filename:
+            color = 'green'
+            fmt = '-.*'
+        elif "leak" in filename:
+            color = 'red'
+            fmt = '-.^'
         else:
             color = 'blue'
             fmt = '-v'
