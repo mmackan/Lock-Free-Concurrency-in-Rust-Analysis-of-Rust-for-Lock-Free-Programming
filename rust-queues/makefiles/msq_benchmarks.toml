@@ -1,12 +1,12 @@
 # Pairwise benchmarks (Rust)
 [tasks.pw-msq-rust]
-extend = "parameter-scan-pairwise"
+extend = "parameter-scan-pw"
 env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", CONGESTION = "0.0", FILE = "${RUST_MSQ_PW_JSON}" }
 private = true
 
 # Pairwise benchmarks (C)
 [tasks.pw-msq-c]
-extend = "parameter-scan-pairwise"
+extend = "parameter-scan-pw"
 env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", CONGESTION = "0.0", FILE = "${C_MSQ_PW_JSON}" }
 private = true
 
