@@ -1,7 +1,7 @@
 # Pairwise benchmarks
 [tasks.pw-lprq-epoch]
 extend = "parameter-scan-pw"
-env = { TARGET = "pw LPRQ (Rust Epoch)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_pw", CONGESTION = "0.0", FILE = "${EPOCH_PW_JSON}"}
+env = { TARGET = "pw LPRQ (Rust Epoch)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_pairwise", CONGESTION = "0.0", FILE = "${EPOCH_PW_JSON}"}
 private = true
 
 # MPMC benchmarks
@@ -61,7 +61,7 @@ private=true
 # Congestion benchmarks
 [tasks.congestion-pw-lprq-epoch]
 extend = "paramter-scan-congestion"
-env = { TARGET = "pw LPRQ (Rust Epoch)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_pw", WORKLOAD = "pw", FILE = "${EPOCH_PW_CONGESTION_JSON}"}
+env = { TARGET = "pw LPRQ (Rust Epoch)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_pairwise", WORKLOAD = "pairwise", FILE = "${EPOCH_PW_CONGESTION_JSON}"}
 [tasks.congestion-mpmc-epoch-1-1]
 extend = "paramter-scan-congestion"
 env = { TARGET = "MPMC 1:1 LPRQ (Rust Epoch)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${EPOCH_PC_CONGESTION_JSON_11}"}

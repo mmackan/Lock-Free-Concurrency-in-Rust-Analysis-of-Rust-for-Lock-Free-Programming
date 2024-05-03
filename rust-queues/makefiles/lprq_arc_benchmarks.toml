@@ -1,7 +1,7 @@
 # Pairwise benchmarks
 [tasks.pw-lprq-arc]
 extend = "parameter-scan-pw"
-env = { TARGET = "pw LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_pw", CONGESTION = "0.0", FILE = "${ARC_PW_JSON}"}
+env = { TARGET = "Pairwise LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_pairwise", CONGESTION = "0.0", FILE = "${ARC_PW_JSON}"}
 private = true
 
 # MPMC benchmarks
@@ -61,7 +61,7 @@ private=true
 # Congestion benchmarks
 [tasks.congestion-pw-lprq-arc]
 extend = "paramter-scan-congestion"
-env = { TARGET = "pw LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_pw", WORKLOAD = "pw", FILE = "${ARC_PW_CONGESTION_JSON}"}
+env = { TARGET = "pw LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_pairwise", WORKLOAD = "pairwise", FILE = "${ARC_PW_CONGESTION_JSON}"}
 [tasks.congestion-mpmc-arc-1-1]
 extend = "paramter-scan-congestion"
 env = { TARGET = "MPMC 1:1 LPRQ (Rust Arc)", BINARY = "${RUST_DIR}/target/release/lprq_arc_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${ARC_PC_CONGESTION_JSON_11}"}
