@@ -6,6 +6,36 @@ from pathlib import Path
 import json
 from collections import defaultdict
 
+# The relevant metrics for report
+METRICS = [
+    'cache-misses', 
+    'cache-references', 
+    'faults', 
+    'energy (J)', 
+    'time (s)', 
+    'heap peak', 
+    'stack peak',
+    # 'instructions', 
+    # 'branches', 
+    # 'cycles'
+    ] 
+
+# All the implementations
+IMPLEMENTATIONS = {
+    'arc': 'Aarc',
+    'epoch': 'Epoch',
+    'rust': 'Hazp',
+    'leak': 'Leak',
+    'c': 'Cpp'
+}
+
+# 
+BENCHMARKS = {
+    'perf_mem': 'perf_mem',
+    'memusage': 'memusage',
+    'energy': 'energy'
+}
+
 def get_files(dir, pattern):
     files = []
     
@@ -74,7 +104,7 @@ def process_time_file(file_path):
 
 def process_files(dir):
     data = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(dict))))
-    
+
     # Energy and Memory benchmark files
     files = get_files(dir, '.txt')
 
@@ -85,23 +115,36 @@ def process_files(dir):
     for file_path in files:
         file_name = os.path.basename(file_path)
         file_type = 'TXT' if '.txt' in file_name else 'JSON'
-        language = 'Rust-Arc' if 'arc' in file_name else 'Rust' if 'rust' in file_name else 'Cpp'
-        benchmark = 'perf_mem' if 'perf_mem' in file_name else 'memusage' if 'memusage' in file_name else 'energy'
         ratio = '1_1' if '1_1' in file_name else '2_1'
 
-        if file_type == 'TXT':
-            if benchmark == 'perf_mem':
-                mem_data = process_perf_memory(file_path)
-                data[ratio][language].update(mem_data)
-            elif benchmark == 'energy':
-                energy_data = process_energy(file_path)
-                data[ratio][language].update(energy_data)
-            elif benchmark == 'memusage':
-                mem_data = process_memusage(file_path)
-                data[ratio][language].update(mem_data)
+        implementation = ''
+        benchmark = ''
+
+        # Determine implementation from file name
+        for key, impl in IMPLEMENTATIONS.items():
+            if key in file_name:
+                implementation = impl
+                break
+        
+        # Determine benchmark from file name
+        for key, bm in BENCHMARKS.items():
+            if key in file_name:
+                benchmark = bm
+                break
+
+        # Process the file depending on what benchmark
+        if benchmark == 'perf_mem':
+            mem_data = process_perf_memory(file_path)
+            data[ratio][implementation].update(mem_data)
+        elif benchmark == 'energy':
+            energy_data = process_energy(file_path)
+            data[ratio][implementation].update(energy_data)
+        elif benchmark == 'memusage':
+            mem_data = process_memusage(file_path)
+            data[ratio][implementation].update(mem_data)
         elif file_type == 'JSON':
             time_data = process_time_file(file_path)
-            data[ratio][language].update(time_data)
+            data[ratio][implementation].update(time_data)
     
     normalize_data(data)
     
@@ -111,46 +154,50 @@ def find_minimums(data):
     min_values = {}
     for ratio in data:
         min_values[ratio] = {}
-        for language in data[ratio]:
-            for metric, values in data[ratio][language].items():
+        for implementation in data[ratio]:
+            for metric, values in data[ratio][implementation].items():
 
                 if metric not in min_values[ratio]:
                     min_values[ratio][metric] = float('inf')
+
+                # Something is wrong with benchmark
+                if (values['value'] == 0):
+                    values['value'] = float('inf')
                 
                 min_values[ratio][metric] = min(min_values[ratio][metric], values['value'])
     return min_values
 
-# Normalize each metric to the most efficient language
+# Normalize each metric to the most efficient implementation
 def normalize_data(data):
     min_values = find_minimums(data)
     for ratio in data:
-        for language in data[ratio]:
-            for metric, values in data[ratio][language].items():
+        for implementation in data[ratio]:
+            for metric, values in data[ratio][implementation].items():
                 normalized_value = values['value'] / min_values[ratio][metric]
                 values['normalized'] = round(normalized_value, 2)
 
 def print_data(data):
     for ratio in data:
         print(f'Ratio: {ratio}')
-        for language in data[ratio]:
-            print(f'  Language: {language}')
-            for metric, values in data[ratio][language].items():
+        for implementation in data[ratio]:
+            print(f'  Implementation: {implementation}')
+            for metric, values in data[ratio][implementation].items():
                 print(f'      {metric}: {values}')
 
 def create_csv(data, value, dir):
     for ratio in data:
         file_path = f'{dir}/ratio_{ratio}_{value}.csv'
 
-        fields = ['Language'] + list(data[ratio]['Rust'].keys())
+        fields = ['Implementation'] + list(data[ratio]['Hazp'].keys())
 
         with open(file_path, 'w', newline='') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fields)
             writer.writeheader()
 
-            for language in data[ratio]:
-                row = {'Language': language}
-                for metric in data[ratio][language]:
-                    row[metric] = data[ratio][language][metric][value]
+            for implementation in data[ratio]:
+                row = {'Implementation': implementation}
+                for metric in data[ratio][implementation]:
+                    row[metric] = data[ratio][implementation][metric][value]
 
                 writer.writerow(row)
 
@@ -158,18 +205,15 @@ def create_csv(data, value, dir):
             split_and_sort_csv(ratio, file_path, f'{dir}/tables')
 
 def split_and_sort_csv(ratio, file_path, output_dir):
-    # The relevant metrics for report
-    metrics = ['cache-misses', 'cache-references', 'faults', 'energy (J)', 'time (s)', 'heap peak', 'stack peak']
-
     with open(file_path, mode='r', newline='') as file:
         reader = csv.DictReader(file)
 
         # Dictionary to hold a lists for each metric
-        metric_data = {metric: [] for metric in metrics}
+        metric_data = {metric: [] for metric in METRICS}
 
         for row in reader:
             for metric in metric_data:
-                metric_data[metric].append((row['Language'], row[metric]))
+                metric_data[metric].append((row['Implementation'], row[metric]))
 
         # Create an output directory if it doesn't exist
         Path(output_dir).mkdir(parents=True, exist_ok=True)
