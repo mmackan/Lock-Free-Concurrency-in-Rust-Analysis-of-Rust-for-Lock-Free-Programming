@@ -12,3 +12,4 @@ pub mod lprq;
 pub mod mpmc_benchmark;
 pub mod pairwise_benchmark;
 pub mod shared_queue;
+pub mod core_utils;

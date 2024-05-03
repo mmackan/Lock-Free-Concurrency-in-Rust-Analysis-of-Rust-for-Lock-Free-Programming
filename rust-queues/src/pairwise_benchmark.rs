@@ -3,6 +3,7 @@ use std::arch::asm;
 use std::thread;
 
 use crate::shared_queue::SharedQueue;
+use crate::core_utils;
 
 use core_affinity;
 
@@ -21,7 +22,7 @@ pub fn benchmark<Q>(
     let nops = BASE.pow(logn as u32);
     let tops = nops / nprocs;
 
-    let binding = core_affinity::get_core_ids().unwrap();
+    let binding = core_utils::get_cores(even_cores_only, true);
     let mut core_ids = binding.iter();
 
     let mut handles = vec![];
@@ -32,10 +33,6 @@ pub fn benchmark<Q>(
             .next()
             .expect("Ran out of cores! Maybe used fewer threads")
             .clone();
-        if even_cores_only {
-            // Skip a core so we only use even ones, for use on the server
-            let _ = core_ids.next();
-        }
         let handle = thread::spawn(move || {
             let _ = core_affinity::set_for_current(core_id);
             let mut rng = rand::thread_rng();
