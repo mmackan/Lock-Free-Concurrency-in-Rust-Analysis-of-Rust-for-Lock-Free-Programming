@@ -1,6 +1,6 @@
 
 # Pairwise comparison graphs between Rust and C
-[tasks._graph-pairwise-lprq]
+[tasks._graph-pw-lprq]
 extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PW_JSON},${ARC_PW_JSON},${LEAK_PW_JSON},${EPOCH_PW_JSON},${C_LPRQ_PW_JSON}", FILE = "${LPRQ_GRAPH_PW}", FLAGS="", LEGEND="Hazp,Aarc,Leak,Epoch,C++"}
 private = true
@@ -20,7 +20,7 @@ env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PC_JSON_12},${ARC_PC_JSON_
 private = true
 
 # MPMC congestion graphs
-[tasks._graph-congestion-pairwise-lprq]
+[tasks._graph-congestion-pw-lprq]
 extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PW_CONGESTION_JSON},${ARC_PW_CONGESTION_JSON},${LEAK_PW_CONGESTION_JSON},${EPOCH_PW_CONGESTION_JSON},${C_LPRQ_PW_CONGESTION_JSON}", FILE = "${GRAPH_CONGESTION_PW}", FLAGS="", LEGEND="Hazp,Aarc,Leak,Epoch,C++"}
 private = true

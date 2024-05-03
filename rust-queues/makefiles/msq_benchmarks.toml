@@ -1,23 +1,23 @@
 # Pairwise benchmarks (Rust)
-[tasks.pairwise-msq-rust]
+[tasks.pw-msq-rust]
 extend = "parameter-scan-pairwise"
 env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", CONGESTION = "0.0", FILE = "${RUST_MSQ_PW_JSON}" }
 private = true
 
 # Pairwise benchmarks (C)
-[tasks.pairwise-msq-c]
+[tasks.pw-msq-c]
 extend = "parameter-scan-pairwise"
 env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", CONGESTION = "0.0", FILE = "${C_MSQ_PW_JSON}" }
 private = true
 
 # Congestion benchmarks (Rust)
-[tasks.congestion-pairwise-msq-rust]
+[tasks.congestion-pw-msq-rust]
 extend = "paramter-scan-congestion"
 env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", WORKLOAD = "pairwise", FILE = "${RUST_MSQ_PW_CONGESTION_JSON}"}
 private = true
 
 # Congestion benchmarks (C)
-[tasks.congestion-pairwise-msq-c]
+[tasks.congestion-pw-msq-c]
 extend = "paramter-scan-congestion"
 env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", WORKLOAD = "pairwise", FILE = "${C_MSQ_PW_CONGESTION_JSON}"}
 private = true

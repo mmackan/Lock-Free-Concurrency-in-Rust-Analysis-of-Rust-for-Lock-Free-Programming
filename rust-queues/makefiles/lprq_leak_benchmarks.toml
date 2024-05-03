@@ -1,7 +1,7 @@
 # Pairwise benchmarks
-[tasks.pairwise-lprq-leak]
-extend = "parameter-scan-pairwise"
-env = { TARGET = "Pairwise LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/release/lprq_leak_pairwise", CONGESTION = "0.0", FILE = "${LEAK_PW_JSON}"}
+[tasks.pw-lprq-leak]
+extend = "parameter-scan-pw"
+env = { TARGET = "pw LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/release/lprq_leak_pw", CONGESTION = "0.0", FILE = "${LEAK_PW_JSON}"}
 private = true
 
 # MPMC benchmarks
@@ -59,9 +59,9 @@ env = {TARGET = "MPMC 2:1 LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/rel
 private=true
 
 # Congestion benchmarks
-[tasks.congestion-pairwise-lprq-leak]
+[tasks.congestion-pw-lprq-leak]
 extend = "paramter-scan-congestion"
-env = { TARGET = "Pairwise LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/release/lprq_leak_pairwise", WORKLOAD = "pairwise", FILE = "${LEAK_PW_CONGESTION_JSON}"}
+env = { TARGET = "pw LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/release/lprq_leak_pw", WORKLOAD = "pw", FILE = "${LEAK_PW_CONGESTION_JSON}"}
 [tasks.congestion-mpmc-leak-1-1]
 extend = "paramter-scan-congestion"
 env = { TARGET = "MPMC 1:1 LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${LEAK_PC_CONGESTION_JSON_11}"}

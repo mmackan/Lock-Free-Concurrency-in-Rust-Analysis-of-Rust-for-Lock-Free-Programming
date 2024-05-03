@@ -1,13 +1,13 @@
 # Pairwise benchmarks (Rust)
-[tasks.pairwise-lprq-rust]
-extend = "parameter-scan-pairwise"
-env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", CONGESTION = "0.0", FILE = "${RUST_LPRQ_PW_JSON}"}
+[tasks.pw-lprq-rust]
+extend = "parameter-scan-pw"
+env = { TARGET = "pw LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pw", CONGESTION = "0.0", FILE = "${RUST_LPRQ_PW_JSON}"}
 private = true
 
-# Pairwise benchmarks (C)
-[tasks.pairwise-lprq-c]
-extend = "parameter-scan-pairwise"
-env = { TARGET = "Pairwise LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", CONGESTION = "0.0", FILE = "${C_LPRQ_PW_JSON}"}
+# pw benchmarks (C)
+[tasks.pw-lprq-c]
+extend = "parameter-scan-pw"
+env = { TARGET = "pw LPRQ (C)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pw", CONGESTION = "0.0", FILE = "${C_LPRQ_PW_JSON}"}
 private = true
 
 # MPMC benchmarks (Rust)
@@ -119,9 +119,9 @@ env = {TARGET = "MPMC 2:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-
 private=true
 
 # Congestion benchmarks (Rust)
-[tasks.congestion-pairwise-lprq-rust]
+[tasks.congestion-pw-lprq-rust]
 extend = "paramter-scan-congestion"
-env = { TARGET = "Pairwise LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pairwise", WORKLOAD = "pairwise", FILE = "${RUST_LPRQ_PW_CONGESTION_JSON}"}
+env = { TARGET = "pw LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_pw", WORKLOAD = "pw", FILE = "${RUST_LPRQ_PW_CONGESTION_JSON}"}
 [tasks.congestion-mpmc-rust-1-1]
 extend = "paramter-scan-congestion"
 env = { TARGET = "MPMC 1:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${RUST_PC_CONGESTION_JSON_11}"}
@@ -130,9 +130,9 @@ extend = "paramter-scan-congestion"
 env = { TARGET = "MPMC 2:1 LPRQ (Rust)", BINARY = "${RUST_DIR}/target/release/lprq_mpmc", WORKLOAD = "mpmc-2:1", FILE = "${RUST_PC_CONGESTION_JSON_21}"}
 
 # Congestion benchmarks (C++)
-[tasks.congestion-pairwise-lprq-c]
+[tasks.congestion-pw-lprq-c]
 extend = "paramter-scan-congestion"
-env = { TARGET = "Pairwise LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pairwise", WORKLOAD = "pairwise", FILE = "${C_LPRQ_PW_CONGESTION_JSON}"}
+env = { TARGET = "pw LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-pw", WORKLOAD = "pw", FILE = "${C_LPRQ_PW_CONGESTION_JSON}"}
 [tasks.congestion-mpmc-c-1-1]
 extend = "paramter-scan-congestion"
 env = { TARGET = "MPMC 1:1 LPRQ (C++)", BINARY = "${C_LPRQ_DIR}/build/bench-lprq-mpmc", WORKLOAD = "mpmc-1:1", FILE = "${C_PC_CONGESTION_JSON_11}"}
