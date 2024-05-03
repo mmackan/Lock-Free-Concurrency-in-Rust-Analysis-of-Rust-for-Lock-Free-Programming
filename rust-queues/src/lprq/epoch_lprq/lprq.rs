@@ -52,7 +52,7 @@ impl<T, const N: usize> Drop for LPRQ<T, N> {
         let tail = self.tail.load(SeqCst, guard);
         // The queue should be empty now, but dubblecheck for safety
         if head == tail {
-            let _ = unsafe { head.into_owned() };
+            let _ = unsafe {guard.defer_destroy(head)};
         } else {
             panic!("Drop for LPRQ somehow failed to dequeue all its items")
         }
@@ -111,10 +111,7 @@ impl<T, const N: usize> LPRQ<T, N> {
                                 guard,
                             );
                             // Drop the failed new tail so it does not leak
-                            // Since the failed new tail did not get written anywhere, we can save
-                            // some time by not defering a deallocation and instead removing it
-                            // directly
-                            let _ = unsafe { new_tail.into_owned() };
+                            unsafe {guard.defer_destroy(new_tail_shared)};
                             continue;
                         }
                     }
@@ -151,10 +148,8 @@ impl<T, const N: usize> LPRQ<T, N> {
                                 ) {
                                     Ok(old) => {
                                         // The old PRQ is now empty, so we defer deleting it
-                                        // Safety: The pointer is send, but rust can't prove it
-                                        // so we have to use defer_unchecked
                                         unsafe {
-                                            guard.defer_unchecked(move || old.into_owned());
+                                            guard.defer_destroy(old);
                                         }
                                         continue;
                                     }
