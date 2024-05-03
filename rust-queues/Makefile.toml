@@ -180,9 +180,12 @@ dependencies = ["memusage-c-1-1", "memusage-c-2-1", "memusage-rust-1-1", "memusa
 dependencies = ["pairwise-lprq-epoch", "mpmc-lprq-epoch-1-1", "mpmc-lprq-epoch-2-1", "mpmc-lprq-epoch-1-2", "energy-epoch-1-1", "energy-epoch-2-1", "memory-epoch-1-1", "memory-epoch-2-1", "memusage-epoch-1-1", "memusage-epoch-2-1", "congestion-pairwise-lprq-epoch", "congestion-mpmc-epoch-1-1", "congestion-mpmc-epoch-2-1"]
 [tasks.benchmark-leaking]
 dependencies = ["pairwise-lprq-leak", "mpmc-lprq-leak-1-1", "mpmc-lprq-leak-2-1", "mpmc-lprq-leak-1-2", "energy-leak-1-1", "energy-leak-2-1", "memory-leak-1-1", "memory-leak-2-1", "memusage-leak-1-1", "memusage-leak-2-1", "congestion-pairwise-lprq-leak", "congestion-mpmc-leak-1-1", "congestion-mpmc-leak-2-1"]
-[tasks.benchmark-alt]
-dependencies = ["benchmark-epoch", "benchmark-leaking"]
+[tasks.benchmark-hazp]
+dependencies = ["pairwise-lprq-rust", "mpmc-lprq-rust-1-1", "mpmc-lprq-rust-2-1", "mpmc-lprq-rust-1-2", "energy-rust-1-1", "energy-rust-2-1", "memory-rust-1-1", "memory-rust-2-1", "memusage-rust-1-1", "memusage-rust-2-1", "congestion-pairwise-lprq-rust", "congestion-mpmc-rust-1-1", "congestion-mpmc-rust-2-1"]
 
+# Benchmark all Rust versions
+[tasks.benchmark-rust]
+dependencies = ["benchmark-epoch", "benchmark-leaking", "benchmark-hazp"]
 
 # Run all benchmarks and generate all graphs
 [tasks.run]
