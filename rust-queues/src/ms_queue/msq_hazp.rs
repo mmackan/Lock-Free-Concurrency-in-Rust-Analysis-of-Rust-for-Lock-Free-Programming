@@ -220,44 +220,51 @@ mod test {
     use std::sync::Arc;
     use std::thread;
 
+    const NUMBERS: [i32;100] = {
+        let mut output = [0;100];
+        let mut i = 0;
+        while i < 100 {
+            output[i as usize] = i;
+            i += 1;
+        }
+        output
+    };
+
     #[test]
     fn basics() {
         let queue = Queue::new();
         let mut hazp = HazardPointer::new();
         let mut hazp2 = HazardPointer::new();
 
-        // Populate list
-        let numbers = [1, 2, 3, 4, 5, 6, 7];
-        queue.enqueue(&numbers[0] as *const _, &mut hazp);
-        queue.enqueue(&numbers[1] as *const _, &mut hazp);
-        queue.enqueue(&numbers[2] as *const _, &mut hazp);
+        // Populate queue
+        queue.enqueue(&NUMBERS[0], &mut hazp);
+        queue.enqueue(&NUMBERS[1] as *const _, &mut hazp);
+        queue.enqueue(&NUMBERS[2] as *const _, &mut hazp);
 
         // Normal removal
+        assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 0);
         assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 1);
-        assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 2);
 
         // Dequeue after dequeues
-        queue.enqueue(&numbers[3] as *const _, &mut hazp);
-        queue.enqueue(&numbers[4] as *const _, &mut hazp);
+        queue.enqueue(&NUMBERS[3] as *const _, &mut hazp);
+        queue.enqueue(&NUMBERS[4] as *const _, &mut hazp);
 
         // Normal removal to exhaustion
+        assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 2);
         assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 3);
         assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 4);
-        assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 5);
         assert_eq!(queue.dequeue(&mut hazp, &mut hazp2), None);
 
         // Check the exhaustion case fixed the pointer right
-        queue.enqueue(&numbers[5] as *const _, &mut hazp);
-        queue.enqueue(&numbers[6] as *const _, &mut hazp);
+        queue.enqueue(&NUMBERS[5] as *const _, &mut hazp);
+        queue.enqueue(&NUMBERS[6] as *const _, &mut hazp);
 
         // Normal removal again
+        assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 5);
         assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 6);
-        assert_eq!(unsafe { *queue.dequeue(&mut hazp, &mut hazp2).unwrap() }, 7);
         assert_eq!(queue.dequeue(&mut hazp, &mut hazp2), None);
     }
 
-    // Disabeling these tests for now to avoid having to rewrite all of them
-    /*
     #[test]
     fn basic_concurrent() {
         let queue = Arc::new(Queue::new());
@@ -269,7 +276,7 @@ mod test {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
                 let mut hazp = HazardPointer::new();
-                queue.enqueue(i, &mut hazp)
+                queue.enqueue(&NUMBERS[i], &mut hazp)
             });
             handles.push(handle);
         }
@@ -282,13 +289,13 @@ mod test {
         let mut hazp2 = HazardPointer::new();
         let mut dequeue_sum = 0;
         while let Some(value) = queue.dequeue(&mut hazp, &mut hazp2) {
-            dequeue_sum += value;
+            dequeue_sum += unsafe {*value};
         }
 
         // Sum of first n natural numbers (0 to n-1)
         let expected_sum = n * (n - 1) / 2;
 
-        assert_eq!(expected_sum, dequeue_sum, "Sums do not match!");
+        assert_eq!(expected_sum, dequeue_sum.try_into().unwrap(), "Sums do not match!");
     }
 
     #[test]
@@ -308,7 +315,7 @@ mod test {
             let handle = thread::spawn(move || {
                 let mut hazp = HazardPointer::new();
                 let mut hazp2 = HazardPointer::new();
-                queue.enqueue(i, &mut hazp);
+                queue.enqueue(&NUMBERS[i], &mut hazp);
                 thread::sleep(dur);
                 let _v = queue.dequeue(&mut hazp, &mut hazp2).unwrap();
             });
@@ -324,5 +331,4 @@ mod test {
         let mut hazp2 = HazardPointer::new();
         assert_eq!(queue.dequeue(&mut hazp, &mut hazp2), None);
     }
-    */
 }

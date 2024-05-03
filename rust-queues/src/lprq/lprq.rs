@@ -80,7 +80,9 @@ impl<T, const N: usize> LPRQ<T, N> {
             let queue = self.tail.safe_load(hazard).unwrap();
             let queue_ptr: *const PRQ<T, N> = queue;
             match queue.enqueue(val) {
-                Ok(_) => return,
+                Ok(_) => {
+                    return
+                },
                 Err(_) => {
                     // Slow path: Tail is full, allocate and add a new crq
                     let new_tail: AtomicPtr<PRQ<T, N>> =
@@ -169,8 +171,6 @@ impl<T, const N: usize> LPRQ<T, N> {
     }
 }
 
-// Turn off the tests for now
-/*
 #[cfg(test)]
 mod test {
     use std::{sync::Arc, thread};
@@ -179,16 +179,26 @@ mod test {
 
     use super::LPRQ;
 
+    const NUMBERS: [i32;100] = {
+        let mut output = [0;100];
+        let mut i = 0;
+        while i < 100 {
+            output[i as usize] = i;
+            i += 1;
+        }
+        output
+    };
     #[test]
     fn basic() {
         let queue: LPRQ<i32, 10> = LPRQ::new();
         let mut hazard = HazardPointer::new();
-        for i in 0..123 {
-            queue.enqueue((&i) as *const _, &mut hazard);
+        for i in NUMBERS {
+            queue.enqueue((&NUMBERS[i as usize]) as *const _, &mut hazard);
         }
         let mut hazard2 = HazardPointer::new();
-        for i in 0..123 {
-            assert_eq!(queue.dequeue(&mut hazard, &mut hazard2), Some(i));
+        for i in NUMBERS {
+            let v = queue.dequeue(&mut hazard, &mut hazard2).unwrap();
+            assert_eq!(unsafe {*v}, NUMBERS[i as usize]);
         }
     }
 
@@ -202,8 +212,8 @@ mod test {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
                 let mut hazard = HazardPointer::new();
-                for j in 0..23 {
-                    queue.enqueue(j + i, &mut hazard)
+                for j in 0..10 {
+                    queue.enqueue(&NUMBERS[j + i], &mut hazard)
                 }
             });
             handles.push(handle);
@@ -220,7 +230,7 @@ mod test {
             let handle = thread::spawn(move || {
                 let mut hazard1 = HazardPointer::new();
                 let mut hazard2 = HazardPointer::new();
-                for _j in 0..23 {
+                for _j in 0..10 {
                     queue.dequeue(&mut hazard1, &mut hazard2).unwrap();
                 }
             });
@@ -242,8 +252,8 @@ mod test {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
                 let mut hazard = HazardPointer::new();
-                for j in 0..2 {
-                    queue.enqueue(j + i, &mut hazard)
+                for j in 0..10 {
+                    queue.enqueue(&NUMBERS[j + i], &mut hazard)
                 }
             });
             handles.push(handle);
@@ -260,7 +270,7 @@ mod test {
             let handle = thread::spawn(move || {
                 let mut hazard1 = HazardPointer::new();
                 let mut hazard2 = HazardPointer::new();
-                for _j in 0..1 {
+                for _j in 0..5 {
                     queue.dequeue(&mut hazard1, &mut hazard2).unwrap();
                 }
             });
@@ -273,4 +283,3 @@ mod test {
         Domain::global().eager_reclaim();
     }
 }
-*/

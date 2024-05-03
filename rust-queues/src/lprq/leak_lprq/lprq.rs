@@ -139,26 +139,30 @@ impl<T, const N: usize> LPRQ<T, N> {
     }
 }
 
-// Turn off the tests for now
-/*
 #[cfg(test)]
 mod test {
     use std::{sync::Arc, thread};
 
-    use haphazard::{Domain, HazardPointer};
-
     use super::LPRQ;
 
+    const NUMBERS: [i32;100] = {
+        let mut output = [0;100];
+        let mut i = 0;
+        while i < 100 {
+            output[i as usize] = i;
+            i += 1;
+        }
+        output
+    };
     #[test]
     fn basic() {
         let queue: LPRQ<i32, 10> = LPRQ::new();
-        let mut hazard = HazardPointer::new();
-        for i in 0..123 {
-            queue.enqueue((&i) as *const _, &mut hazard);
+        for i in NUMBERS {
+            queue.enqueue((&NUMBERS[i as usize]) as *const _);
         }
-        let mut hazard2 = HazardPointer::new();
-        for i in 0..123 {
-            assert_eq!(queue.dequeue(&mut hazard, &mut hazard2), Some(i));
+        for i in NUMBERS {
+            let v = queue.dequeue().unwrap();
+            assert_eq!(unsafe {*v}, NUMBERS[i as usize]);
         }
     }
 
@@ -171,9 +175,8 @@ mod test {
         for i in 0..10 {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
-                let mut hazard = HazardPointer::new();
-                for j in 0..23 {
-                    queue.enqueue(j + i, &mut hazard)
+                for j in 0..10 {
+                    queue.enqueue(&NUMBERS[j + i])
                 }
             });
             handles.push(handle);
@@ -188,10 +191,8 @@ mod test {
         for _i in 0..10 {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
-                let mut hazard1 = HazardPointer::new();
-                let mut hazard2 = HazardPointer::new();
-                for _j in 0..23 {
-                    queue.dequeue(&mut hazard1, &mut hazard2).unwrap();
+                for _j in 0..10 {
+                    queue.dequeue().unwrap();
                 }
             });
             handles.push(handle);
@@ -200,7 +201,6 @@ mod test {
             let _ = handle.join();
         }
         drop(queue);
-        Domain::global().eager_reclaim();
     }
     #[test]
     fn dropping_with_non_empty() {
@@ -211,9 +211,8 @@ mod test {
         for i in 0..10 {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
-                let mut hazard = HazardPointer::new();
-                for j in 0..2 {
-                    queue.enqueue(j + i, &mut hazard)
+                for j in 0..10 {
+                    queue.enqueue(&NUMBERS[j + i])
                 }
             });
             handles.push(handle);
@@ -228,10 +227,8 @@ mod test {
         for _i in 0..10 {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
-                let mut hazard1 = HazardPointer::new();
-                let mut hazard2 = HazardPointer::new();
-                for _j in 0..1 {
-                    queue.dequeue(&mut hazard1, &mut hazard2).unwrap();
+                for _j in 0..5 {
+                    queue.dequeue().unwrap();
                 }
             });
             handles.push(handle);
@@ -240,7 +237,5 @@ mod test {
             let _ = handle.join();
         }
         drop(queue);
-        Domain::global().eager_reclaim();
     }
 }
-*/

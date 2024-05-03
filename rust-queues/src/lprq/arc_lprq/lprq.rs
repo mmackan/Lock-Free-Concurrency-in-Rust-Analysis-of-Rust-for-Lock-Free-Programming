@@ -130,22 +130,31 @@ impl<T: 'static, const N: usize> LPRQ<T, N> {
         }
     }
 }
-// Disabeling tests for now
-/*
+
 #[cfg(test)]
 mod test {
     use std::{sync::Arc, thread};
 
     use super::LPRQ;
 
+    const NUMBERS: [i32;100] = {
+        let mut output = [0;100];
+        let mut i = 0;
+        while i < 100 {
+            output[i as usize] = i;
+            i += 1;
+        }
+        output
+    };
     #[test]
     fn basic() {
         let queue: LPRQ<i32, 10> = LPRQ::new();
-        for i in 0..123 {
-            queue.enqueue(i);
+        for i in NUMBERS {
+            queue.enqueue((&NUMBERS[i as usize]) as *const _);
         }
-        for i in 0..123 {
-            assert_eq!(queue.dequeue(), Some(i));
+        for i in NUMBERS {
+            let v = queue.dequeue().unwrap();
+            assert_eq!(unsafe {*v}, NUMBERS[i as usize]);
         }
     }
 
@@ -158,8 +167,8 @@ mod test {
         for i in 0..10 {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
-                for j in 0..23 {
-                    queue.enqueue(j + i)
+                for j in 0..10 {
+                    queue.enqueue(&NUMBERS[j + i])
                 }
             });
             handles.push(handle);
@@ -174,7 +183,7 @@ mod test {
         for _i in 0..10 {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
-                for _j in 0..23 {
+                for _j in 0..10 {
                     queue.dequeue().unwrap();
                 }
             });
@@ -194,8 +203,8 @@ mod test {
         for i in 0..10 {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
-                for j in 0..2 {
-                    queue.enqueue(j + i)
+                for j in 0..10 {
+                    queue.enqueue(&NUMBERS[j + i])
                 }
             });
             handles.push(handle);
@@ -210,7 +219,7 @@ mod test {
         for _i in 0..10 {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
-                for _j in 0..1 {
+                for _j in 0..5 {
                     queue.dequeue().unwrap();
                 }
             });
@@ -222,4 +231,3 @@ mod test {
         drop(queue);
     }
 }
-*/
