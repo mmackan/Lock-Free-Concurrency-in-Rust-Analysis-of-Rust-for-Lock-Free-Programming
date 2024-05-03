@@ -1,4 +1,6 @@
 2:1,faults
 Rust,1.0
+Leak,2.33
+Epoch,2.47
 Cpp,9.15
 Rust-Arc,60.81

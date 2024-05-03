@@ -1,4 +1,6 @@
 2:1,time (s)
-Rust,1.0
-Cpp,1.01
-Rust-Arc,2.59
+Leak,1.0
+Rust,1.03
+Cpp,1.04
+Rust-Arc,2.67
+Epoch,inf

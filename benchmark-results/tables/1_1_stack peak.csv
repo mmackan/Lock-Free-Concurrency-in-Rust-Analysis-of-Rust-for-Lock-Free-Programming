@@ -1,4 +1,6 @@
 1:1,stack peak
 Cpp,1.0
+Leak,25.68
 Rust,25.69
 Rust-Arc,26.46
+Epoch,26.61

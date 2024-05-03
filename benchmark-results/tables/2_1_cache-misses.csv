@@ -1,4 +1,6 @@
 2:1,cache-misses
 Rust,1.0
+Leak,1.8
+Epoch,3.58
 Cpp,29.52
 Rust-Arc,38.25

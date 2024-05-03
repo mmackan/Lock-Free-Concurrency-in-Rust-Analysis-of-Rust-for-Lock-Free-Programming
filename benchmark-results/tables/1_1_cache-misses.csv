@@ -1,4 +1,6 @@
 1:1,cache-misses
 Cpp,1.0
+Epoch,1.62
 Rust,2.2
+Leak,2.65
 Rust-Arc,2.98
