@@ -2,7 +2,7 @@ use std::{ptr, sync::atomic::Ordering::SeqCst, sync::Arc};
 
 use crossbeam_utils::CachePadded;
 
-use crossbeam_epoch::{self as epoch, Atomic, CompareExchangeError, Shared};
+use crossbeam_epoch::{self as epoch, Atomic, CompareExchangeError, Shared, Guard};
 
 use crate::shared_queue::SharedQueue;
 
@@ -20,11 +20,13 @@ impl<T, const N: usize> SharedQueue<T> for SharedLPRQ<T, N> {
     }
 
     fn enqueue(&mut self, val: *const T) {
-        self.queue.enqueue(val)
+        let guard = epoch::pin();
+        self.queue.enqueue(val, &guard)
     }
 
     fn dequeue(&mut self) -> Option<*const T> {
-        self.queue.dequeue()
+        let guard = epoch::pin();
+        self.queue.dequeue(&guard)
     }
 }
 
@@ -43,23 +45,10 @@ struct LPRQ<T, const N: usize> {
 
 impl<T, const N: usize> Drop for LPRQ<T, N> {
     fn drop(&mut self) {
-        // Empty the queue to drop any leftover items
-        while let Some(_) = self.dequeue() {}
-        
-
         let mut guard = epoch::pin();
+        // Empty the queue to drop any leftover items
+        while self.dequeue(&guard).is_some() {}
 
-        let head = self.head.load(SeqCst, &guard);
-        let tail = self.tail.load(SeqCst, &guard);
-        // The queue should be empty now, but dubblecheck for safety
-        if head == tail {
-            // Here is where I would think it would be nessary to drop the head, but that causes a
-            // dubble free so it is somehow freed on its own. No Idea why that work
-            //drop(unsafe {head.into_owned()});
-        } else {
-            panic!("Drop for LPRQ somehow failed to dequeue all its items")
-        }
-        // Repin twice and flush twice to make sure that all garbage is actually cleaned up
         guard.repin();
         guard.flush();
         guard.repin();
@@ -75,10 +64,9 @@ impl<T, const N: usize> LPRQ<T, N> {
             tail: initial.into(),
         }
     }
-    fn enqueue(&self, val: *const T) {
+    fn enqueue(&self, val: *const T, guard: &Guard) {
         loop {
             // fast path: Add item to current PRQ
-            let guard = &epoch::pin();
             let queue_shared = self.tail.load(SeqCst, guard);
             let queue = unsafe { queue_shared.deref() };
             match queue.enqueue(val) {
@@ -127,9 +115,8 @@ impl<T, const N: usize> LPRQ<T, N> {
             }
         }
     }
-    fn dequeue(&self) -> Option<*const T> {
+    fn dequeue(&self, guard: &Guard) -> Option<*const T> {
         loop {
-            let guard = &epoch::pin();
             let queue_shared = self.head.load(SeqCst, guard);
             let queue = unsafe { queue_shared.deref() };
             match queue.dequeue() {
@@ -181,6 +168,7 @@ impl<T, const N: usize> LPRQ<T, N> {
 #[cfg(test)]
 mod test {
     use std::{sync::Arc, thread};
+    use crossbeam_epoch::{self as epoch};
 
     use super::LPRQ;
     const NUMBERS: [i32;100] = {
@@ -196,12 +184,13 @@ mod test {
 
     #[test]
     fn basic() {
+        let guard = epoch::pin();
         let queue: LPRQ<i32, 9> = LPRQ::new();
         for i in NUMBERS {
-            queue.enqueue((&NUMBERS[i as usize]) as *const _);
+            queue.enqueue((&NUMBERS[i as usize]) as *const _, &guard);
         }
         for i in NUMBERS {
-            let v = queue.dequeue().unwrap();
+            let v = queue.dequeue(&guard).unwrap();
             assert_eq!(unsafe {*v}, NUMBERS[i as usize]);
         }
     }
@@ -216,7 +205,8 @@ mod test {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
                 for j in 0..10 {
-                    queue.enqueue(&NUMBERS[j + i])
+                    let guard = epoch::pin();
+                    queue.enqueue(&NUMBERS[j + i], &guard)
                 }
             });
             handles.push(handle);
@@ -232,7 +222,8 @@ mod test {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
                 for _j in 0..10 {
-                    queue.dequeue().unwrap();
+                    let guard = epoch::pin();
+                    queue.dequeue(&guard).unwrap();
                 }
             });
             handles.push(handle);
@@ -251,7 +242,8 @@ mod test {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
                 for j in 0..10 {
-                    queue.enqueue(&NUMBERS[j + i])
+                    let guard = epoch::pin();
+                    queue.enqueue(&NUMBERS[j + i], &guard)
                 }
             });
             handles.push(handle);
@@ -267,7 +259,8 @@ mod test {
             let queue = Arc::clone(&queue);
             let handle = thread::spawn(move || {
                 for _j in 0..5 {
-                    queue.dequeue().unwrap();
+                    let guard = epoch::pin();
+                    queue.dequeue(&guard).unwrap();
                 }
             });
             handles.push(handle);
