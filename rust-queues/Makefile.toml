@@ -185,7 +185,7 @@ dependencies = ["pw-lprq-rust", "mpmc-lprq-rust-1-1", "mpmc-lprq-rust-2-1", "mpm
 
 # Benchmark all Rust versions
 [tasks.benchmark-rust]
-dependencies = ["benchmark-epoch", "benchmark-leaking", "benchmark-hazp"]
+dependencies = ["benchmark-hazp", "benchmark-leaking", "benchmark-epoch"]
 
 # Run all benchmarks and generate all graphs
 [tasks.run]
