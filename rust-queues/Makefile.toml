@@ -182,10 +182,13 @@ dependencies = ["pw-lprq-epoch", "mpmc-lprq-epoch-1-1", "mpmc-lprq-epoch-2-1", "
 dependencies = ["pw-lprq-leak", "mpmc-lprq-leak-1-1", "mpmc-lprq-leak-2-1", "mpmc-lprq-leak-1-2", "energy-leak-1-1", "energy-leak-2-1", "memory-leak-1-1", "memory-leak-2-1", "memusage-leak-1-1", "memusage-leak-2-1", "congestion-pw-lprq-leak", "congestion-mpmc-leak-1-1", "congestion-mpmc-leak-2-1"]
 [tasks.benchmark-hazp]
 dependencies = ["pw-lprq-rust", "mpmc-lprq-rust-1-1", "mpmc-lprq-rust-2-1", "mpmc-lprq-rust-1-2", "energy-rust-1-1", "energy-rust-2-1", "memory-rust-1-1", "memory-rust-2-1", "memusage-rust-1-1", "memusage-rust-2-1", "congestion-pw-lprq-rust", "congestion-mpmc-rust-1-1", "congestion-mpmc-rust-2-1"]
+[tasks.benchmark-arc]
+dependencies = ["pw-lprq-arc", "mpmc-lprq-arc-1-1", "mpmc-lprq-arc-2-1", "mpmc-lprq-arc-1-2", "energy-arc-1-1", "energy-arc-2-1", "memory-arc-1-1", "memory-arc-2-1", "memusage-arc-1-1", "memusage-arc-2-1", "congestion-pw-lprq-arc", "congestion-mpmc-arc-1-1", "congestion-mpmc-arc-2-1"]
+
 
 # Benchmark all Rust versions
 [tasks.benchmark-rust]
-dependencies = ["benchmark-hazp", "benchmark-leaking", "benchmark-epoch"]
+dependencies = ["benchmark-hazp", "benchmark-leaking", "benchmark-arc", "benchmark-epoch"]
 
 # Run all benchmarks and generate all graphs
 [tasks.run]
