@@ -1,4 +1,4 @@
-use std::{ptr, sync::atomic::Ordering::SeqCst, sync::Arc};
+use std::{sync::atomic::Ordering::SeqCst, sync::Arc};
 
 use crossbeam_utils::CachePadded;
 

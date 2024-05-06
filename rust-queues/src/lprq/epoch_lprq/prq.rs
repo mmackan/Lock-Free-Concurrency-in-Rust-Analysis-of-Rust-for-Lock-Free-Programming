@@ -2,7 +2,7 @@ use crossbeam_utils::CachePadded;
 use std::{
     array,
     fmt::Debug,
-    ptr::{self, null_mut},
+    ptr::{self},
     sync::atomic::{AtomicPtr, AtomicUsize, Ordering},
     thread,
 };
