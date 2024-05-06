@@ -177,7 +177,7 @@ dependencies = ["memusage-c-1-1", "memusage-c-2-1", "memusage-rust-1-1", "memusa
 
 # Temporary commands to benchmark alternative Rust solutions
 [tasks.benchmark-epoch]
-dependencies = ["pw-lprq-epoch", "mpmc-lprq-epoch-1-1", "energy-epoch-1-1", "energy-epoch-2-1", "memory-epoch-1-1", "memory-epoch-2-1", "memusage-epoch-1-1", "memusage-epoch-2-1", "congestion-pw-lprq-epoch", "congestion-mpmc-epoch-1-1", "congestion-mpmc-epoch-2-1", "mpmc-lprq-epoch-2-1", "mpmc-lprq-epoch-1-2"]
+dependencies = ["pw-lprq-epoch", "mpmc-lprq-epoch-1-1", "energy-epoch-1-1", "memory-epoch-1-1", "memusage-epoch-1-1", "congestion-pw-lprq-epoch", "congestion-mpmc-epoch-1-1"]
 [tasks.benchmark-leaking]
 dependencies = ["pw-lprq-leak", "mpmc-lprq-leak-1-1", "mpmc-lprq-leak-2-1", "mpmc-lprq-leak-1-2", "energy-leak-1-1", "energy-leak-2-1", "memory-leak-1-1", "memory-leak-2-1", "memusage-leak-1-1", "memusage-leak-2-1", "congestion-pw-lprq-leak", "congestion-mpmc-leak-1-1", "congestion-mpmc-leak-2-1"]
 [tasks.benchmark-hazp]
