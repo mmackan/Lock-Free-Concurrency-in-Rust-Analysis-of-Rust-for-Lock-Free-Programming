@@ -1,9 +1,9 @@
-# started on Sat Apr 27 13:54:02 2024
+# started on Sun May  5 15:06:59 2024
 
 
  Performance counter stats for 'system wide' (10 runs):
 
-           3878.28 Joules power/energy-pkg/                                                       ( +-  1.46% )
+           4123.88 Joules power/energy-pkg/                                                       ( +-  3.63% )
 
-            27.215 +- 0.420 seconds time elapsed  ( +-  1.54% )
+             29.00 +- 1.06 seconds time elapsed  ( +-  3.65% )
 

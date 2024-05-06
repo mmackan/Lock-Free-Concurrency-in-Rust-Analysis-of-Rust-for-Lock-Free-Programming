@@ -1,5 +1,5 @@
 ===========================================
-  Benchmark: .//target/release/lprq_mpmc
+  Benchmark: .//target/release/lprq_epoch_mpmc
   Producers: 18
   Consumers: 18
   Operations: 10^8
@@ -8,30 +8,30 @@
 [CoreId { id: 0 }, CoreId { id: 1 }, CoreId { id: 2 }, CoreId { id: 3 }, CoreId { id: 4 }, CoreId { id: 5 }, CoreId { id: 6 }, CoreId { id: 7 }, CoreId { id: 8 }, CoreId { id: 9 }, CoreId { id: 10 }, CoreId { id: 11 }, CoreId { id: 12 }, CoreId { id: 13 }, CoreId { id: 14 }, CoreId { id: 15 }, CoreId { id: 16 }, CoreId { id: 17 }, CoreId { id: 18 }, CoreId { id: 19 }, CoreId { id: 20 }, CoreId { id: 21 }, CoreId { id: 22 }, CoreId { id: 23 }, CoreId { id: 24 }, CoreId { id: 25 }, CoreId { id: 26 }, CoreId { id: 27 }, CoreId { id: 28 }, CoreId { id: 29 }, CoreId { id: 30 }, CoreId { id: 31 }, CoreId { id: 32 }, CoreId { id: 33 }, CoreId { id: 34 }, CoreId { id: 35 }, CoreId { id: 36 }, CoreId { id: 37 }, CoreId { id: 38 }, CoreId { id: 39 }, CoreId { id: 40 }, CoreId { id: 41 }, CoreId { id: 42 }, CoreId { id: 43 }, CoreId { id: 44 }, CoreId { id: 45 }, CoreId { id: 46 }, CoreId { id: 47 }, CoreId { id: 48 }, CoreId { id: 49 }, CoreId { id: 50 }, CoreId { id: 51 }, CoreId { id: 52 }, CoreId { id: 53 }, CoreId { id: 54 }, CoreId { id: 55 }, CoreId { id: 56 }, CoreId { id: 57 }, CoreId { id: 58 }, CoreId { id: 59 }, CoreId { id: 60 }, CoreId { id: 61 }, CoreId { id: 62 }, CoreId { id: 63 }, CoreId { id: 64 }, CoreId { id: 65 }, CoreId { id: 66 }, CoreId { id: 67 }, CoreId { id: 68 }, CoreId { id: 69 }, CoreId { id: 70 }, CoreId { id: 71 }]
   Finished
 
-[01;32mMemory usage summary:[0;0m heap total: 61148, heap peak: 46501, stack peak: 264032
+[01;32mMemory usage summary:[0;0m heap total: 130362, heap peak: 81869, stack peak: 275472
 [04;34m         total calls   total memory   failed calls[0m
-[00;34m malloc|[0m        555          35644              0[00;00m
-[00;34mrealloc|[0m         86           4824              0[00;00m  (nomove:3, dec:0, free:0)
-[00;34m calloc|[0m        220          20680              0[00;00m
-[00;34m   free|[0m       1041          51164
+[00;34m malloc|[0m        238         105450              0[00;00m
+[00;34mrealloc|[0m         86           4824              0[00;00m  (nomove:2, dec:0, free:0)
+[00;34m calloc|[0m        183          20088              0[00;00m
+[00;34m   free|[0m        814          76930
 [01;32mHistogram for block sizes:[0;0m
-    0-15              6  <1% [41;37m[0;0m
-   16-31            112  13% [41;37m===========[0;0m
-   32-47            498  57% [41;37m==================================================[0;0m
-   48-63             73   8% [41;37m=======[0;0m
+    0-15              6   1% [41;37m=[0;0m
+   16-31             37   7% [41;37m=========[0;0m
+   32-47            186  36% [41;37m==================================================[0;0m
+   48-63            109  21% [41;37m=============================[0;0m
    64-79              1  <1% [41;37m[0;0m
-   80-95             36   4% [41;37m===[0;0m
-   96-111             9   1% [41;37m[0;0m
+   96-111             2  <1% [41;37m[0;0m
   112-127             1  <1% [41;37m[0;0m
   128-143             1  <1% [41;37m[0;0m
-  144-159            39   4% [41;37m===[0;0m
+  144-159            39   7% [41;37m==========[0;0m
   192-207             2  <1% [41;37m[0;0m
   240-255             1  <1% [41;37m[0;0m
   256-271             1  <1% [41;37m[0;0m
-  304-319            36   4% [41;37m===[0;0m
-  368-383            36   4% [41;37m===[0;0m
+  304-319            36   7% [41;37m=========[0;0m
+  368-383            36   7% [41;37m=========[0;0m
   384-399             2  <1% [41;37m[0;0m
   464-479             1  <1% [41;37m[0;0m
   512-527             1  <1% [41;37m[0;0m
   768-783             2  <1% [41;37m[0;0m
  1024-1039            3  <1% [41;37m[0;0m
+ 2064-2079           40   7% [41;37m==========[0;0m
