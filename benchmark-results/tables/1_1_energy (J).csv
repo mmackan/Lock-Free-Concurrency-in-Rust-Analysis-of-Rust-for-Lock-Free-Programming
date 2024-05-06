@@ -1,6 +1,6 @@
 1:1,energy (J)
 Cpp,1.0
-Epoch,1.55
-Leak,1.64
-Rust,1.66
-Rust-Arc,3.08
+Leak,1.73
+Epoch,1.81
+Hazp,1.86
+Aarc,3.27

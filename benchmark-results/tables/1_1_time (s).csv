@@ -1,6 +1,6 @@
 1:1,time (s)
 Cpp,1.0
-Leak,1.72
-Rust,1.83
-Rust-Arc,3.32
-Epoch,inf
+Epoch,1.71
+Leak,1.76
+Hazp,1.77
+Aarc,3.38

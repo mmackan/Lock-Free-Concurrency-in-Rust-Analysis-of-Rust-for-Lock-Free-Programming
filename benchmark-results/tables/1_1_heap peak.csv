@@ -1,6 +1,6 @@
 1:1,heap peak
 Leak,1.0
-Rust,1.26
-Rust-Arc,1.81
-Epoch,2.17
+Hazp,1.28
+Aarc,2.15
+Epoch,2.26
 Cpp,2.55
