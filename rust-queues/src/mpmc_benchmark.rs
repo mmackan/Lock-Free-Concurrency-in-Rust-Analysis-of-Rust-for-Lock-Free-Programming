@@ -31,7 +31,7 @@ pub fn benchmark<Q>(
     let nops = BASE.pow(logn as u32);
     let tops = nops / nproducer;
 
-    let binding = core_utils::get_cores(even_cores_only, true);
+    let binding = core_utils::get_cores(even_cores_only);
     let mut core_ids = binding.iter();
 
     // Producers
