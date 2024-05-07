@@ -1,6 +1,5 @@
 2:1,energy (J)
-Hazp,1.0
-Leak,1.02
-Cpp,1.04
-Epoch,1.21
-Aarc,2.71
+Leak,1.0
+Hazp,1.03
+Cpp,1.06
+Aarc,2.74

@@ -1,6 +1,6 @@
 1:1,cache-misses
 Cpp,1.0
-Hazp,2.31
-Epoch,2.53
-Leak,2.74
-Aarc,2.93
+Hazp,2.2
+Leak,2.44
+Epoch,2.48
+Aarc,2.59

@@ -1,15 +1,15 @@
-# started on Sun May  5 17:53:35 2024
+# started on Tue May  7 08:00:55 2024
 
 
  Performance counter stats for './/target/release/lprq_epoch_mpmc 18 18 8 true 0.0' (10 runs):
 
-        3334636612      cache-references                                                        ( +-  3.57% )
-            607164      cache-misses                     #    0.02% of all cache refs           ( +-  3.57% )
-     1364388009788      cycles                                                                  ( +-  3.44% )
-      124558893641      instructions                     #    0.09  insn per cycle              ( +-  3.31% )
-       11215085918      branches                                                                ( +-  3.87% )
-             22352      faults                                                                  ( +-  2.79% )
-                41      migrations                                                              ( +-  1.71% )
+        2794588435      cache-references                                                        ( +-  3.38% )
+            594187      cache-misses                     #    0.02% of all cache refs           ( +-  4.61% )
+     1158540353007      cycles                                                                  ( +-  3.33% )
+      114381500718      instructions                     #    0.10  insn per cycle              ( +-  2.72% )
+       10611111937      branches                                                                ( +-  3.33% )
+             23010      faults                                                                  ( +-  5.17% )
+                39      migrations                                                              ( +-  1.21% )
 
-            15.413 +- 0.564 seconds time elapsed  ( +-  3.66% )
+            12.944 +- 0.456 seconds time elapsed  ( +-  3.52% )
 
