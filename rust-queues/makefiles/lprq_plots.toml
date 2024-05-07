@@ -12,11 +12,11 @@ env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PC_JSON_11},${ARC_PC_JSON_
 private = true
 [tasks._graph-mpmc-lprq-2-1]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PC_JSON_21},${ARC_PC_JSON_21},${LEAK_PC_JSON_21},${EPOCH_PC_JSON_21},${C_LPRQ_PC_JSON_21}", FILE = "${LPRQ_GRAPH_PC_21}", FLAGS="", LEGEND="Hazp,Aarc,Leak,Epoch,C++"}
+env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PC_JSON_21},${ARC_PC_JSON_21},${LEAK_PC_JSON_21},${C_LPRQ_PC_JSON_21}", FILE = "${LPRQ_GRAPH_PC_21}", FLAGS="", LEGEND="Hazp,Aarc,Leak,C++"}
 private = true
 [tasks._graph-mpmc-lprq-1-2]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PC_JSON_12},${ARC_PC_JSON_12},${LEAK_PC_JSON_12},${EPOCH_PC_JSON_12},${C_LPRQ_PC_JSON_12}", FILE = "${LPRQ_GRAPH_PC_12}", FLAGS="", LEGEND="Hazp,Aarc,Leak,Epoch,C++"}
+env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_LPRQ_PC_JSON_12},${ARC_PC_JSON_12},${LEAK_PC_JSON_12},${C_LPRQ_PC_JSON_12}", FILE = "${LPRQ_GRAPH_PC_12}", FLAGS="", LEGEND="Hazp,Aarc,Leak,C++"}
 private = true
 
 # MPMC congestion graphs
@@ -30,5 +30,5 @@ env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_PC_CONGESTION_JSON_11},${ARC_PC
 private = true
 [tasks._graph-congestion-mpmc-2-1]
 extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_PC_CONGESTION_JSON_21},${ARC_PC_CONGESTION_JSON_21},${LEAK_PC_CONGESTION_JSON_21},${EPOCH_PC_CONGESTION_JSON_21},${C_PC_CONGESTION_JSON_21}", FILE = "${GRAPH_CONGESTION_PC_21}", FLAGS="", LEGEND="Hazp,Aarc,Leak,Epoch,C++"}
+env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_PC_CONGESTION_JSON_21},${ARC_PC_CONGESTION_JSON_21},${LEAK_PC_CONGESTION_JSON_21},${C_PC_CONGESTION_JSON_21}", FILE = "${GRAPH_CONGESTION_PC_21}", FLAGS="", LEGEND="Hazp,Aarc,Leak,C++"}
 private = true
