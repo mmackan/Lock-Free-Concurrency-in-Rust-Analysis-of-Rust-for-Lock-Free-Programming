@@ -13,6 +13,7 @@ METRICS = [
     'faults', 
     'energy (J)', 
     'time (s)', 
+    'heap total',
     'heap peak', 
     'stack peak',
     # 'instructions', 
