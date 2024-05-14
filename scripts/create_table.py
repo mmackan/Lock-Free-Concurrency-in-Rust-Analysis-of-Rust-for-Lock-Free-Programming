@@ -26,22 +26,24 @@ IMPLEMENTATIONS = {
     'arc': 'Aarc',
     'epoch': 'Epoch',
     'rust': 'Hazp',
-    'leak': 'Leak',
+    # 'leak': 'Leak',
     'c': 'Cpp'
 }
 
-# 
 BENCHMARKS = {
     'perf_mem': 'perf_mem',
     'memusage': 'memusage',
     'energy': 'energy'
 }
 
+def contains_impl(input_string):
+    return any(key in input_string for key in IMPLEMENTATIONS.keys())
+
 def get_files(dir, pattern):
     files = []
     
     for file_name in os.listdir(dir):        
-        if file_name.endswith(pattern):
+        if file_name.endswith(pattern) and contains_impl(file_name):
             file_path = os.path.join(dir, file_name)
             files.append(file_path)
     
