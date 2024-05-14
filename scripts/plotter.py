@@ -188,10 +188,8 @@ def main():
         plt.xscale("log")
     
     if args.titles:
-        languages = args.titles.split(",")
-        title = f"Comparison between {languages[0]} and {languages[1]}"
-        plt.legend(languages)
-        plt.title(title)
+        plt.legend(args.titles.split(","))
+
 
     if args.output:
         plt.savefig(args.output)
