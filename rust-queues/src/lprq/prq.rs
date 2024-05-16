@@ -93,7 +93,7 @@ pub struct PRQ<T, const N: usize> {
     tail: CachePadded<AtomicUsize>, // Top bit here is set if the queue is closed
     //closed: CachePadded<AtomicBool>,
     array: [Cell<T>; N],
-    pub next: haphazard::AtomicPtr<PRQ<T, N>>,
+    pub next: CachePadded<haphazard::AtomicPtr<PRQ<T, N>>>,
 }
 
 impl<T, const N: usize> PRQ<T, N> {
@@ -102,7 +102,7 @@ impl<T, const N: usize> PRQ<T, N> {
             head: AtomicUsize::new(N).into(),
             array: array::from_fn(|_| Default::default()),
             tail: AtomicUsize::new(N).into(),
-            next: unsafe { haphazard::AtomicPtr::new(null_mut()) },
+            next: unsafe { haphazard::AtomicPtr::new(null_mut()).into() },
         }
     }
 
@@ -111,12 +111,12 @@ impl<T, const N: usize> PRQ<T, N> {
             head: AtomicUsize::new(N).into(),
             tail: AtomicUsize::new(N).into(),
             array: array::from_fn(|_| Default::default()),
-            next: unsafe { haphazard::AtomicPtr::new(null_mut()) },
+            next: unsafe { haphazard::AtomicPtr::new(null_mut()).into() },
         };
-        let _ = prq
+        prq
             .enqueue(value_ptr)
             .expect("Failed to enqueue an item in a new and empty PRQ, Should not happen ever");
-        return prq;
+        prq
     }
 
     // Returns Ok() if enqueue was succesfull, Err() if the queue is closed
