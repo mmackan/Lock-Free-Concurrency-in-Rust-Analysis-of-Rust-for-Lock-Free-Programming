@@ -11,7 +11,7 @@ Third-party code is included in accordance with their respective licenses which 
 To benchmark and gather all comparison graphs, simply build and run:
 - `cargo make build`
 - `cargo make run`
-	- **NOTE:** estimated time is 10-12 hours
+	- **NOTE:** estimated time is 15 hours
 
 ***
 
@@ -34,71 +34,51 @@ These commands allows you to build the whole project or just each individual que
 ## Benchmarking
 The benchmark workloads are Pairwise (PW) or Multi-Producer Multi-Consumer (MPMC). The producer-consumer ratio for MPMC is 1:1 and 2:1.
 
-- MSQ supports only PW.
-- LPRQ supports both PW and MPMC.
+- MSQ supports only PW and compares Rust vs. C using hazard pointer as memory reclamation.
+- LPRQ supports both PW and MPMC and compares Rust vs. C++. Additional energy and memory benchmarks are included for the LPRQ.
+- The C++ reference utilizes only hazard pointers while Rust includes three different memory reclamation techniques. In more detail:
+	- LPRQ's PW and MPMC 1:1 benchmarks include C++ and all three Rust versions:
+		- Hazardpointer (Hazp)
+		- Epoch-based (Epoch)
+		- Reference counting (Aarc)
+	- LPRQ MPMC 2:1 include C++ but only the two Rust versions:
+		- Hazp
+		- Aarc
 
 ### All benchmarks
 - `cargo make benchmark-msq`
 - `cargo make benchmark-lprq`
+- `cargo make benchmark-rust`
+	- Benchmark all the Rust versions (not leaking version)
+
+### Individual Rust versions
+- `cargo make benchmark-hazp`
+- `cargo make benchmark-epoch`
 - `cargo make benchmark-arc`
+- `cargo make benchmark-leaking`
+	- Extra Rust version of LPRQ with leaking memory for those interested.
 
-### Congestion benchmarks
-- `cargo make benchmark-msq-congestion`
-- `cargo make benchmark-lprq-congestion`
-
-### Energy benchmarks
-Benchmark energy consumption using RAPL. Only for LPRQ
+### Energy and Memory benchmarks
+Benchmark energy consumption using perf that utilizes RAPL, and memusage for memory usage as well as perf for memory access patterns.
 - `cargo make benchmark-energy-lprq`
-- `cargo make benchmark-energy-lprq-1-1`
-- `cargo make benchmark-energy-lprq-2-1`
+- `cargo make benchmark-memory-lprq`
 
-### Individual benchmarks
-Individual commands that benchmarks both Rust and reference implementations.
 
-#### PW workload
-- `cargo make benchmark-msq-pw`
-- `cargo make benchmark-lprq-pw`
 
-#### MPMC workload
-- `cargo make benchmark-lprq-1-1`
-- `cargo make benchmark-lprq-2-1`
 
-#### Workloads with congestion
-- `cargo make benchmark-msq-congestion`
-- `cargo make benchmark-lprq-congestion-pw`
-- `cargo make benchmark-lprq-congestion-1-1`
-- `cargo make benchmark-lprq-congestion-2-1`
 
 ***
 
-## Plotting graphs (final results)
+## Plotting graphs and creating tables (final results)
 After benchmarks have been successfully executed these commands will generate graphs that show the comparison between the two languages.
 
-### All graphs
+### All graphs and tables
+- `cargo make create-tables`
 - `cargo make graph-all`
-- `cargo make graph-msq`
-- `cargo make graph-lprq`
-- `cargo make graph-congestions`
-
-**Include the Arc-version to LPRQ comparison plots**
-- `cargo make graph-arc`
-
-### Individual graphs
-Individual graphs comparing Rust against the reference language.
-
-#### PW workload
-- `cargo make graph-lprq-pw`
-- `cargo make graph-msq-pw`
-
-#### Workloads with congestion
-- `cargo make graph-msq-congestion-pw`
-- `cargo make graph-lprq-congestion-pw`
-- `cargo make graph-lprq-congestion-1-1`
-- `cargo make graph-lprq-congestion-2-1`
-
-#### MPMC workload
-- `cargo make graph-lprq-1-1`
-- `cargo make graph-lprq-2-1`
+	- `cargo make graph-msq`
+	- `cargo make graph-lprq`
 
 
+
+If you are interested in seeing all commands and finding commands for specific benchmarks, see the `Makefile.toml` file. Each command is simply run with `cargo make`
 
