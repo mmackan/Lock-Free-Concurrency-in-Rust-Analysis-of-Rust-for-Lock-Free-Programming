@@ -1,4 +1,10 @@
-# DATX05-Master-Thesis
+# Lock-Free Concurrency in Rust
+## Analysis of Rust for Lock-Free Programming
+This is all the code and raw results for our master's thesis Lock-Free Concurrency in Rust: Analysis of Rust for Lock-Free Programming.
+A link to the thesis will be provided here upon final publication.
+Third-party code is included in accordance with their respective licenses which can be found in their respective folders.
+
+
 `cd` to the `rust-queues` folder to execute `cargo make` commands.
 
 
