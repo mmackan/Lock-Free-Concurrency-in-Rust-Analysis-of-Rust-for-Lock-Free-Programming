@@ -17,27 +17,22 @@ dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]
 
 # ---------------------------- MSQ benchmark commands ----------------------------
 
-# Commands for MSQ pairwise benchmarks
-[tasks.benchmark-msq-pw]
-description = "Parameter scan over threads for pw MSQ"
-dependencies = ["pw-msq-c", "pw-msq-rust"]
-
-# Command for all MSQ benchmarks
+# Commands for MSQ pairwise benchmark
 [tasks.benchmark-msq]
-description = "All benchmarks for MSQ"
-dependencies = ["benchmark-msq-pw"]
+description = "Pairwise benchmark for MSQ (Rust vs. C)"
+dependencies = ["pw-msq-c", "pw-msq-rust"]
 
 # ---------------------------- LPRQ benchmark commands ---------------------------
 
 # Commands for LPRQ pairwise benchmarks
 [tasks.benchmark-lprq-pw]
-description = "Parameter scan over threads for pw LPRQ"
-dependencies = ["pw-lprq-c", "pw-lprq-rust", "pw-lprq-arc"]
+description = "Pairwise benchmarks for LPRQ (Rust vs. C++)"
+dependencies = ["pw-lprq-c", "pw-lprq-rust", "pw-lprq-arc", "pw-lprq-epoch"]
 
 # Commands for LPRQ MPMC benchmarks
 [tasks.benchmark-lprq-1-1]
 description = "LPRQ benchmark MPMC 1:1 ratio"
-dependencies = ["mpmc-lprq-c-1-1", "mpmc-lprq-rust-1-1", "mpmc-lprq-arc-1-1"]
+dependencies = ["mpmc-lprq-c-1-1", "mpmc-lprq-rust-1-1", "mpmc-lprq-arc-1-1", "mpmc-lprq-epoch-1-1"]
 [tasks.benchmark-lprq-2-1]
 description = "LPRQ benchmark MPMC 2:1 ratio"
 dependencies = ["mpmc-lprq-c-2-1", "mpmc-lprq-rust-2-1", "mpmc-lprq-arc-2-1"]
@@ -45,10 +40,13 @@ dependencies = ["mpmc-lprq-c-2-1", "mpmc-lprq-rust-2-1", "mpmc-lprq-arc-2-1"]
 description = "LPRQ benchmark MPMC 1:2 ratio"
 dependencies = ["mpmc-lprq-c-1-2", "mpmc-lprq-rust-1-2", "mpmc-lprq-arc-1-2"]
 
+[tasks.benchmark-lprq-mpmc]
+description = "MPMC benchmarks for LPRQ (Rust vs. C++)"
+dependencies = ["benchmark-lprq-1-1", "benchmark-lprq-2-1"]
 
 # Commands to benchmark energy consumption with perf
 [tasks.benchmark-energy-lprq-1-1]
-dependencies = ["energy-c-1-1", "energy-rust-1-1", "energy-arc-1-1"]
+dependencies = ["energy-c-1-1", "energy-rust-1-1", "energy-arc-1-1", "energy-epoch-1-1"]
 [tasks.benchmark-energy-lprq-2-1]
 dependencies = ["energy-c-2-1", "energy-rust-2-1", "energy-arc-2-1"]
 
@@ -56,30 +54,32 @@ dependencies = ["energy-c-2-1", "energy-rust-2-1", "energy-arc-2-1"]
 [tasks.benchmark-energy-lprq]
 dependencies = ["benchmark-energy-lprq-1-1", "benchmark-energy-lprq-2-1"]
 
-# Commands to benchmark memory with perf
-[tasks.benchmark-memory-lprq-1-1]
-dependencies = ["memory-c-1-1", "memory-rust-1-1", "memory-arc-1-1"]
-[tasks.benchmark-memory-lprq-2-1]
+# Commands to benchmark memory access patterns with perf
+[tasks.benchmark-perf-memory-lprq-1-1]
+dependencies = ["memory-c-1-1", "memory-rust-1-1", "memory-arc-1-1", "memory-epoch-1-1"]
+[tasks.benchmark-perf-memory-lprq-2-1]
 dependencies = ["memory-c-2-1", "memory-rust-2-1", "memory-arc-2-1"]
+
+# Commands to benchmark memory usage with memusage
+[tasks.benchmark-memusage-lprq-1-1]
+dependencies = ["memusage-c-1-1", "memusage-rust-1-1", "memusage-arc-1-1", "memusage-epoch-1-1"]
+[tasks.benchmark-memusage-lprq-2-1]
+dependencies = ["memusage-c-2-1", "memusage-rust-2-1", "memusage-arc-2-1"]
 
 # Command for both memory benchmarks
 [tasks.benchmark-memory-lprq]
-dependencies = ["benchmark-memory-lprq-1-1", "benchmark-memory-lprq-2-1"]
+dependencies = ["benchmark-perf-memory-lprq-1-1", "benchmark-perf-memory-lprq-2-1", "benchmark-memusage-lprq-1-1", "benchmark-memusage-lprq-2-1"]
 
 # Command for all LPRQ benchmarks
 [tasks.benchmark-lprq]
 description = "All benchmarks for LPRQ"
-dependencies = ["benchmark-lprq-pw", "benchmark-energy-lprq"]
+dependencies = ["benchmark-lprq-pw", "benchmark-lprq-mpmc", "benchmark-energy-lprq", "benchmark-memory-lprq"]
 
-# ---------------------------- Graphs commands ---------------------------
+# ---------------------------- Graphs and Tables commands ---------------------------
 
-# Commands for MSQ graphs
-[tasks.graph-msq-pw]
-dependencies = ["_graph-pw-msq"]
-
-# Command for all MSQ graphs
+# Commands for MSQ graph
 [tasks.graph-msq]
-dependencies = ["graph-msq-pw"]
+dependencies = ["_graph-pw-msq"]
 
 # Command for LPRQ pw graph
 [tasks.graph-lprq-pw]
@@ -103,13 +103,18 @@ dependencies = ["graph-lprq-pw", "graph-lprq-1-1", "graph-lprq-2-1", "graph-lprq
 description = "Graphs for all benchmarks"
 dependencies = ["graph-msq", "graph-lprq"]
 
+# Generate the tables
+[tasks.create-tables]
+description = "Tables from energy and memory benchmarks"
+dependencies = ["_create-table"]
+
 # ---------------------------- Final commands ---------------------------
 
 # Tasks that generate the graph after sucessful benchmark
 
 # MSQ flow
-[tasks.msq-pw]
-dependencies = ["benchmark-msq-pw", "graph-msq-pw"]
+[tasks.msq]
+dependencies = ["benchmark-msq", "graph-msq"]
 
 # LPRQ flow
 [tasks.lprq-pw]
@@ -125,29 +130,21 @@ dependencies = ["benchmark-energy-lprq"]
 [tasks.memory-lprq]
 dependencies = ["benchmark-memory-lprq"]
 
-# Command for valgrind benchmarks
-[tasks.benchmark-valgrind]
-dependencies = ["valgrind-c-1-1", "valgrind-c-2-1", "valgrind-rust-1-1", "valgrind-rust-2-1", "valgrind-arc-1-1", "valgrind-arc-2-1"]
-
-# Command for memusage benchmarks
-[tasks.benchmark-memusage]
-dependencies = ["memusage-c-1-1", "memusage-c-2-1", "memusage-rust-1-1", "memusage-rust-2-1", "memusage-arc-1-1", "memusage-arc-2-1", ]
-
-# Temporary commands to benchmark alternative Rust solutions
-[tasks.benchmark-epoch]
-dependencies = ["pw-lprq-epoch", "mpmc-lprq-epoch-1-1", "energy-epoch-1-1", "memory-epoch-1-1", "memusage-epoch-1-1"]
-[tasks.benchmark-leaking]
-dependencies = ["pw-lprq-leak", "mpmc-lprq-leak-1-1", "mpmc-lprq-leak-2-1", "mpmc-lprq-leak-1-2", "energy-leak-1-1", "energy-leak-2-1", "memory-leak-1-1", "memory-leak-2-1", "memusage-leak-1-1", "memusage-leak-2-1"]
+# Commands to individuall benchmark alternative Rust solutions
 [tasks.benchmark-hazp]
 dependencies = ["pw-lprq-rust", "mpmc-lprq-rust-1-1", "mpmc-lprq-rust-2-1", "mpmc-lprq-rust-1-2", "energy-rust-1-1", "energy-rust-2-1", "memory-rust-1-1", "memory-rust-2-1", "memusage-rust-1-1", "memusage-rust-2-1"]
+[tasks.benchmark-epoch]
+dependencies = ["pw-lprq-epoch", "mpmc-lprq-epoch-1-1", "energy-epoch-1-1", "memory-epoch-1-1", "memusage-epoch-1-1"]
 [tasks.benchmark-arc]
 dependencies = ["pw-lprq-arc", "mpmc-lprq-arc-1-1", "mpmc-lprq-arc-2-1", "mpmc-lprq-arc-1-2", "energy-arc-1-1", "energy-arc-2-1", "memory-arc-1-1", "memory-arc-2-1", "memusage-arc-1-1", "memusage-arc-2-1"]
+[tasks.benchmark-leaking]
+dependencies = ["pw-lprq-leak", "mpmc-lprq-leak-1-1", "mpmc-lprq-leak-2-1", "mpmc-lprq-leak-1-2", "energy-leak-1-1", "energy-leak-2-1", "memory-leak-1-1", "memory-leak-2-1", "memusage-leak-1-1", "memusage-leak-2-1"]
 
 # Benchmark all Rust versions
 [tasks.benchmark-rust]
 dependencies = ["benchmark-hazp", "benchmark-leaking", "benchmark-arc", "benchmark-epoch"]
 
-# Run all benchmarks and generate all graphs
+# Run all benchmarks and generate all graphs and tables
 [tasks.run]
 description = "Run all benchmarks and generate all graphs"
-dependencies = ["msq-pw", "lprq-pw", "lprq-1-1", "lprq-2-1", "lprq-1-2", "energy-lprq", "memory-lprq", "benchmark-memusage"]
+dependencies = ["msq", "lprq-pw", "lprq-1-1", "lprq-2-1", "lprq-1-2", "energy-lprq", "memory-lprq", "create-tables"]

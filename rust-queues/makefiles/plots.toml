@@ -23,10 +23,11 @@ script = [
 ]
 private = true
 
-[tasks.create-table]
-description = "Create table from memory and energy benchmakrs"
+# Tables from the memory and energy benchmarks
+[tasks._create-table]
+description = "Create table from memory and energy benchmarks"
 script_runner = "bash"
 script = [
     "python3 ${SCRIPT_DIR}/create_table.py ${RESULT_DIR}"
 ]
-
+private = true
