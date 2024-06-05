@@ -57,15 +57,3 @@ private=true
 extend = "memusage"
 env = {TARGET = "MPMC 2:1 LPRQ (Rust Epoch)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${EPOCH_MEMUSAGE_21}"}
 private=true
-
-# Congestion benchmarks
-[tasks.congestion-pw-lprq-epoch]
-extend = "paramter-scan-congestion"
-env = { TARGET = "Pairwise LPRQ (Rust Epoch)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_pairwise", WORKLOAD = "pairwise", FILE = "${EPOCH_PW_CONGESTION_JSON}"}
-[tasks.congestion-mpmc-epoch-1-1]
-extend = "paramter-scan-congestion"
-env = { TARGET = "MPMC 1:1 LPRQ (Rust Epoch)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${EPOCH_PC_CONGESTION_JSON_11}"}
-[tasks.congestion-mpmc-epoch-2-1]
-extend = "paramter-scan-congestion"
-env = { TARGET = "MPMC 2:1 LPRQ (Rust Epoch)", BINARY = "${RUST_DIR}/target/release/lprq_epoch_mpmc", WORKLOAD = "mpmc-2:1", FILE = "${EPOCH_PC_CONGESTION_JSON_21}"}
-

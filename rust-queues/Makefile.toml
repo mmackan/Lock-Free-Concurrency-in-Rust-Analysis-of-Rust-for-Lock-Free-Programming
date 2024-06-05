@@ -22,14 +22,10 @@ dependencies = ["clean-rust-queues", "clean-c-msq", "clean-c-lprq"]
 description = "Parameter scan over threads for pw MSQ"
 dependencies = ["pw-msq-c", "pw-msq-rust"]
 
-# Command for MSQ pairwise congestion benchmark
-[tasks.benchmark-msq-congestion]
-dependencies = ["congestion-pw-msq-c", "congestion-pw-msq-rust"]
-
 # Command for all MSQ benchmarks
 [tasks.benchmark-msq]
 description = "All benchmarks for MSQ"
-dependencies = ["benchmark-msq-pw", "benchmark-msq-congestion"]
+dependencies = ["benchmark-msq-pw"]
 
 # ---------------------------- LPRQ benchmark commands ---------------------------
 
@@ -37,20 +33,6 @@ dependencies = ["benchmark-msq-pw", "benchmark-msq-congestion"]
 [tasks.benchmark-lprq-pw]
 description = "Parameter scan over threads for pw LPRQ"
 dependencies = ["pw-lprq-c", "pw-lprq-rust", "pw-lprq-arc"]
-
-# Command for LPRQ pairwise congestion benchmark
-[tasks.benchmark-lprq-congestion-pw]
-dependencies = ["congestion-pw-lprq-c", "congestion-pw-lprq-rust", "congestion-pw-lprq-arc"]
-
-# Commands for LPRQ MPMC congestion benchmarks
-[tasks.benchmark-lprq-congestion-1-1]
-dependencies = ["congestion-mpmc-c-1-1", "congestion-mpmc-rust-1-1", "congestion-mpmc-arc-1-1"]
-[tasks.benchmark-lprq-congestion-2-1]
-dependencies = ["congestion-mpmc-c-2-1", "congestion-mpmc-rust-2-1", "congestion-mpmc-arc-2-1"]
-
-# Command for all LPRQ congestion benchmark
-[tasks.benchmark-lprq-congestion]
-dependencies = ["benchmark-lprq-congestion-pw", "benchmark-lprq-congestion-1-1", "benchmark-lprq-congestion-2-1"]
 
 # Commands for LPRQ MPMC benchmarks
 [tasks.benchmark-lprq-1-1]
@@ -87,19 +69,17 @@ dependencies = ["benchmark-memory-lprq-1-1", "benchmark-memory-lprq-2-1"]
 # Command for all LPRQ benchmarks
 [tasks.benchmark-lprq]
 description = "All benchmarks for LPRQ"
-dependencies = ["benchmark-lprq-pw", "benchmark-lprq-congestion", "benchmark-energy-lprq"]
+dependencies = ["benchmark-lprq-pw", "benchmark-energy-lprq"]
 
 # ---------------------------- Graphs commands ---------------------------
 
 # Commands for MSQ graphs
 [tasks.graph-msq-pw]
 dependencies = ["_graph-pw-msq"]
-[tasks.graph-msq-congestion-pw]
-dependencies = ["_graph-congestion-pw-msq"]
 
 # Command for all MSQ graphs
 [tasks.graph-msq]
-dependencies = ["graph-msq-pw", "graph-msq-congestion-pw"]
+dependencies = ["graph-msq-pw"]
 
 # Command for LPRQ pw graph
 [tasks.graph-lprq-pw]
@@ -113,29 +93,15 @@ dependencies = ["_graph-mpmc-lprq-2-1"]
 [tasks.graph-lprq-1-2]
 dependencies = ["_graph-mpmc-lprq-1-2"]
 
-# Commands for LPRQ congestion graphs
-[tasks.graph-lprq-congestion-pw]
-dependencies = ["_graph-congestion-pw-lprq"]
-[tasks.graph-lprq-congestion-1-1]
-dependencies = ["_graph-congestion-mpmc-1-1"]
-[tasks.graph-lprq-congestion-2-1]
-dependencies = ["_graph-congestion-mpmc-2-1"]
-[tasks.graph-lprq-congestions]
-dependencies = ["graph-lprq-congestion-pw", "graph-lprq-congestion-1-1", "graph-lprq-congestion-2-1"]
-
 # Command for all LPRQ graphs
 [tasks.graph-lprq]
 description = "All graphs for LPRQ"
-dependencies = ["graph-lprq-pw", "graph-lprq-1-1", "graph-lprq-2-1", "graph-lprq-1-2", "graph-lprq-congestions"]
-
-# Command for MSQ and LPRQ congestion graphs
-[tasks.graph-congestions]
-dependencies = ["graph-msq-congestion-pw", "graph-lprq-congestion-pw", "graph-lprq-congestion-1-1", "graph-lprq-congestion-2-1"]
+dependencies = ["graph-lprq-pw", "graph-lprq-1-1", "graph-lprq-2-1", "graph-lprq-1-2"]
 
 # Generate all graphs
 [tasks.graph-all]
 description = "Graphs for all benchmarks"
-dependencies = ["graph-msq", "graph-lprq", "graph-congestions"]
+dependencies = ["graph-msq", "graph-lprq"]
 
 # ---------------------------- Final commands ---------------------------
 
@@ -144,8 +110,6 @@ dependencies = ["graph-msq", "graph-lprq", "graph-congestions"]
 # MSQ flow
 [tasks.msq-pw]
 dependencies = ["benchmark-msq-pw", "graph-msq-pw"]
-[tasks.msq-congestion-pw]
-dependencies = ["benchmark-msq-congestion", "graph-msq-congestion-pw"]
 
 # LPRQ flow
 [tasks.lprq-pw]
@@ -156,12 +120,6 @@ dependencies = ["benchmark-lprq-1-1", "graph-lprq-1-1"]
 dependencies = ["benchmark-lprq-2-1", "graph-lprq-2-1"]
 [tasks.lprq-1-2]
 dependencies = ["benchmark-lprq-1-2", "graph-lprq-1-2"]
-[tasks.lprq-congestion-pw]
-dependencies = ["benchmark-lprq-congestion-pw", "graph-lprq-congestion-pw"]
-[tasks.lprq-congestion-1-1]
-dependencies = ["benchmark-lprq-congestion-1-1", "graph-lprq-congestion-1-1"]
-[tasks.lprq-congestion-2-1]
-dependencies = ["benchmark-lprq-congestion-2-1", "graph-lprq-congestion-2-1"]
 [tasks.energy-lprq]
 dependencies = ["benchmark-energy-lprq"]
 [tasks.memory-lprq]
@@ -177,14 +135,13 @@ dependencies = ["memusage-c-1-1", "memusage-c-2-1", "memusage-rust-1-1", "memusa
 
 # Temporary commands to benchmark alternative Rust solutions
 [tasks.benchmark-epoch]
-dependencies = ["pw-lprq-epoch", "mpmc-lprq-epoch-1-1", "energy-epoch-1-1", "memory-epoch-1-1", "memusage-epoch-1-1", "congestion-pw-lprq-epoch", "congestion-mpmc-epoch-1-1"]
+dependencies = ["pw-lprq-epoch", "mpmc-lprq-epoch-1-1", "energy-epoch-1-1", "memory-epoch-1-1", "memusage-epoch-1-1"]
 [tasks.benchmark-leaking]
-dependencies = ["pw-lprq-leak", "mpmc-lprq-leak-1-1", "mpmc-lprq-leak-2-1", "mpmc-lprq-leak-1-2", "energy-leak-1-1", "energy-leak-2-1", "memory-leak-1-1", "memory-leak-2-1", "memusage-leak-1-1", "memusage-leak-2-1", "congestion-pw-lprq-leak", "congestion-mpmc-leak-1-1", "congestion-mpmc-leak-2-1"]
+dependencies = ["pw-lprq-leak", "mpmc-lprq-leak-1-1", "mpmc-lprq-leak-2-1", "mpmc-lprq-leak-1-2", "energy-leak-1-1", "energy-leak-2-1", "memory-leak-1-1", "memory-leak-2-1", "memusage-leak-1-1", "memusage-leak-2-1"]
 [tasks.benchmark-hazp]
-dependencies = ["pw-lprq-rust", "mpmc-lprq-rust-1-1", "mpmc-lprq-rust-2-1", "mpmc-lprq-rust-1-2", "energy-rust-1-1", "energy-rust-2-1", "memory-rust-1-1", "memory-rust-2-1", "memusage-rust-1-1", "memusage-rust-2-1", "congestion-pw-lprq-rust", "congestion-mpmc-rust-1-1", "congestion-mpmc-rust-2-1"]
+dependencies = ["pw-lprq-rust", "mpmc-lprq-rust-1-1", "mpmc-lprq-rust-2-1", "mpmc-lprq-rust-1-2", "energy-rust-1-1", "energy-rust-2-1", "memory-rust-1-1", "memory-rust-2-1", "memusage-rust-1-1", "memusage-rust-2-1"]
 [tasks.benchmark-arc]
-dependencies = ["pw-lprq-arc", "mpmc-lprq-arc-1-1", "mpmc-lprq-arc-2-1", "mpmc-lprq-arc-1-2", "energy-arc-1-1", "energy-arc-2-1", "memory-arc-1-1", "memory-arc-2-1", "memusage-arc-1-1", "memusage-arc-2-1", "congestion-pw-lprq-arc", "congestion-mpmc-arc-1-1", "congestion-mpmc-arc-2-1"]
-
+dependencies = ["pw-lprq-arc", "mpmc-lprq-arc-1-1", "mpmc-lprq-arc-2-1", "mpmc-lprq-arc-1-2", "energy-arc-1-1", "energy-arc-2-1", "memory-arc-1-1", "memory-arc-2-1", "memusage-arc-1-1", "memusage-arc-2-1"]
 
 # Benchmark all Rust versions
 [tasks.benchmark-rust]
@@ -193,4 +150,4 @@ dependencies = ["benchmark-hazp", "benchmark-leaking", "benchmark-arc", "benchma
 # Run all benchmarks and generate all graphs
 [tasks.run]
 description = "Run all benchmarks and generate all graphs"
-dependencies = ["msq-pw", "msq-congestion-pw", "lprq-pw", "lprq-1-1", "lprq-2-1", "lprq-1-2", "lprq-congestion-pw", "lprq-congestion-1-1", "lprq-congestion-2-1", "energy-lprq", "memory-lprq", "benchmark-memusage"]
+dependencies = ["msq-pw", "lprq-pw", "lprq-1-1", "lprq-2-1", "lprq-1-2", "energy-lprq", "memory-lprq", "benchmark-memusage"]

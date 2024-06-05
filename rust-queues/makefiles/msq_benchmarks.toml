@@ -9,15 +9,3 @@ private = true
 extend = "parameter-scan-pw"
 env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", CONGESTION = "0.0", FILE = "${C_MSQ_PW_JSON}" }
 private = true
-
-# Congestion benchmarks (Rust)
-[tasks.congestion-pw-msq-rust]
-extend = "paramter-scan-congestion"
-env = { TARGET = "Pairwise MSQ (Rust)", BINARY = "${RUST_DIR}/target/release/msq_pairwise", WORKLOAD = "pairwise", FILE = "${RUST_MSQ_PW_CONGESTION_JSON}"}
-private = true
-
-# Congestion benchmarks (C)
-[tasks.congestion-pw-msq-c]
-extend = "paramter-scan-congestion"
-env = { TARGET = "Pairwise MSQ (C)", BINARY = "${C_MSQ_DIR}/msqueue", WORKLOAD = "pairwise", FILE = "${C_MSQ_PW_CONGESTION_JSON}"}
-private = true

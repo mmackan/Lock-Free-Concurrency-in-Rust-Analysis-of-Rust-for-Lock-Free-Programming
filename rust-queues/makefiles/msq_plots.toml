@@ -1,12 +1,5 @@
-
 # Pairwise comparison between Rust and C
 [tasks._graph-pw-msq]
 extend = "create-graph"
 env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_MSQ_PW_JSON},${C_MSQ_PW_JSON}", FILE = "${MSQ_GRAPH_PW}", FLAGS="", LEGEND="Rust,C"}
-private = true
-
-# Congestion comparison between Rust and C
-[tasks._graph-congestion-pw-msq]
-extend = "create-graph"
-env = {SCRIPT = "${PARAM_PLOT}", INPUT = "${RUST_MSQ_PW_CONGESTION_JSON},${C_MSQ_PW_CONGESTION_JSON}", FILE = "${MSQ_GRAPH_CONGESTION_PW}", FLAGS="", LEGEND="Rust,C"}
 private = true

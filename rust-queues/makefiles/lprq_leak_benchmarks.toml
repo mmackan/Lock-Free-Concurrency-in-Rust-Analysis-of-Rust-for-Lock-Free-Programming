@@ -57,15 +57,3 @@ private=true
 extend = "memusage"
 env = {TARGET = "MPMC 2:1 LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", RATIO = "2:1", CONGESTION = "0.0", FILE = "${LEAK_MEMUSAGE_21}"}
 private=true
-
-# Congestion benchmarks
-[tasks.congestion-pw-lprq-leak]
-extend = "paramter-scan-congestion"
-env = { TARGET = "Pairwise LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/release/lprq_leak_pairwise", WORKLOAD = "pairwise", FILE = "${LEAK_PW_CONGESTION_JSON}"}
-[tasks.congestion-mpmc-leak-1-1]
-extend = "paramter-scan-congestion"
-env = { TARGET = "MPMC 1:1 LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", WORKLOAD = "mpmc-1:1", FILE = "${LEAK_PC_CONGESTION_JSON_11}"}
-[tasks.congestion-mpmc-leak-2-1]
-extend = "paramter-scan-congestion"
-env = { TARGET = "MPMC 2:1 LPRQ (Rust Leaking)", BINARY = "${RUST_DIR}/target/release/lprq_leak_mpmc", WORKLOAD = "mpmc-2:1", FILE = "${LEAK_PC_CONGESTION_JSON_21}"}
-
