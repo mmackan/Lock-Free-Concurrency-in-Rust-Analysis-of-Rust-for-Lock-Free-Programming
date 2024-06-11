@@ -11,6 +11,9 @@ LOG_OPS = 8
 # Values are not greater than this, used for correct y-scale
 Y_MAX = 0.2*(10**LOG_OPS)
 
+# The stride length for the pairwise graphs (to match MPMC better)
+STRIDE = 3
+
 # Used for scaling x-axis, perhpas for future use
 # MAX_THREADS = 36
 
@@ -82,7 +85,6 @@ def unique_parameter(benchmark):
         )
     [(name, value)] = params_dict.items()
     return (name, float(value))
-
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -156,6 +158,12 @@ def main():
         else:
             color = 'blue'
             fmt = '-v'
+        
+        # Exclude uneven threads (x-axis)
+        if "pairwise" in filename:
+            mean = [mean[i] for i in range(len(parameter_values)) if parameter_values[i] % STRIDE == 0]
+            stddev = [stddev[i] for i in range(len(parameter_values)) if parameter_values[i] % STRIDE == 0]
+            parameter_values = [t for t in parameter_values if t % STRIDE == 0]
 
         plt.errorbar(
             x=parameter_values, 
